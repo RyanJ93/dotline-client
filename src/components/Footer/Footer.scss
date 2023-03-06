@@ -1,0 +1,29 @@
+footer.footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+
+    div.container {
+        width: 100%;
+        max-width: 1200px;
+        padding: 6px 12px;
+        box-sizing: border-box;
+        margin: auto;
+        display: flex;
+
+        div.leftContent {
+            flex-grow: 1;
+
+            p.info {
+                margin: 0;
+                font-size: 14px;
+            }
+        }
+
+        div.rightContent {
+            p.credits {
+                margin: 0;
+            }
+        }
+    }
+}

@@ -1,0 +1,31 @@
+div.illustratedProgressBar {
+    width: 100%;
+
+    .icon {
+        text-align: center;
+        font-size: 100px;
+    }
+
+    p.message {
+        margin: 12px 0 0;
+        text-align: center;
+        font-size: 18px;
+    }
+
+    div.progressBar {
+        width: 100%;
+        height: 9px;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+        margin-top: 24px;
+        box-sizing: border-box;
+
+        div.progressBarValue {
+            transition: width .5s ease-in-out;
+            will-change: width;
+            width: 0;
+            height: 100%;
+            background-color: #ddd;
+        }
+    }
+}
