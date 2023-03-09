@@ -79,7 +79,7 @@ class CryptoUtils {
     static async importRSAKeys(publicKeyData, privateKeyData){
         privateKeyData = JSON.parse(atob(privateKeyData));
         publicKeyData = JSON.parse(atob(publicKeyData));
-        const [ publicKey, privateKey ] = await Promise.all([
+        const [ privateKey, publicKey ] = await Promise.all([
             crypto.subtle.importKey('jwk', privateKeyData, {
                 name: 'RSA-OAEP',
                 hash: 'SHA-512',

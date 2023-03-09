@@ -1,63 +1,55 @@
 'use strict';
 
-import AuthenticatedUserExportedRSAKeys from '../DTOs/AuthenticatedUserExportedRSAKeys';
+import UnauthorizedException from '../exceptions/UnauthorizedException';
+import NotFoundException from '../exceptions/NotFoundException';
 import AuthenticatedUser from '../DTOs/AuthenticatedUser';
-import RSAKeychain from '../support/RSAKeychain';
+import APIEndpoints from '../enum/APIEndpoints';
 import CryptoUtils from '../utils/CryptoUtils';
+import CryptoService from './CryptoService';
+import Injector from '../facades/Injector';
 import Request from '../facades/Request';
-import App from '../facades/App';
 import Service from './Service';
 
 class UserService extends Service {
-    async #loadAuthenticatedUserKeys(authenticatedUser, password){
-        const aesEncryptionParameters = authenticatedUser.getRSAPrivateKeyEncryptionParameters();
-        const key = await CryptoUtils.deriveAESKey(password, aesEncryptionParameters);
-        const encryptedPrivateKey = authenticatedUser.getRSAPrivateKey();
-        const publicKey = authenticatedUser.getRSAPublicKey();
-        const privateKey = await CryptoUtils.AESDecryptText(encryptedPrivateKey, key, aesEncryptionParameters);
-        const importedRSAKeys = await CryptoUtils.importRSAKeys(publicKey, privateKey);
-        RSAKeychain.getInstance().setAuthenticatedUserRSAKeys(importedRSAKeys);
-    }
-
-    async #completeUserAuthentication(authenticatedUser, password, accessToken){
-        await this.#loadAuthenticatedUserKeys(authenticatedUser, password);
-        App.setAuthenticatedUser(authenticatedUser);
-        App.setAccessToken(accessToken);
-    }
-
-    async #finalizeUserAuthenticationRequest(response, password){
-        const authenticatedUser = new AuthenticatedUser(response.user);
-        const accessToken = response.accessToken.accessToken;
-        await this.#completeUserAuthentication(authenticatedUser, password, accessToken);
+    async #finalizeUserAuthenticationRequest(response, password, isSession){
+        const cryptoService = new CryptoService(), accessToken = response.accessToken.accessToken;
+        const authenticatedUser = AuthenticatedUser.makeFromHTTPResponse(response);
+        await cryptoService.extractAndStoreAuthenticatedUserRSAKeys(authenticatedUser, password, isSession);
+        this.#authenticatedUserRepository.storeAuthenticatedUser(authenticatedUser, isSession);
+        this.#accessTokenRepository.storeAccessToken(accessToken, isSession);
         return authenticatedUser;
     }
 
-    async generateUserKeys(password){
-        const aesEncryptionParameters = CryptoUtils.generateAESEncryptionParameters();
-        const key = await CryptoUtils.deriveAESKey(password, aesEncryptionParameters);
-        const rsaKeys = await CryptoUtils.generateRSAKeys();
-        const [ RSAPrivateKey, RSAPublicKey ] = await Promise.all([
-            CryptoUtils.exportKey(rsaKeys.privateKey),
-            CryptoUtils.exportKey(rsaKeys.publicKey)
-        ]);
-        const encryptedRSAPrivateKey = await CryptoUtils.AESEncryptText(RSAPrivateKey, key, aesEncryptionParameters);
-        return new AuthenticatedUserExportedRSAKeys({
-            AESEncryptionParameters: aesEncryptionParameters,
-            encryptedRSAPrivateKey: encryptedRSAPrivateKey,
-            RSAPrivateKey: RSAPrivateKey,
-            RSAPublicKey: RSAPublicKey
-        });
+    #destroyUserSession(){
+        this.#authenticatedUserRepository.dropAuthenticatedUser();
+        new CryptoService().dropAuthenticatedUserRSAKeys();
+        this.#accessTokenRepository.dropAccessToken();
+    }
+
+    #authenticatedUserRepository;
+    #accessTokenRepository;
+
+    constructor(){
+        super();
+
+        this.#authenticatedUserRepository = Injector.inject('AuthenticatedUserRepository');
+        this.#accessTokenRepository = Injector.inject('AccessTokenRepository');
+    }
+
+    generateUserKeys(password){
+        const cryptoService = new CryptoService();
+        return cryptoService.generateUserKeys(password);
     }
 
     async isUsernameAvailable(username){
-        const response = await Request.get(UserService.VERIFY_USERNAME_ENDPOINT_URL, { username: username });
+        const response = await Request.get(APIEndpoints.USER_VERIFY_USERNAME, { username: username });
         return response.isUsernameAvailable === true;
     }
 
     async signup(username, password, authenticatedUserExportedRSAKeys){
         const RSAPrivateKeyEncryptionParameters = authenticatedUserExportedRSAKeys.getAESEncryptionParameters();
         const passwordHash = await CryptoUtils.stringHash(password, 'SHA-512');
-        const response = await Request.post(UserService.SIGNUP_ENDPOINT_URL, {
+        const response = await Request.post(APIEndpoints.USER_SIGNUP, {
             RSAPrivateKeyEncryptionParametersKeyLength: RSAPrivateKeyEncryptionParameters.getKeyLength(),
             RSAPrivateKeyEncryptionParametersMode: RSAPrivateKeyEncryptionParameters.getMode(),
             RSAPrivateKeyEncryptionParametersIV: RSAPrivateKeyEncryptionParameters.getIV(),
@@ -65,33 +57,52 @@ class UserService extends Service {
             RSAPublicKey: authenticatedUserExportedRSAKeys.getRSAPublicKey(),
             password: passwordHash,
             username: username
-        });
-        return this.#finalizeUserAuthenticationRequest(response, password);
+        }, false);
+        return this.#finalizeUserAuthenticationRequest(response, password, false);
     }
 
-    async login(username, password){
+    async login(username, password, isSession = false){
         const passwordHash = await CryptoUtils.stringHash(password, 'SHA-512');
-        const response = await Request.post(UserService.LOGIN_ENDPOINT_URL, {
+        const response = await Request.post(APIEndpoints.USER_LOGIN, {
             password: passwordHash,
             username: username
-        });
-        return this.#finalizeUserAuthenticationRequest(response, password);
+        }, true);
+        return this.#finalizeUserAuthenticationRequest(response, password, isSession);
+    }
+
+    async getUserInfo(){
+        if ( this.#accessTokenRepository.getAccessToken() === null ){
+            this.#destroyUserSession();
+            throw new UnauthorizedException('No access token found.');
+        }
+        try{
+            const response = await Request.get(APIEndpoints.USER_INFO, null, true);
+            const authenticatedUser = AuthenticatedUser.makeFromHTTPResponse(response);
+            this.#authenticatedUserRepository.storeAuthenticatedUser(authenticatedUser, true);
+            return authenticatedUser;
+        }catch(ex){
+            if ( ex instanceof UnauthorizedException || ex instanceof NotFoundException ){
+                this.#destroyUserSession();
+            }
+            throw ex;
+        }
+    }
+
+    getAuthenticatedUser(){
+        return this.#authenticatedUserRepository.getAuthenticatedUser();
+    }
+
+    getAccessToken(){
+        return this.#accessTokenRepository.getAccessToken();
+    }
+
+    loadAuthenticatedUserRSAKeys(){
+        return new CryptoService().loadAuthenticatedUserRSAKeys();
+    }
+
+    getAuthenticatedUserRSAKeys(){
+        return new CryptoService().getAuthenticatedUserRSAKeys();
     }
 }
-
-Object.defineProperty(UserService, 'VERIFY_USERNAME_ENDPOINT_URL', {
-    value: '/api/user/verify-username',
-    writable: false
-});
-
-Object.defineProperty(UserService, 'SIGNUP_ENDPOINT_URL', {
-    value: '/api/user/signup',
-    writable: false
-});
-
-Object.defineProperty(UserService, 'LOGIN_ENDPOINT_URL', {
-    value: '/api/user/login',
-    writable: false
-});
 
 export default UserService;

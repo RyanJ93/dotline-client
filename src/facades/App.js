@@ -1,25 +1,27 @@
 'use strict';
 
+import UserService from '../services/UserService';
 import Facade from './Facade';
 
 class App extends Facade {
-    static #authenticatedUser;
-    static #accessToken;
-
-    static setAuthenticatedUser(authenticatedUser){
-        App.#authenticatedUser = authenticatedUser;
-    }
-
     static getAuthenticatedUser(){
-        return App.#authenticatedUser;
-    }
-
-    static setAccessToken(accessToken){
-        App.#accessToken = accessToken;
+        return new UserService().getAuthenticatedUser();
     }
 
     static getAccessToken(){
-        return App.#accessToken;
+        return new UserService().getAccessToken();
+    }
+
+    static async loadAuthenticatedUserRSAKeys(){
+        const userService = new UserService();
+        await userService.loadAuthenticatedUserRSAKeys();
+    }
+
+    static isUserAuthenticated(){
+        const userService = new UserService();
+        const authenticatedUserRSAKeys = userService.getAuthenticatedUserRSAKeys();
+        const accessToken = userService.getAccessToken();
+        return authenticatedUserRSAKeys !== null && accessToken !== null;
     }
 }
 

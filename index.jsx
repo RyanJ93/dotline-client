@@ -1,24 +1,20 @@
 'use strict';
 
 import ExceptionMappingProvider from './src/providers/ExceptionMappingProvider';
+import ApplicationProvider from './src/providers/ApplicationProvider';
+import RepositoryProvider from './src/providers/RepositoryProvider';
 import ProviderManager from './src/support/ProviderManager';
 import IconProvider from './src/providers/IconProvider';
-import { createRoot } from 'react-dom/client';
-import App from './src/components/App/App';
 import './src/common/app.scss';
-import React from 'react';
 
 const providerManager = ProviderManager.getInstance();
 providerManager.register(new ExceptionMappingProvider());
+providerManager.register(new RepositoryProvider());
 providerManager.register(new IconProvider());
+providerManager.register(new ApplicationProvider());
 
 document.addEventListener('DOMContentLoaded', () => {
-    const root = createRoot(document.getElementById('root'));
     providerManager.runProviders().then(() => {
-        root.render((
-            <React.StrictMode>
-                <App />
-            </React.StrictMode>
-        ));
+        console.log('App initialized!');
     });
 });

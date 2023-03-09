@@ -5,6 +5,7 @@ import InvalidInputException from '../exceptions/InvalidInputException';
 import ExceptionMapper from '../support/ExceptionMapper';
 import ErrorMessageBag from '../DTOs/ErrorMessageBag';
 import Facade from './Facade';
+import App from './App';
 
 class Request extends Facade {
     static #processResponse(response){
@@ -24,6 +25,14 @@ class Request extends Facade {
         return exception;
     }
 
+    static #addAuthenticationHeader(request){
+        let accessToken = App.getAccessToken();
+        if ( accessToken !== null ){
+            accessToken = 'Bearer ' + accessToken;
+            request.setRequestHeader('Authorization', accessToken);
+        }
+    }
+
     static get(url, query = null, authenticated = true){
         return new Promise((resolve, reject) => {
             const request = new XMLHttpRequest();
@@ -37,6 +46,9 @@ class Request extends Facade {
                 url += ( url.indexOf('?') > 0 ? '&' : '?' ) + queryParameters.join('&');
             }
             request.open('GET', url);
+            if ( authenticated === true ){
+                Request.#addAuthenticationHeader(request);
+            }
             request.responseType = 'json';
             request.onreadystatechange = () => {
                 if ( request.readyState === XMLHttpRequest.DONE ){
@@ -51,10 +63,13 @@ class Request extends Facade {
         });
     }
 
-    static post(url, data){
+    static post(url, data, authenticated = true){
         return new Promise((resolve, reject) => {
             const request = new XMLHttpRequest(), formData = new FormData();
             request.open('POST', url);
+            if ( authenticated === true ){
+                Request.#addAuthenticationHeader(request);
+            }
             request.responseType = 'json';
             for ( const fieldName in data ){
                 formData.append(fieldName, data[fieldName]);

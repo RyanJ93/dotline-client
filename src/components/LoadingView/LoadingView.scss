@@ -1,0 +1,29 @@
+div.view {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #34495e;
+
+    div.container {
+        position: absolute;
+        text-align: center;
+        height: 100px;
+        margin: auto;
+        width: 300px;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        top: 0;
+
+        div.loader {
+            background-image: url(/public/assets/rounded_loader.svg);
+            width: 75px;
+            height: 75px;
+            background-position: center;
+            background-size: contain;
+            margin: auto;
+        }
+    }
+}

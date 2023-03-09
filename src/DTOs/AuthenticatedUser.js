@@ -4,6 +4,10 @@ import AESEncryptionParameters from './AESEncryptionParameters';
 import User from './User';
 
 class AuthenticatedUser extends User {
+    static makeFromHTTPResponse(response){
+        return new AuthenticatedUser(response.user);
+    }
+
     #RSAPrivateKeyEncryptionParameters;
     #RSAPrivateKey;
 
@@ -20,6 +24,13 @@ class AuthenticatedUser extends User {
 
     getRSAPrivateKey(){
         return this.#RSAPrivateKey;
+    }
+
+    toJSON(){
+        const object = super.toJSON();
+        object.RSAPrivateKeyEncryptionParameters = this.#RSAPrivateKeyEncryptionParameters;
+        object.RSAPrivateKey = this.#RSAPrivateKey;
+        return object;
     }
 }
 

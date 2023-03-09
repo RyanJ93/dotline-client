@@ -1,0 +1,9 @@
+main.app {
+    div.view {
+        display: none;
+
+        &[data-active="true"]{
+            display: block;
+        }
+    }
+}

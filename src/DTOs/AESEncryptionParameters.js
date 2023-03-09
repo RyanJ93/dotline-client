@@ -21,6 +21,14 @@ class AESEncryptionParameters {
     getIV(){
         return this.#iv;
     }
+
+    toJSON(){
+        return {
+            keyLength: this.#keyLength,
+            mode: this.#mode,
+            iv: this.#iv
+        }
+    }
 }
 
 export default AESEncryptionParameters;

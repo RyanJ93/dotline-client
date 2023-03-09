@@ -22,6 +22,14 @@ class User {
     getUsername(){
         return this._username;
     }
+
+    toJSON(){
+        return{
+            RSAPublicKey: this._RSAPublicKey,
+            lastAccess: this._lastAccess,
+            username: this._username
+        };
+    }
 }
 
 export default User;
