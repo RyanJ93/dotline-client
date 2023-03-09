@@ -6,6 +6,16 @@ import styles from './LoginForm.scss';
 import React from 'react';
 
 class LoginForm extends AuthenticationForm {
+    #rememberMeRef = React.createRef();
+
+    async submit(event){
+        this.props.onSubmit({
+            isSession: !this.#rememberMeRef.current.checked,
+            password: this._password.current.getValue(),
+            username: this._username.current.getValue(),
+        }, event);
+    }
+
     render(){
         return (
             <form className={styles.form} onSubmit={this._handleSubmit}>
@@ -15,6 +25,10 @@ class LoginForm extends AuthenticationForm {
                     </div>
                     <div className={styles.field}>
                         <TextField type={'password'} name={'password'} label={'Password'} ref={this._password} onChange={this._handlePasswordChange} />
+                    </div>
+                    <div className={styles.field}>
+                        <input type={'checkbox'} name={'remember_me'} ref={this.#rememberMeRef} />
+                        <label form={'remember_me'}>Remember me</label>
                     </div>
                     {this._renderGenericErrorMessages()}
                     <div className={styles.submit}>

@@ -28,8 +28,8 @@ class AuthView extends React.Component {
     }
 
     _handleLoginSubmit(fields){
-        const { username, password } = fields;
-        this.#login(username, password);
+        const { username, password, isSession } = fields;
+        this.#login(username, password, isSession);
     }
 
     _handleSignupSubmit(fields){
@@ -68,11 +68,11 @@ class AuthView extends React.Component {
         }
     }
 
-    async #login(username, password){
+    async #login(username, password, isSession = false){
         try{
             const userService = new UserService();
             this.#setProgressBarStatus(30, 'Authenticating the user...', 'key');
-            await userService.login(username, password);
+            await userService.login(username, password, isSession);
             this.#setProgressBarStatus(60, 'Fetching crypto keys and settings up end-to-end encryption...', 'lock');
             await CommonUtils.delay(1000);
             this.#setProgressBarStatus(75, 'Loading conversations...', 'comments');
