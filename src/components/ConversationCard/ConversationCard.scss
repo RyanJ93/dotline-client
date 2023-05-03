@@ -1,0 +1,26 @@
+div.conversationCard {
+    display: flex;
+
+    div.info {
+        flex-grow: 1;
+        padding-left: 12px;
+        box-sizing: border-box;
+
+        p.name {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        p.messagePreview {
+            font-size: 13px;
+            margin: 3px 0 0;
+        }
+
+        p.date {
+            float: right;
+            margin: 0;
+            font-size: 13px;
+            font-style: italic;
+        }
+    }
+}

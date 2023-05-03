@@ -4,10 +4,12 @@ import DuplicatedUsernameException from '../../exceptions/DuplicatedUsernameExce
 import IllustratedProgressBar from '../IllustratedProgressBar/IllustratedProgressBar';
 import UnauthorizedException from '../../exceptions/UnauthorizedException';
 import InvalidInputException from '../../exceptions/InvalidInputException';
+import ConversationService from '../../services/ConversationService';
 import NotFoundException from '../../exceptions/NotFoundException';
 import UserService from '../../services/UserService';
 import CommonUtils from '../../utils/CommonUtils';
 import SignupForm from '../SignupForm/SignupForm';
+import { withTranslation } from 'react-i18next';
 import LoginForm from '../LoginForm/LoginForm';
 import HTMLLogo from '../HTMLLogo/HTMLLogo';
 import Footer from '../Footer/Footer';
@@ -39,30 +41,34 @@ class AuthView extends React.Component {
 
     #handleFormException(exception, formRef){
         this.setState((prev) => { return { ...prev, container: 'form' } });
+        const { t } = this.props;
         if ( exception instanceof InvalidInputException ){
             formRef.current.displayErrorMessages(exception.getErrorMessageBag());
         }else if ( exception instanceof DuplicatedUsernameException ){
-            formRef.current.displayErrorMessageText('This username has been taken already.');
+            formRef.current.displayErrorMessageText(t('authView.error.duplicatedUsername'));
         }else if ( exception instanceof UnauthorizedException ){
-            formRef.current.displayErrorMessageText('Provided credentials are not valid.');
+            formRef.current.displayErrorMessageText(t('authView.error.unauthorized'));
         }else if ( exception instanceof NotFoundException ){
-            formRef.current.displayErrorMessageText('No user matching the given username found.');
+            formRef.current.displayErrorMessageText(t('authView.error.notFound'));
         }else{
-            const errorMessageText = 'An error occurred during the process, please retry later.';
-            formRef.current.displayErrorMessageText(errorMessageText);
+            formRef.current.displayErrorMessageText(t('authView.error.generic'));
             console.error(exception);
         }
     }
 
     async #signup(username, password){
         try{
-            const userService = new UserService();
-            this.#setProgressBarStatus(40, 'Generating secure crypto keys...', 'key');
+            const userService = new UserService(), { t } = this.props;
+            this.#setProgressBarStatus(40, t('authView.signup.generatingKeys'), 'key');
             const authenticatedUserExportedRSAKeys = await userService.generateUserKeys(password);
             await CommonUtils.delay(1000);
-            this.#setProgressBarStatus(80, 'Creating your brand new account...', 'users');
+            this.#setProgressBarStatus(80, t('authView.signup.creatingAccount'), 'users');
             await userService.signup(username, password, authenticatedUserExportedRSAKeys);
-            this.#setProgressBarStatus(100, 'All set! You will be redirected to your account shortly...', 'check');
+            await new ConversationService().fetchConversations();
+            this.#setProgressBarStatus(100, t('authView.signup.completed'), 'check');
+            if ( typeof this.props.onAuthenticationSuccessful === 'function' ){
+                this.props.onAuthenticationSuccessful();
+            }
         }catch(ex){
             this.#handleFormException(ex, this.#signupForm);
         }
@@ -70,13 +76,17 @@ class AuthView extends React.Component {
 
     async #login(username, password, isSession = false){
         try{
-            const userService = new UserService();
-            this.#setProgressBarStatus(30, 'Authenticating the user...', 'key');
+            const userService = new UserService(), conversationService = new ConversationService(), { t } = this.props;
+            this.#setProgressBarStatus(30, t('authView.login.authenticating'), 'key');
             await userService.login(username, password, isSession);
-            this.#setProgressBarStatus(60, 'Fetching crypto keys and settings up end-to-end encryption...', 'lock');
+            this.#setProgressBarStatus(60, t('authView.login.fetchingKeys'), 'lock');
             await CommonUtils.delay(1000);
-            this.#setProgressBarStatus(75, 'Loading conversations...', 'comments');
-            // TODO: Fetch conversations and messages.
+            this.#setProgressBarStatus(75, t('authView.login.loadingConversations'), 'comments');
+            await conversationService.fetchConversations();
+            this.#setProgressBarStatus(100, t('authView.login.completed'), 'check');
+            if ( typeof this.props.onAuthenticationSuccessful === 'function' ){
+                this.props.onAuthenticationSuccessful();
+            }
         }catch(ex){
             this.#handleFormException(ex, this.#loginForm);
         }
@@ -90,17 +100,18 @@ class AuthView extends React.Component {
     }
 
     #renderFormContainer(){
+        const { t } = this.props;
         return (
             <div className={styles.container} data-active={this.state.container === 'form'}>
                 <HTMLLogo />
-                <p className={styles.catchPhrase}>Start privately chatting with your contacts, now</p>
+                <p className={styles.catchPhrase}>{t('authView.catchPhrase')}</p>
                 <div className={styles.formWrapper} data-active={this.state.action === 'login'}>
                     <LoginForm onSubmit={this._handleLoginSubmit} ref={this.#loginForm} />
-                    <p>Don't you have an account yet? <a href={'#'} onClick={this._handleSignupClick}>Jump in!</a></p>
+                    <p>{t('authView.noAccountQuestion')} <a href={'#'} onClick={this._handleSignupClick}>{t('authView.noAccountAnswer')}</a></p>
                 </div>
                 <div className={styles.formWrapper} data-active={this.state.action === 'signup'}>
                     <SignupForm onSubmit={this._handleSignupSubmit} ref={this.#signupForm} />
-                    <p>do you already have an account? <a href={'#'} onClick={this._handleLoginClick}>Log in!</a></p>
+                    <p>{t('authView.accountQuestion')} <a href={'#'} onClick={this._handleLoginClick}>{t('authView.accountAnswer')}</a></p>
                 </div>
             </div>
         );
@@ -143,4 +154,4 @@ class AuthView extends React.Component {
     }
 }
 
-export default AuthView;
+export default withTranslation(null, { withRef: true })(AuthView);

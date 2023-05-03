@@ -1,0 +1,14 @@
+div.entityIcon {
+    display: inline-block;
+    width: 50px;
+    background-color: #2c3e50;
+    height: 50px;
+    border-radius: 25px;
+
+    p.content {
+        width: 100%;
+        text-align: center;
+        font-size: 32px;
+        margin-top: 3px;
+    }
+}

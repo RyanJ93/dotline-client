@@ -33,9 +33,7 @@ class AuthenticatedUserRSAKeysRepository extends Repository {
                     authenticatedUserRSAKeys = window.sessionStorage.getItem('authenticatedUserRSAKeys');
                 }
                 if ( typeof authenticatedUserRSAKeys === 'string' ){
-                    authenticatedUserRSAKeys = JSON.parse(authenticatedUserRSAKeys);
-                    const { publicKey, privateKey } = authenticatedUserRSAKeys;
-                    this.#authenticatedUserRSAKeys = await CryptoUtils.importRSAKeys(publicKey, privateKey);
+                    this.#authenticatedUserRSAKeys = JSON.parse(authenticatedUserRSAKeys);
                 }
             }catch(ex){
                 this.dropAuthenticatedUserRSAKeys();

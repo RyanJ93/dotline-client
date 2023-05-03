@@ -1,16 +1,18 @@
 'use strict';
 
+import { withTranslation } from 'react-i18next';
 import styles from './LoadingView.scss';
 import Footer from '../Footer/Footer';
 import React from 'react';
 
 class LoadingView extends React.Component {
     render(){
+        const { t } = this.props;
         return (
             <div className={styles.view}>
                 <div className={styles.container}>
                     <div className={styles.loader} />
-                    <p>Loading authenticated user info...</p>
+                    <p>{t('loadingView.label')}</p>
                 </div>
                 <Footer />
             </div>
@@ -18,4 +20,4 @@ class LoadingView extends React.Component {
     }
 }
 
-export default LoadingView;
+export default withTranslation(null, { withRef: true })(LoadingView);

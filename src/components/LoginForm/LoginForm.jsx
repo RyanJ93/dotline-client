@@ -1,6 +1,7 @@
 'use strict';
 
 import AuthenticationForm from '../AuthenticationForm/AuthenticationForm';
+import { withTranslation } from 'react-i18next';
 import TextField from '../TextField/TextField';
 import styles from './LoginForm.scss';
 import React from 'react';
@@ -17,6 +18,7 @@ class LoginForm extends AuthenticationForm {
     }
 
     render(){
+        const { t } = this.props;
         return (
             <form className={styles.form} onSubmit={this._handleSubmit}>
                 <div className={styles.fieldSet}>
@@ -28,7 +30,7 @@ class LoginForm extends AuthenticationForm {
                     </div>
                     <div className={styles.field}>
                         <input type={'checkbox'} name={'remember_me'} ref={this.#rememberMeRef} />
-                        <label form={'remember_me'}>Remember me</label>
+                        <label form={'remember_me'}>{t('loginForm.rememberMe')}</label>
                     </div>
                     {this._renderGenericErrorMessages()}
                     <div className={styles.submit}>
@@ -40,4 +42,4 @@ class LoginForm extends AuthenticationForm {
     }
 }
 
-export default LoginForm;
+export default withTranslation(null, { withRef: true })(LoginForm);

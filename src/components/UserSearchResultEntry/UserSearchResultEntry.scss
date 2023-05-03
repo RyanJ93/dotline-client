@@ -1,0 +1,20 @@
+div.userSearchResultEntry {
+    display: flex;
+
+    div.info {
+        flex-grow: 1;
+        padding-left: 12px;
+        box-sizing: border-box;
+
+        p.username {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        p.lastAccess {
+            margin: 0;
+            font-size: 12px;
+            font-style: italic;
+        }
+    }
+}

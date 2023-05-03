@@ -1,0 +1,136 @@
+section.conversationViewerHeader {
+    display: flex;
+    border-bottom: 1px solid #7f8c8d;
+    box-sizing: border-box;
+    padding: 9px 24px;
+
+    div.backIconWrapper {
+        display: inline-block;
+        vertical-align: middle;
+        padding-right: 12px;
+
+        svg {
+            margin-top: -9px;
+            display: block;
+            cursor: pointer;
+        }
+    }
+
+    @media ( min-width: 480px ) {
+        div.backIconWrapper {
+            display: none;
+        }
+    }
+
+    div.conversationInfo {
+        flex-grow: 1;
+        padding: 0 12px;
+        box-sizing: border-box;
+
+        span.conversationName {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        div.onlineBadge {
+            width: 9px;
+            height: 9px;
+            background-color: #27ae60;
+            display: inline-block;
+            vertical-align: middle;
+            border-radius: 9px;
+            margin-top: -5px;
+            margin-left: 9px;
+        }
+
+        p.lastAccess {
+            margin: 0;
+            font-size: 12px;
+            font-style: italic;
+        }
+    }
+
+    div.controlsWrapper {
+        align-self: center;
+        position: relative;
+
+        svg {
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        div.contextMenuWrapper {
+            &[data-context-menu-enabled="true"] {
+                ul.contextMenu {
+                    padding: 12px;
+                    width: 185px;
+                    height: auto;
+                    opacity: 1;
+                }
+
+                div.contextMenuOverlay {
+                    display: block;
+                }
+            }
+
+            ul.contextMenu {
+                transition: opacity .25s ease-in-out;
+                will-change: width, height, opacity;
+                padding: 0;
+                background-color: #222;
+                border-radius: 3px;
+                box-sizing: border-box;
+                margin: 0;
+                list-style: none;
+                position: absolute;
+                z-index: 10;
+                font-size: 14px;
+                overflow: hidden;
+                text-align: left;
+                top: 28px;
+                height: 0;
+                width: 0;
+                opacity: 0;
+                right: -12px;
+
+                &:before {
+                    // TODO
+                    content: '';
+                    display: none;
+                    width: 0;
+                    height: 0;
+                    border-left: 5px solid transparent;
+                    border-right: 5px solid transparent;
+                    border-bottom: 5px solid #222;
+                }
+
+                li {
+                    margin-bottom: 6px;
+                    cursor: pointer;
+
+                    &.dangerousAction {
+                        color: #e74c3c;
+                    }
+
+                    svg {
+                        margin-right: 12px;
+                    }
+
+                    &:last-child {
+                        margin: 0 !important;
+                    }
+                }
+            }
+
+            div.contextMenuOverlay {
+                position: fixed;
+                z-index: 5;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                display: none;
+            }
+        }
+    }
+}

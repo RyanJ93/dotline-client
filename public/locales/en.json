@@ -1,0 +1,20 @@
+{
+    "loadingView.label": "Loading authenticated user info...",
+    "authView.signup.generatingKeys": "Generating secure crypto keys...",
+    "authView.signup.creatingAccount": "Creating your brand new account...",
+    "authView.signup.completed": "All set! You will be redirected to your account shortly...",
+    "authView.error.duplicatedUsername": "This username has been taken already.",
+    "authView.error.unauthorized": "Provided credentials are not valid.",
+    "authView.error.notFound": "No user matching the given username found.",
+    "authView.error.generic": "An error occurred during the process, please retry later.",
+    "authView.login.authenticating": "Authenticating the user...",
+    "authView.login.fetchingKeys": "Fetching crypto keys and settings up end-to-end encryption...",
+    "authView.login.loadingConversations": "Loading your conversations...",
+    "authView.login.completed": "Authentication completed!",
+    "authView.catchPhrase": "Start privately chatting with your contacts, now",
+    "authView.noAccountQuestion": "Don't you have an account yet?",
+    "authView.noAccountAnswer": "Jump in!",
+    "authView.accountQuestion": "Do you already have an account?",
+    "authView.accountAnswer": "Log in!",
+    "loginForm.rememberMe": "Remember me"
+}

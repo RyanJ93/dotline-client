@@ -53,6 +53,11 @@ class CryptoService extends Service {
             RSAPublicKey: RSAPublicKey
         });
     }
+
+    async RSADecrypt(data){
+        const { publicKey, privateKey } = this.getAuthenticatedUserRSAKeys();
+        return await CryptoUtils.RSADecryptText(data, publicKey, privateKey);
+    }
 }
 
 export default CryptoService;

@@ -1,11 +1,14 @@
 'use strict';
 
 import RuntimeException from '../exceptions/RuntimeException.js';
+import Injector from '../facades/Injector';
 
 /**
  * @abstract
  */
 /* abstract */ class Service {
+    _eventBroker;
+
     /**
      * The class constructor.
      *
@@ -15,6 +18,8 @@ import RuntimeException from '../exceptions/RuntimeException.js';
         if ( this.constructor === Service ){
             throw new RuntimeException('Cannot instance a class that is meant to be abstract.');
         }
+
+        this._eventBroker = Injector.inject('EventBroker');
     }
 }
 

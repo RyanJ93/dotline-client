@@ -1,0 +1,210 @@
+var _rect, _rect2, _rect3, _rect4, _rect5, _rect6, _rect7, _rect8, _rect9, _rect10, _rect11, _rect12;
+function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+import * as React from "react";
+var SvgRoundedLoader = function SvgRoundedLoader(props) {
+  return /*#__PURE__*/React.createElement("svg", _extends({
+    xmlns: "http://www.w3.org/2000/svg",
+    style: {
+      margin: "auto",
+      backgroundImage: "none",
+      display: "block",
+      shapeRendering: "auto"
+    },
+    width: 200,
+    height: 200,
+    viewBox: "0 0 100 100",
+    preserveAspectRatio: "xMidYMid"
+  }, props), _rect || (_rect = /*#__PURE__*/React.createElement("rect", {
+    x: 47,
+    y: 24,
+    rx: 3,
+    ry: 6,
+    width: 6,
+    height: 12,
+    fill: "#fff"
+  }, /*#__PURE__*/React.createElement("animate", {
+    attributeName: "opacity",
+    values: "1;0",
+    keyTimes: "0;1",
+    dur: "1s",
+    begin: "-0.9166666666666666s",
+    repeatCount: "indefinite"
+  }))), _rect2 || (_rect2 = /*#__PURE__*/React.createElement("rect", {
+    x: 47,
+    y: 24,
+    rx: 3,
+    ry: 6,
+    width: 6,
+    height: 12,
+    fill: "#fff",
+    transform: "rotate(30 50 50)"
+  }, /*#__PURE__*/React.createElement("animate", {
+    attributeName: "opacity",
+    values: "1;0",
+    keyTimes: "0;1",
+    dur: "1s",
+    begin: "-0.8333333333333334s",
+    repeatCount: "indefinite"
+  }))), _rect3 || (_rect3 = /*#__PURE__*/React.createElement("rect", {
+    x: 47,
+    y: 24,
+    rx: 3,
+    ry: 6,
+    width: 6,
+    height: 12,
+    fill: "#fff",
+    transform: "rotate(60 50 50)"
+  }, /*#__PURE__*/React.createElement("animate", {
+    attributeName: "opacity",
+    values: "1;0",
+    keyTimes: "0;1",
+    dur: "1s",
+    begin: "-0.75s",
+    repeatCount: "indefinite"
+  }))), _rect4 || (_rect4 = /*#__PURE__*/React.createElement("rect", {
+    x: 47,
+    y: 24,
+    rx: 3,
+    ry: 6,
+    width: 6,
+    height: 12,
+    fill: "#fff",
+    transform: "rotate(90 50 50)"
+  }, /*#__PURE__*/React.createElement("animate", {
+    attributeName: "opacity",
+    values: "1;0",
+    keyTimes: "0;1",
+    dur: "1s",
+    begin: "-0.6666666666666666s",
+    repeatCount: "indefinite"
+  }))), _rect5 || (_rect5 = /*#__PURE__*/React.createElement("rect", {
+    x: 47,
+    y: 24,
+    rx: 3,
+    ry: 6,
+    width: 6,
+    height: 12,
+    fill: "#fff",
+    transform: "rotate(120 50 50)"
+  }, /*#__PURE__*/React.createElement("animate", {
+    attributeName: "opacity",
+    values: "1;0",
+    keyTimes: "0;1",
+    dur: "1s",
+    begin: "-0.5833333333333334s",
+    repeatCount: "indefinite"
+  }))), _rect6 || (_rect6 = /*#__PURE__*/React.createElement("rect", {
+    x: 47,
+    y: 24,
+    rx: 3,
+    ry: 6,
+    width: 6,
+    height: 12,
+    fill: "#fff",
+    transform: "rotate(150 50 50)"
+  }, /*#__PURE__*/React.createElement("animate", {
+    attributeName: "opacity",
+    values: "1;0",
+    keyTimes: "0;1",
+    dur: "1s",
+    begin: "-0.5s",
+    repeatCount: "indefinite"
+  }))), _rect7 || (_rect7 = /*#__PURE__*/React.createElement("rect", {
+    x: 47,
+    y: 24,
+    rx: 3,
+    ry: 6,
+    width: 6,
+    height: 12,
+    fill: "#fff",
+    transform: "rotate(180 50 50)"
+  }, /*#__PURE__*/React.createElement("animate", {
+    attributeName: "opacity",
+    values: "1;0",
+    keyTimes: "0;1",
+    dur: "1s",
+    begin: "-0.4166666666666667s",
+    repeatCount: "indefinite"
+  }))), _rect8 || (_rect8 = /*#__PURE__*/React.createElement("rect", {
+    x: 47,
+    y: 24,
+    rx: 3,
+    ry: 6,
+    width: 6,
+    height: 12,
+    fill: "#fff",
+    transform: "rotate(210 50 50)"
+  }, /*#__PURE__*/React.createElement("animate", {
+    attributeName: "opacity",
+    values: "1;0",
+    keyTimes: "0;1",
+    dur: "1s",
+    begin: "-0.3333333333333333s",
+    repeatCount: "indefinite"
+  }))), _rect9 || (_rect9 = /*#__PURE__*/React.createElement("rect", {
+    x: 47,
+    y: 24,
+    rx: 3,
+    ry: 6,
+    width: 6,
+    height: 12,
+    fill: "#fff",
+    transform: "rotate(240 50 50)"
+  }, /*#__PURE__*/React.createElement("animate", {
+    attributeName: "opacity",
+    values: "1;0",
+    keyTimes: "0;1",
+    dur: "1s",
+    begin: "-0.25s",
+    repeatCount: "indefinite"
+  }))), _rect10 || (_rect10 = /*#__PURE__*/React.createElement("rect", {
+    x: 47,
+    y: 24,
+    rx: 3,
+    ry: 6,
+    width: 6,
+    height: 12,
+    fill: "#fff",
+    transform: "rotate(270 50 50)"
+  }, /*#__PURE__*/React.createElement("animate", {
+    attributeName: "opacity",
+    values: "1;0",
+    keyTimes: "0;1",
+    dur: "1s",
+    begin: "-0.16666666666666666s",
+    repeatCount: "indefinite"
+  }))), _rect11 || (_rect11 = /*#__PURE__*/React.createElement("rect", {
+    x: 47,
+    y: 24,
+    rx: 3,
+    ry: 6,
+    width: 6,
+    height: 12,
+    fill: "#fff",
+    transform: "rotate(300 50 50)"
+  }, /*#__PURE__*/React.createElement("animate", {
+    attributeName: "opacity",
+    values: "1;0",
+    keyTimes: "0;1",
+    dur: "1s",
+    begin: "-0.08333333333333333s",
+    repeatCount: "indefinite"
+  }))), _rect12 || (_rect12 = /*#__PURE__*/React.createElement("rect", {
+    x: 47,
+    y: 24,
+    rx: 3,
+    ry: 6,
+    width: 6,
+    height: 12,
+    fill: "#fff",
+    transform: "rotate(330 50 50)"
+  }, /*#__PURE__*/React.createElement("animate", {
+    attributeName: "opacity",
+    values: "1;0",
+    keyTimes: "0;1",
+    dur: "1s",
+    begin: "0s",
+    repeatCount: "indefinite"
+  }))));
+};
+export default SvgRoundedLoader;

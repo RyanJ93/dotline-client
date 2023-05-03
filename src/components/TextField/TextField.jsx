@@ -61,6 +61,11 @@ class TextField extends React.Component {
         return this.#inputRef.current.value;
     }
 
+    clear(){
+        this.#inputRef.current.value = '';
+        return this;
+    }
+
     render(){
         return (
             <div className={styles.field}>

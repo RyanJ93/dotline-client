@@ -1,0 +1,20 @@
+{
+    "loadingView.label": "Caricamento delle informazioni utente...",
+    "authView.signup.generatingKeys": "Generazione di chiavi crittografiche sicure...",
+    "authView.signup.creatingAccount": "Creazione del tuo account nuovo di zecca...",
+    "authView.signup.completed": "Completato! Sarai reindirizzato verso il tuo account a breve...",
+    "authView.error.duplicatedUsername": "Questo username è già in uso.",
+    "authView.error.unauthorized": "Le credenziali fornite non sono valide.",
+    "authView.error.notFound": "Nessun utente corrispondente a questo username trovato.",
+    "authView.error.generic": "Si è verificato un errore, per favore riprova più tardi.",
+    "authView.login.authenticating": "Autenticazione dell'utente...",
+    "authView.login.fetchingKeys": "Ottenimento delle chiavi crittografiche e preparazione della crittografia end-to-end...",
+    "authView.login.loadingConversations": "Caricamento delle tue conversazioni...",
+    "authView.login.completed": "Autenticazione completata!",
+    "authView.catchPhrase": "Inizia a conversare con i tuoi contatti privatamente, ora",
+    "authView.noAccountQuestion": "Ancora non hai un account?",
+    "authView.noAccountAnswer": "Salta a bordo!",
+    "authView.accountQuestion": "Hai già un account?",
+    "authView.accountAnswer": "Accedi!",
+    "loginForm.rememberMe": "Ricordami"
+}

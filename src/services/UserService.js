@@ -8,6 +8,7 @@ import CryptoUtils from '../utils/CryptoUtils';
 import CryptoService from './CryptoService';
 import Injector from '../facades/Injector';
 import Request from '../facades/Request';
+import User from '../DTOs/User';
 import Service from './Service';
 
 class UserService extends Service {
@@ -17,6 +18,7 @@ class UserService extends Service {
         await cryptoService.extractAndStoreAuthenticatedUserRSAKeys(authenticatedUser, password, isSession);
         this.#authenticatedUserRepository.storeAuthenticatedUser(authenticatedUser, isSession);
         this.#accessTokenRepository.storeAccessToken(accessToken, isSession);
+        await this.#webSocketClient.connect();
         return authenticatedUser;
     }
 
@@ -28,12 +30,16 @@ class UserService extends Service {
 
     #authenticatedUserRepository;
     #accessTokenRepository;
+    #webSocketClient;
+    #userRepository;
 
     constructor(){
         super();
 
         this.#authenticatedUserRepository = Injector.inject('AuthenticatedUserRepository');
         this.#accessTokenRepository = Injector.inject('AccessTokenRepository');
+        this.#webSocketClient = Injector.inject('WebSocketClient');
+        this.#userRepository = Injector.inject('UserRepository');
     }
 
     generateUserKeys(password){
@@ -79,6 +85,7 @@ class UserService extends Service {
             const response = await Request.get(APIEndpoints.USER_INFO, null, true);
             const authenticatedUser = AuthenticatedUser.makeFromHTTPResponse(response);
             this.#authenticatedUserRepository.storeAuthenticatedUser(authenticatedUser, true);
+            await this.#webSocketClient.connect();
             return authenticatedUser;
         }catch(ex){
             if ( ex instanceof UnauthorizedException || ex instanceof NotFoundException ){
@@ -102,6 +109,38 @@ class UserService extends Service {
 
     getAuthenticatedUserRSAKeys(){
         return new CryptoService().getAuthenticatedUserRSAKeys();
+    }
+
+    async searchByUsername(username){
+        const response = await Request.get(APIEndpoints.USER_SEARCH, {
+            username: username
+        }, true);
+        return response.userList.map((user) => {
+            return User.makeFromHTTPResponse({
+                user: user
+            });
+        });
+    }
+
+    async storeUser(properties){
+        const lastAccess = properties.lastAccess === null ? null : new Date(properties.lastAccess);
+        return await this.#userRepository.store(properties.id, properties.username, properties.RSAPublicKey, lastAccess);
+    }
+
+    async getUsersByIDList(userIDList){
+        return await this.#userRepository.findMany(userIDList);
+    }
+
+    async getUserByID(userID){
+        return await this.#userRepository.find(userID);
+    }
+
+    async checkOnlineUsers(userIDList){
+        const response = await this.#webSocketClient.send({
+            payload: { userIDList: userIDList },
+            action: 'checkOnlineUser'
+        });
+        return response.payload;
     }
 }
 
