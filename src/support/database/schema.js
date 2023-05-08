@@ -1,0 +1,44 @@
+'use strict';
+
+export default Object.freeze({
+    name: 'dot_line',
+    tables: [{
+        name: 'conversations',
+        columns: {
+            encryptionParameters: { notNull: true, dataType: 'string' },
+            members: { notNull: true, dataType: 'array' },
+            name: { notNull: false, dataType: 'string' },
+            id: { primaryKey: true, dataType: 'string' }
+        }
+    }, {
+        name: 'messages',
+        columns: {
+            isSignatureValid: { notNull: true, dataType: 'boolean' },
+            conversationID: { notNull: false, dataType: 'string' },
+            createdAt: { notNull: true, dataType: 'date_time' },
+            updatedAt: { notNull: true, dataType: 'date_time' },
+            isEdited: { notNull: true, dataType: 'boolean' },
+            content: { notNull: true, dataType: 'string' },
+            userID: { notNull: false, dataType: 'string' },
+            type: { notNull: true, dataType: 'string' },
+            id: { notNull: true, dataType: 'string' }
+        }
+    }, {
+        name: 'users',
+        columns: {
+            lastAccess: { notNull: false, dataType: 'date_time' },
+            RSAPublicKey: { notNull: true, dataType: 'string' },
+            username: { notNull: true, dataType: 'string' },
+            surname: { notNull: false, dataType: 'string' },
+            name: { notNull: false, dataType: 'string' },
+            id: { primaryKey: true, dataType: 'string' }
+        }
+    }, {
+        name: 'conversationMembers',
+        columns: {
+            conversationID: { notNull: true, dataType: 'string' },
+            encryptionKey: { notNull: true, dataType: 'string' },
+            userID: { notNull: true, dataType: 'string' }
+        }
+    }]
+});

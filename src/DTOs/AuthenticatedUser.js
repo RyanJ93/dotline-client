@@ -4,6 +4,11 @@ import AESEncryptionParameters from './AESEncryptionParameters';
 import User from './User';
 
 class AuthenticatedUser extends User {
+    /**
+     *
+     * @param response
+     * @returns {AuthenticatedUser}
+     */
     static makeFromHTTPResponse(response){
         return new AuthenticatedUser(response.user);
     }

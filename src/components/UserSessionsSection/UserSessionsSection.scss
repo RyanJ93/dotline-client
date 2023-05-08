@@ -1,0 +1,53 @@
+div.userSessionsSection {
+    width: 100%;
+    padding: 6px;
+    box-sizing: border-box;
+
+    div.currentSession {
+        margin-bottom: 24px;
+        border-bottom: 1px solid;
+        padding-bottom: 12px;
+        box-sizing: border-box;
+
+        div.header {
+            display: flex;
+            margin: 0 0 32px;
+
+            div.currentSessionTitleWrapper {
+                flex-grow: 1;
+
+                p.currentSessionTitle {
+                    font-size: 24px;
+                    margin: 0;
+                }
+            }
+
+           div.currentSessionControlsWrapper {
+               svg {
+                   margin-top: 9px;
+                   cursor: pointer;
+               }
+           }
+        }
+
+        div.closeAllWrapper {
+            margin-top: 24px;
+            text-align: center;
+        }
+    }
+
+    ul.list {
+        list-style: none;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+
+        li {
+            margin-bottom: 12px;
+
+            &:last-child {
+                margin-bottom: 0 !important;
+            }
+        }
+    }
+}

@@ -98,6 +98,12 @@ class MainView extends React.Component {
         this.state = { conversationSelected: false };
     }
 
+    resetView(){
+        this.setState((prev) => ({ ...prev, conversationSelected: false }));
+        this.#sideBarRef.current.resetView();
+        return this;
+    }
+
     render(){
         return (
             <div className={styles.view} data-conversation-selected={this.state.conversationSelected}>

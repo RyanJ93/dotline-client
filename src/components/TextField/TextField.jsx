@@ -57,6 +57,12 @@ class TextField extends React.Component {
         return this.state.errorMessage;
     }
 
+    setValue(value){
+        this.#inputRef.current.value = value;
+        this.#checkInputContent();
+        return this;
+    }
+
     getValue(){
         return this.#inputRef.current.value;
     }

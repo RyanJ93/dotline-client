@@ -7,6 +7,11 @@ import Injector from '../facades/Injector';
  * @abstract
  */
 /* abstract */ class Service {
+    /**
+     * @type {EventBroker}
+     *
+     * @protected
+     */
     _eventBroker;
 
     /**

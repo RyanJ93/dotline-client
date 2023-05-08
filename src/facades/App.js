@@ -4,17 +4,31 @@ import UserService from '../services/UserService';
 import Facade from './Facade';
 
 class App extends Facade {
+    /**
+     * Returns the authenticated user.
+     *
+     * @returns {?AuthenticatedUser}
+     */
     static getAuthenticatedUser(){
         return new UserService().getAuthenticatedUser();
     }
 
+    /**
+     * Returns the authenticated user's access token.
+     *
+     * @returns {?string}
+     */
     static getAccessToken(){
         return new UserService().getAccessToken();
     }
 
+    /**
+     * Imports authenticated user's keys.
+     *
+     * @returns {Promise<CryptoKeyPair>}
+     */
     static async loadAuthenticatedUserRSAKeys(){
-        const userService = new UserService();
-        await userService.loadAuthenticatedUserRSAKeys();
+        await new UserService().loadAuthenticatedUserRSAKeys();
     }
 
     static isUserAuthenticated(){

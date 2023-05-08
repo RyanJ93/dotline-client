@@ -13,6 +13,8 @@ class User extends Model {
                 RSAPublicKey: { name: 'RSAPublicKey', type: 'string' },
                 lastAccess: { name: 'lastAccess', type: 'date' },
                 username: { name: 'username', type: 'string' },
+                surname: { name: 'surname', type: 'string' },
+                name: { name: 'name', type: 'string' },
                 id: { name: 'id', type: 'timeuuid' }
             }
         };
@@ -43,6 +45,24 @@ class User extends Model {
 
     getUsername(){
         return this._attributes?.username ?? null;
+    }
+
+    setSurname(surname){
+        this._attributes.surname = surname;
+        return this;
+    }
+
+    getSurname(){
+        return this._attributes?.surname ?? null;
+    }
+
+    setName(name){
+        this._attributes.name = name;
+        return this;
+    }
+
+    getName(){
+        return this._attributes?.name ?? null;
     }
 
     setID(id){

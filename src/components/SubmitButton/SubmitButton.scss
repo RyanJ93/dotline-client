@@ -1,0 +1,25 @@
+div.submitButton {
+    display: inline-block;
+    position: relative;
+    border-radius: 3px;
+
+    &[data-status="loading"] {
+        div.loader {
+            display: block;
+        }
+    }
+
+    div.loader {
+        background-image: url(/public/assets/rounded_loader.svg);
+        width: 100%;
+        height: 100%;
+        background-size: 38px;
+        position: absolute;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-color: #2c3e50;
+        border-radius: 3px;
+        display: none;
+        z-index: 5;
+    }
+}
