@@ -22,16 +22,16 @@ class MessageImportService extends Service {
 
     async #importConversationMessages(conversation){
         try{
-            const messageService = new MessageService(conversation);
+            let messageService = new MessageService(conversation), importedMessageList = null;
             let startingMessage = await messageService.getOldestMessage();
             let endingMessage = await messageService.getNewestMessage();
-            let importedMessageList = null;
             if ( endingMessage !== null || startingMessage !== null ){
                 while ( endingMessage !== null ){
                     importedMessageList = await messageService.fetchMessages(250, endingMessage.getID());
                     this.#updateMessageImportProcessStats(conversation.getID(), importedMessageList.length);
                     endingMessage = importedMessageList.length === 0 ? null : importedMessageList.shift();
                 }
+                this._eventBroker.emit('conversationHeadReady', conversation.getID());
                 while ( startingMessage !== null ){
                     importedMessageList = await messageService.fetchMessages(250, null, startingMessage.getID());
                     this.#updateMessageImportProcessStats(conversation.getID(), importedMessageList.length);
@@ -43,6 +43,9 @@ class MessageImportService extends Service {
                     importedMessageList = await messageService.fetchMessages(250, null, startingID);
                     this.#updateMessageImportProcessStats(conversation.getID(), importedMessageList.length);
                     startingMessage = importedMessageList.length === 0 ? null : importedMessageList.pop();
+                    if ( startingID === null ){
+                        this._eventBroker.emit('conversationHeadReady', conversation.getID());
+                    }
                 }
             }
         }catch(ex){

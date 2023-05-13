@@ -1,9 +1,9 @@
 div.conversationCard {
     display: flex;
 
-    div.info {
+    div.lastMessage {
         flex-grow: 1;
-        padding-left: 12px;
+        padding: 0 12px;
         box-sizing: border-box;
 
         p.name {
@@ -14,13 +14,30 @@ div.conversationCard {
         p.messagePreview {
             font-size: 13px;
             margin: 3px 0 0;
+            max-width: 130px;
+            display: block;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
         }
+    }
+
+    div.dateWrapper {
+        text-align: right;
 
         p.date {
-            float: right;
             margin: 0;
-            font-size: 13px;
+            font-size: 12px;
             font-style: italic;
+        }
+
+        p.unreadMessageCounter {
+            display: inline-block;
+            margin: 9px 0 0 0;
+            background-color: #7f8c8d;
+            padding: 1px 6px;
+            border-radius: 12px;
+            font-size: 14px;
         }
     }
 }

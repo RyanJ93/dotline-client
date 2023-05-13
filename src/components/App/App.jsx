@@ -35,7 +35,7 @@ class App extends React.Component {
                 await new UserService().logout();
                 return this.setView('auth');
             }
-            await new LocalDataService().refreshLocalData(false);
+            await new LocalDataService().ensureLocalData();
         }catch(ex){
             await this.#handleUserInfoException(ex);
         }

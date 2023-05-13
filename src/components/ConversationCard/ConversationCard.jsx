@@ -20,8 +20,38 @@ class ConversationCard extends React.Component {
         }
     }
 
+    #refreshUnreadMessageCount(){
+        new MessageService(this.state.conversation).getUnreadMessageCount().then((unreadMessageCount) => {
+            unreadMessageCount = unreadMessageCount >= 1000 ? '999+' : unreadMessageCount.toString();
+            this.setState((prev) => ({ ...prev, unreadMessageCount: unreadMessageCount }));
+        });
+    }
+
+    #renderUnreadMessageCount(){
+        let renderedUnreadMessageCount = null;
+        if ( this.state.unreadMessageCount > 0 ){
+            renderedUnreadMessageCount = <p className={styles.unreadMessageCounter}>{this.state.unreadMessageCount}</p>;
+        }
+        return renderedUnreadMessageCount;
+    }
+
+    #computeLastMessageText(){
+        let lastMessageText = null;
+        if ( this.state.userTypingMessage !== null ){
+            lastMessageText = this.state.userTypingMessage;
+        }else if ( this.state.lastMessage !== null ){
+            lastMessageText = this.state.lastMessage.getContent();
+        }
+        return lastMessageText;
+    }
+
     _handleMessageAdded(message){
+        this.#refreshUnreadMessageCount();
         this.#setLastMessage(message);
+    }
+
+    _handleMessageEdit(message){
+        this.#refreshUnreadMessageCount();
     }
 
     _handleUserTyping(conversation, user){
@@ -38,18 +68,39 @@ class ConversationCard extends React.Component {
         }
     }
 
+    _handleConversationHeadReady(){
+        new MessageService(this.state.conversation).getNewestMessage().then((message) => this.#setLastMessage(message));
+    }
+
+    _handleMessageImportEnd(){
+        this.#refreshUnreadMessageCount();
+    }
+
+    _handleLocalDataCleared(){
+        this.setState((prev) => ({ ...prev, lastMessage: null, unreadMessageCount: 0 }));
+    }
+
     constructor(props){
         super(props);
 
-        this.state = { conversation: props.conversation, lastMessage: null, userTypingMessage: null };
+        this.state = { conversation: props.conversation, lastMessage: null, userTypingMessage: null, unreadMessageCount: 0 };
+        this._handleConversationHeadReady = this._handleConversationHeadReady.bind(this);
+        this._handleMessageImportEnd = this._handleMessageImportEnd.bind(this);
+        this._handleLocalDataCleared = this._handleLocalDataCleared.bind(this);
         this._handleMessageAdded = this._handleMessageAdded.bind(this);
+        this._handleMessageEdit = this._handleMessageEdit.bind(this);
         this._handleUserTyping = this._handleUserTyping.bind(this);
     }
 
     componentDidMount(){
+        Event.getBroker().on('conversationHeadReady', this._handleConversationHeadReady);
+        Event.getBroker().on('messageImportEnd', this._handleMessageImportEnd);
+        Event.getBroker().on('localDataCleared', this._handleLocalDataCleared);
         Event.getBroker().on('messageAdded', this._handleMessageAdded);
+        Event.getBroker().on('messageEdit', this._handleMessageEdit);
         Event.getBroker().on('userTyping', this._handleUserTyping);
         new MessageService(this.state.conversation).getNewestMessage().then((message) => {
+            this.#refreshUnreadMessageCount();
             this.#setLastMessage(message);
         });
     }
@@ -65,21 +116,19 @@ class ConversationCard extends React.Component {
 
     render(){
         const conversationName = this.state.conversation.getComputedName();
-        let lastMessageText = null;
-        if ( this.state.userTypingMessage !== null ){
-            lastMessageText = this.state.userTypingMessage;
-        }else if ( this.state.lastMessage !== null ){
-            lastMessageText = this.state.lastMessage.getContent();
-        }
+        const lastMessageText = this.#computeLastMessageText();
         return (
             <div className={styles.conversationCard} ref={this.#conversationCardRef}>
                 <EntityIcon text={conversationName} />
-                <div className={styles.info}>
+                <div className={styles.lastMessage}>
+                    <p className={styles.name}>{conversationName}</p>
+                    <p className={styles.messagePreview}>{lastMessageText}</p>
+                </div>
+                <div className={styles.dateWrapper}>
                     <p className={styles.date}>
                         <DateLabel ref={this.#dateLabelRef} />
                     </p>
-                    <p className={styles.name}>{conversationName}</p>
-                    <p className={styles.messagePreview}>{lastMessageText}</p>
+                    {this.#renderUnreadMessageCount()}
                 </div>
             </div>
         );

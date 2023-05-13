@@ -9,7 +9,7 @@
     }
 
     @media(display-mode: standalone){
-        body {
+        html, body {
             margin-top: 54px;
         }
     }

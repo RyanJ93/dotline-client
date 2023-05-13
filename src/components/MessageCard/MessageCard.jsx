@@ -54,7 +54,7 @@ class MessageCard extends React.Component {
     }
 
     _handleMessageEdit(message){
-        if ( message.getID() === this.state.message.getID() ){console.log('ChANGE', message);
+        if ( message.getID() === this.state.message.getID() ){
             this.setMessage(message);
         }
     }
@@ -87,7 +87,7 @@ class MessageCard extends React.Component {
         const messageUserID = this.state.message.getUser()?.getID();
         const direction = messageUserID === authenticatedUserID ? 'sent' : 'received';
         return (
-            <div className={styles.messageCard} data-direction={direction}>
+            <div className={styles.messageCard} data-direction={direction} data-message-id={this.state.message.getID()}>
                 <div className={styles.wrapper}>
                     <span>{this.state.message.getContent()}</span>
                     <div className={styles.date}>{this.#renderEditedLabel()}{this.#getMessageTime()}</div>

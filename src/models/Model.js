@@ -59,6 +59,7 @@ class Model {
                         }else{
                             processedValue = this._processFieldValue(filters[name][operator], mapping.fields[name]);
                         }
+                        processedValue = { [name]: { [operator]: processedValue } };
                     }
                 }else{
                     processedValue = this._processFieldValue(filters[name], mapping.fields[name]);
@@ -106,6 +107,10 @@ class Model {
         await Database.getConnection().remove(this._buildSelectionParams(filters));
     }
 
+    static async count(filters){
+        return await Database.getConnection().count(this._buildSelectionParams(filters));
+    }
+
     #prepareFieldsForStoring(){
         const fields = Object.assign({}, this._attributes);
         for ( const fieldName in this._mapping.fields ){
@@ -130,6 +135,12 @@ class Model {
             }
         }
         return fields;
+    }
+
+    #computePrimaryKey(fields){
+        return this._mapping.keys.map((fieldName) => {
+            return fields[fieldName] ?? null;
+        }).join('@');
     }
 
     _attributes = {};
@@ -169,6 +180,7 @@ class Model {
 
     async save(){
         const fields = this.#prepareFieldsForStoring();
+        fields._primaryKey = this.#computePrimaryKey(fields);
         await Database.getConnection().insert({
             into: this._mapping.tableName,
             values: [fields],

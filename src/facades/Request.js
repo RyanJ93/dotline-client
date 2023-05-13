@@ -103,11 +103,11 @@ class Request extends Facade {
         return await Request.#makeRequest('GET', url, query, null, authenticated);
     }
 
-    static async post(url, data, authenticated = true){
+    static async post(url, data = null, authenticated = true){
         return await Request.#makeRequest('POST', url, null, data, authenticated);
     }
 
-    static async patch(url, data, authenticated = true){
+    static async patch(url, data = null, authenticated = true){
         return await Request.#makeRequest('PATCH', url, null, data, authenticated);
     }
 

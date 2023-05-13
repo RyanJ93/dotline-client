@@ -12,7 +12,7 @@ class ConversationViewerList extends React.Component {
             const isSelected = id === this.state.selectedConversationID;
             renderedConversationViewerList.push(
                 <div className={styles.conversationViewer} key={id} data-selected={isSelected}>
-                    <ConversationViewer conversation={conversation} onMessageSend={this._handleMessageSend} onMessageDelete={this._handleMessageDelete} onConversationClose={this._handleConversationClose} onConversationDelete={this._handleConversationDeleteAction} />
+                    <ConversationViewer selected={isSelected} conversation={conversation} onMessageSend={this._handleMessageSend} onMessageDelete={this._handleMessageDelete} onConversationClose={this._handleConversationClose} onConversationDelete={this._handleConversationDeleteAction} />
                 </div>
             );
         }

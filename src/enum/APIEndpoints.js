@@ -7,7 +7,9 @@
  * @readonly
  */
 export default Object.freeze({
+    MESSAGE_MARK_AS_READ: '/api/conversation/:conversationID/message/:messageID/mark-as-read',
     MESSAGE_DELETE: '/api/conversation/:conversationID/message/:messageID/delete',
+    CONVERSATION_MARK_AS_READ: '/api/conversation/:conversationID/mark-as-read',
     MESSAGE_EDIT: '/api/conversation/:conversationID/message/:messageID/edit',
     CONVERSATION_DELETE: '/api/conversation/:conversationID/delete',
     MESSAGE_SEND: '/api/conversation/:conversationID/message/send',

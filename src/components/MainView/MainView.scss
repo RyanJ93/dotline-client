@@ -6,11 +6,18 @@ div.view {
     height: 100%;
     background-color: #34495e;
     display: flex;
+    box-sizing: border-box;
+
+    @media(display-mode: standalone){
+        & {
+            padding-top: 54px;
+        }
+    }
 
     div.sideBar {
         border-right: 1px solid #7f8c8d;
         height: 100%;
-        width: 300px;
+        width: 350px;
         display: flex;
         flex-direction: column;
         min-width: 300px;

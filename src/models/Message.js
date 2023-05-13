@@ -9,7 +9,7 @@ class Message extends Model {
         super();
 
         this._mapping = {
-            keys: ['conversationID', 'userID'],
+            keys: ['conversationID', 'id'],
             tableName: 'messages',
             fields: {
                 conversation: { name: 'conversationID', relation: { model: Conversation, mapping: { conversationID: { foreign: 'id', method: 'getID' } }} },
@@ -19,6 +19,7 @@ class Message extends Model {
                 createdAt: { name: 'createdAt', type: 'date' },
                 updatedAt: { name: 'updatedAt', type: 'date' },
                 content: { name: 'content', type: 'string' },
+                read: { name: 'read', type: 'boolean' },
                 type: { name: 'type', type: 'string' },
                 id: { name: 'id', type: 'timeuuid' }
             }
@@ -90,6 +91,15 @@ class Message extends Model {
 
     getUser(){
         return this._attributes?.user ?? null;
+    }
+
+    setRead(read){
+        this._attributes.read = read;
+        return this;
+    }
+
+    getRead(){
+        return this._attributes?.read ?? true;
     }
 
     setType(type){

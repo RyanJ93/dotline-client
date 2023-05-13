@@ -48,6 +48,15 @@ class LocalDataService extends Service {
      */
     async refreshLocalData(dropSchema = false){
         await this.dropLocalData(dropSchema);
+        await this.ensureLocalData();
+    }
+
+    /**
+     * Ensures and update locally stored data.
+     *
+     * @returns {Promise<void>}
+     */
+    async ensureLocalData(){
         await new UserService().getUserInfo();
         await new ConversationService().fetchConversations();
         this._eventBroker.emit('localDataImported');

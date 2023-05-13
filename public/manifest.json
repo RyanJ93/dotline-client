@@ -2,6 +2,7 @@
     "name": "DotLine",
     "short_name": "DotLine",
     "display": "standalone",
+    "orientation": "portrait",
     "icons": [{
         "src": "",
         "sizes": "192x192",

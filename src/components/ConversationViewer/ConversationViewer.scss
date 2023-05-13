@@ -8,6 +8,15 @@ section.conversationViewer {
         overflow-x: hidden;
         flex-grow: 1;
 
+        div.loader {
+            background-image: url(/public/assets/rounded_loader.svg);
+            width: 48px;
+            height: 48px;
+            background-position: center;
+            background-size: contain;
+            margin: 50px auto auto auto;
+        }
+
         ul.messageList {
             list-style: none;
             margin: 0;
@@ -18,6 +27,15 @@ section.conversationViewer {
                 text-align: center;
                 padding: 12px 0;
             }
+        }
+
+        div.scrollDownButton {
+            position: fixed;
+            bottom: 74px;
+            right: 18px;
+            font-size: 36px;
+            cursor: pointer;
+            display: none;
         }
     }
 
