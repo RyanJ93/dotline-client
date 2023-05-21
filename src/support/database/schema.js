@@ -19,6 +19,7 @@ export default Object.freeze({
             conversationID: { notNull: true, dataType: 'string' },
             createdAt: { notNull: true, dataType: 'date_time' },
             updatedAt: { notNull: true, dataType: 'date_time' },
+            attachments: { notNull: true, dataType: 'array' },
             isEdited: { notNull: true, dataType: 'boolean' },
             content: { notNull: true, dataType: 'string' },
             userID: { notNull: false, dataType: 'string' },

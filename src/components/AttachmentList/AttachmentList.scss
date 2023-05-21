@@ -1,0 +1,80 @@
+div.attachmentList {
+    width: 100%;
+
+    div.listWrapper {
+        p.title {
+            margin: 0 12px 0 12px;
+            font-size: 18px;
+        }
+
+        p.instructions {
+            margin: 0 12px 12px 12px;
+            font-size: 14px;
+            font-style: italic;
+        }
+
+        ul.list {
+            width: 100%;
+            white-space: nowrap;
+            list-style: none;
+            overflow: auto;
+            margin: 0;
+            padding: 0;
+
+            li {
+                margin: 12px 0 12px 12px;
+                display: inline-block;
+                position: relative;
+                width: 150px;
+                height: 200px;
+
+                &:last-child {
+                    margin-right: 12px !important;
+                }
+
+                &:hover {
+                    div.controls {
+                        opacity: 1;
+                    }
+                }
+
+                p.name {
+                    font-size: 14px;
+                    max-width: 100%;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    margin: 6px 0 0;
+                }
+
+                p.size {
+                    margin: 0;
+                    font-size: 14px;
+                    font-style: italic;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+
+                div.imagePreview {
+                    width: 150px;
+                    height: 150px;
+                    background-repeat: no-repeat;
+                    background-size: contain;
+                    background-position: center;
+                }
+
+                div.controls {
+                    transition: opacity .25s ease-in-out;
+                    will-change: opacity;
+                    position: absolute;
+                    font-size: 24px;
+                    cursor: pointer;
+                    opacity: 0;
+                    right: 0;
+                    top: 0;
+                }
+            }
+        }
+    }
+}

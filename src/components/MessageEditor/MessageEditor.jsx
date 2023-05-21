@@ -1,11 +1,39 @@
 'use strict';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import AttachmentList from '../AttachmentList/AttachmentList';
 import styles from './MessageEditor.scss';
 import React from 'react';
 
 class MessageEditor extends React.Component {
+    #attachmentListRef = React.createRef();
+    #inputFileRef = React.createRef();
     #inputRef = React.createRef();
+
+    #renderAttachmentMenu(){
+        return (
+            <div className={styles.attachmentMenuWrapper} data-active={this.state.attachmentMenuActive}>
+                <div className={styles.attachmentMenuOverlay} onClick={this._handleAttachmentMenuOverlayClick} />
+                <ul className={styles.attachmentMenu}>
+                    <li data-attachment-type={'image'} onClick={this._handleAttachmentMenuEntryClick}>
+                        <FontAwesomeIcon icon='fa-solid fa-image' /> Image
+                    </li>
+                    <li data-attachment-type={'video'} onClick={this._handleAttachmentMenuEntryClick}>
+                        <FontAwesomeIcon icon='fa-solid fa-video' /> Video
+                    </li>
+                    <li data-attachment-type={'audio'} onClick={this._handleAttachmentMenuEntryClick}>
+                        <FontAwesomeIcon icon='fa-solid fa-headphones' /> Audio
+                    </li>
+                    <li data-attachment-type={'file'} onClick={this._handleAttachmentMenuEntryClick}>
+                        <FontAwesomeIcon icon='fa-solid fa-file' /> File
+                    </li>
+                    <li data-attachment-type={'position'} onClick={this._handleAttachmentMenuEntryClick}>
+                        <FontAwesomeIcon icon='fa-solid fa-location-dot' /> Position
+                    </li>
+                </ul>
+            </div>
+        );
+    }
 
     #renderEditMessageReview(){
         return this.state.message === null ? null : (
@@ -41,13 +69,40 @@ class MessageEditor extends React.Component {
         }
     }
 
+    _handleAttachmentAddButtonClick(){
+        this.setState((prev) => ({ ...prev, attachmentMenuActive: true }));
+    }
+
+    _handleAttachmentMenuOverlayClick(){
+        this.setState((prev) => ({ ...prev, attachmentMenuActive: false }));
+    }
+
+    _handleInputFileChange(event){
+        this.#attachmentListRef.current.addAttachments(event.target.files);
+        console.log(event);
+    }
+
+    _handleAttachmentMenuEntryClick(event){
+        this.setState((prev) => ({ ...prev, attachmentMenuActive: false }));
+        switch ( event.target.closest('li').getAttribute('data-attachment-type') ){
+            case 'image': {
+                this.#inputFileRef.current.accept = 'image/*';
+                this.#inputFileRef.current.click();
+            }break;
+        }
+    }
+
     constructor(props){
         super(props);
 
+        this._handleAttachmentMenuOverlayClick = this._handleAttachmentMenuOverlayClick.bind(this);
+        this._handleAttachmentMenuEntryClick = this._handleAttachmentMenuEntryClick.bind(this);
+        this._handleAttachmentAddButtonClick = this._handleAttachmentAddButtonClick.bind(this);
         this._handleEditMessageDiscardClick = this._handleEditMessageDiscardClick.bind(this);
         this._handleSendButtonClick = this._handleSendButtonClick.bind(this);
+        this._handleInputFileChange = this._handleInputFileChange.bind(this);
         this._handleKeyPress = this._handleKeyPress.bind(this);
-        this.state = { message: null };
+        this.state = { message: null, attachmentMenuActive: false };
     }
 
     setMessage(message){
@@ -64,19 +119,27 @@ class MessageEditor extends React.Component {
     }
 
     isMessageEmpty(){
-        return this.#inputRef.current.value === '';
+        const hasAttachments = this.#attachmentListRef.current.hasAttachments();
+        return !hasAttachments && this.#inputRef.current.value.trim() === '';
     }
 
     sendMessage(){
         if ( !this.isMessageEmpty() && typeof this.props.onMessageSend === 'function' ){
-            this.props.onMessageSend(this.#inputRef.current.value, this.state.message);
+            const attachmentList = this.#attachmentListRef.current.getAttachmentList();
+            this.props.onMessageSend(this.#inputRef.current.value.trim(), attachmentList, this.state.message);
             this.setMessage(null).clear();
         }
         return this;
     }
 
     clear(){
+        this.#attachmentListRef.current.clear();
         this.#inputRef.current.value = '';
+        return this;
+    }
+
+    addAttachments(fileList){
+        this.#attachmentListRef.current.addAttachments(fileList);
         return this;
     }
 
@@ -84,14 +147,20 @@ class MessageEditor extends React.Component {
         return (
             <div className={styles.messageEditor}>
                 {this.#renderEditMessageReview()}
+                <AttachmentList ref={this.#attachmentListRef} />
                 <div className={styles.messageEditorWrapper}>
+                    <div className={styles.controlsWrapper}>
+                        <FontAwesomeIcon icon='fa-solid fa-paperclip' onClick={this._handleAttachmentAddButtonClick} />
+                    </div>
                     <div className={styles.inputWrapper}>
                         <input placeholder={'Write a message...'} className={styles.input} type={'text'} onKeyUp={this._handleKeyPress} ref={this.#inputRef} />
+                        <input ref={this.#inputFileRef} type={'file'} multiple={true} className={styles.inputFile} onChange={this._handleInputFileChange} />
                     </div>
                     <div className={styles.controlsWrapper}>
-                        <FontAwesomeIcon icon="fa-solid fa-paper-plane" onClick={this._handleSendButtonClick} />
+                        <FontAwesomeIcon icon='fa-solid fa-paper-plane' onClick={this._handleSendButtonClick} />
                     </div>
                 </div>
+                {this.#renderAttachmentMenu()}
             </div>
         );
     }

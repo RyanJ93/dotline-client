@@ -2,11 +2,11 @@
 
 import RemoteServiceException from '../exceptions/RemoteServiceException';
 import InvalidInputException from '../exceptions/InvalidInputException';
+import Serializable from '../support/traits/Serializable';
 import ExceptionMapper from '../support/ExceptionMapper';
 import ErrorMessageBag from '../DTOs/ErrorMessageBag';
 import Facade from './Facade';
 import App from './App';
-import Serializable from '../support/traits/Serializable';
 
 class Request extends Facade {
     static #processResponse(response){
@@ -34,26 +34,28 @@ class Request extends Facade {
         }
     }
 
+    static #appendValue(formData, fieldName, value){
+        if ( value instanceof File || value instanceof Blob ){
+            formData.append(fieldName, value);
+        }else if ( value instanceof Serializable ){
+            formData.append(fieldName, value.serialize());
+        }else if ( typeof value === 'object' ){
+            formData.append(fieldName, JSON.stringify(value));
+        }else{
+            formData.append(fieldName, value);
+        }
+    }
+
     static #preparePOSTFields(data){
-        const formData = new FormData();
+        const formData = new FormData();console.log(data);
         for ( const fieldName in data ){
             if ( typeof data[fieldName] !== 'undefined' && data[fieldName] !== null ){
                 if ( Array.isArray(data[fieldName]) ){
                     data[fieldName].forEach((entry) => {
-                        if ( entry instanceof Serializable ){
-                            formData.append(fieldName + '[]', entry.serialize());
-                        }else if ( typeof entry === 'object' ){
-                            formData.append(fieldName + '[]', JSON.stringify(entry));
-                        }else{
-                            formData.append(fieldName + '[]', entry);
-                        }
+                        Request.#appendValue(formData, fieldName + '[]', entry);
                     });
-                }else if ( data[fieldName] instanceof Serializable ){
-                    formData.append(fieldName, data[fieldName].serialize());
-                }else if ( typeof data[fieldName] === 'object' ){
-                    formData.append(fieldName, JSON.stringify(data[fieldName]));
                 }else{
-                    formData.append(fieldName, data[fieldName]);
+                    Request.#appendValue(formData, fieldName, data[fieldName]);
                 }
             }
         }
@@ -113,6 +115,23 @@ class Request extends Facade {
 
     static async delete(url, query = null, authenticated = true){
         return await Request.#makeRequest('DELETE', url, query, null, authenticated);
+    }
+
+    static async download(url, query = null, authenticated = true){
+        return new Promise((resolve, reject) => {
+            const request = new XMLHttpRequest();
+            request.open('GET', Request.#buildRequestURL(url, query), true);
+            if ( authenticated === true ){
+                Request.#addAuthenticationHeader(request);
+            }
+            request.responseType = 'blob';
+            request.onreadystatechange = () => {
+                if ( request.readyState === XMLHttpRequest.DONE ){
+                    resolve(request.response);
+                }
+            };
+            request.send();
+        });
     }
 }
 

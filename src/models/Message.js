@@ -15,6 +15,7 @@ class Message extends Model {
                 conversation: { name: 'conversationID', relation: { model: Conversation, mapping: { conversationID: { foreign: 'id', method: 'getID' } }} },
                 user: { name: 'userID', relation: { model: User, mapping: { userID: { foreign: 'id', method: 'getID' } }} },
                 isSignatureValid: { name: 'isSignatureValid', type: 'boolean' },
+                attachments: { name: 'attachments', type: 'array' },
                 isEdited: { name: 'isEdited', type: 'boolean' },
                 createdAt: { name: 'createdAt', type: 'date' },
                 updatedAt: { name: 'updatedAt', type: 'date' },
@@ -42,6 +43,15 @@ class Message extends Model {
 
     getIsSignatureValid(){
         return this._attributes?.isSignatureValid ?? null;
+    }
+
+    setAttachments(attachments){
+        this._attributes.attachments = attachments;
+        return this;
+    }
+
+    getAttachments(){
+        return this._attributes?.attachments ?? null;
     }
 
     setCreatedAt(createdAt){

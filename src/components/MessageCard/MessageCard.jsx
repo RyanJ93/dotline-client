@@ -1,5 +1,6 @@
 'use strict';
 
+import AttachmentViewer from '../AttachmentViewer/AttachmentViewer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Event from '../../facades/Event';
 import styles from './MessageCard.scss';
@@ -7,26 +8,24 @@ import App from '../../facades/App';
 import React from 'react';
 
 class MessageCard extends React.Component {
-    _handleContextMenuActionClick(event){
-        const action = event.target.closest('li').getAttribute('data-action-name');
-        this.setState((prev) => ({ ...prev, contextmenuEnabled: false }));
-        if ( typeof this.props.onMessageAction === 'function' ){
-            this.props.onMessageAction(action, this.state.message);
-        }
-    }
-
-    _handleContextMenuOverlayClick(){
-        this.setState((prev) => ({ ...prev, contextmenuEnabled: false }));
-    }
-
-    _handleContextMenuOpenerClick(){
-        this.setState((prev) => ({ ...prev, contextmenuEnabled: ( !prev.contextmenuEnabled ) }));
-    }
+    #attachmentViewerRef = React.createRef();
+    #messageCardRef = React.createRef();
+    #parentMutationObserver;
 
     #getMessageTime(){
         let time = ( '0' + this.state.message.getCreatedAt().getHours() ).slice(-2);
         time += ':' + ( '0' + this.state.message.getCreatedAt().getMinutes() ).slice(-2);
         return time;
+    }
+
+    #setupParentMutationObserver(){
+        const parent = this.#messageCardRef.current.closest('li[data-in-viewport]');
+        this.#parentMutationObserver = new MutationObserver(() => {
+            if ( parent.getAttribute('data-in-viewport') === 'true' ){
+                this.loadAttachments();
+            }
+        });
+        this.#parentMutationObserver.observe(parent, { attributes: true, childList: false, subtree: false });
     }
 
     #renderContextMenu(){
@@ -53,33 +52,56 @@ class MessageCard extends React.Component {
         ) : null;
     }
 
+    _handleContextMenuActionClick(event){
+        const action = event.target.closest('li').getAttribute('data-action-name');
+        this.setState((prev) => ({ ...prev, contextmenuEnabled: false }));
+        if ( typeof this.props.onMessageAction === 'function' ){
+            this.props.onMessageAction(action, this.state.message);
+        }
+    }
+
+    _handleContextMenuOverlayClick(){
+        this.setState((prev) => ({ ...prev, contextmenuEnabled: false }));
+    }
+
+    _handleContextMenuOpenerClick(){
+        this.setState((prev) => ({ ...prev, contextmenuEnabled: ( !prev.contextmenuEnabled ) }));
+    }
+
     _handleMessageEdit(message){
         if ( message.getID() === this.state.message.getID() ){
-            this.setMessage(message);
+            this.setState((prev) => ({ ...prev, message: message }));
+        }
+    }
+
+    _handleAttachmentClick(index, downloadedAttachmentList){
+        if ( typeof this.props.onAttachmentClick === 'function' ){
+            this.props.onAttachmentClick(index, downloadedAttachmentList);
         }
     }
 
     constructor(props){
         super(props);
 
+        this.state = { contextmenuEnabled: false, message: this.props.message, attachmentList: [] };
         this._handleContextMenuOverlayClick = this._handleContextMenuOverlayClick.bind(this);
         this._handleContextMenuOpenerClick = this._handleContextMenuOpenerClick.bind(this);
         this._handleContextMenuActionClick = this._handleContextMenuActionClick.bind(this);
+        this._handleAttachmentClick = this._handleAttachmentClick.bind(this);
         this._handleMessageEdit = this._handleMessageEdit.bind(this);
-        this.state = { contextmenuEnabled: false, message: this.props.message };
-    }
-
-    setMessage(message){
-        this.setState((prev) => ({ ...prev, message: message }));
-        return this;
-    }
-
-    getMessage(){
-        return this.state.message;
     }
 
     componentDidMount(){
         Event.getBroker().on('messageEdit', this._handleMessageEdit);
+        this.#setupParentMutationObserver();
+    }
+
+    componentWillUnmount(){
+        this.#parentMutationObserver?.disconnect();
+    }
+
+    async loadAttachments(){
+        await this.#attachmentViewerRef.current.fetchAttachments();
     }
 
     render(){
@@ -87,10 +109,11 @@ class MessageCard extends React.Component {
         const messageUserID = this.state.message.getUser()?.getID();
         const direction = messageUserID === authenticatedUserID ? 'sent' : 'received';
         return (
-            <div className={styles.messageCard} data-direction={direction} data-message-id={this.state.message.getID()}>
+            <div className={styles.messageCard} data-direction={direction} data-message-id={this.state.message.getID()} ref={this.#messageCardRef}>
                 <div className={styles.wrapper}>
                     <span>{this.state.message.getContent()}</span>
                     <div className={styles.date}>{this.#renderEditedLabel()}{this.#getMessageTime()}</div>
+                    <AttachmentViewer ref={this.#attachmentViewerRef} message={this.state.message} onAttachmentClick={this._handleAttachmentClick} />
                     {direction === 'sent' ? this.#renderContextMenu() : null}
                 </div>
             </div>

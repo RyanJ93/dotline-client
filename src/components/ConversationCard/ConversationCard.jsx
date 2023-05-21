@@ -41,6 +41,12 @@ class ConversationCard extends React.Component {
             lastMessageText = this.state.userTypingMessage;
         }else if ( this.state.lastMessage !== null ){
             lastMessageText = this.state.lastMessage.getContent();
+            if ( lastMessageText === '' ){
+                const count = this.state.lastMessage.getAttachments().length;
+                if ( count > 0 ){
+                    lastMessageText = count + ' files';
+                }
+            }
         }
         return lastMessageText;
     }
@@ -50,7 +56,7 @@ class ConversationCard extends React.Component {
         this.#setLastMessage(message);
     }
 
-    _handleMessageEdit(message){
+    _handleMessageEdit(){
         this.#refreshUnreadMessageCount();
     }
 

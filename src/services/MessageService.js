@@ -1,18 +1,20 @@
 'use strict';
 
+import InvalidOperationException from '../exceptions/InvalidOperationException';
 import IllegalArgumentException from '../exceptions/IllegalArgumentException';
 import AESEncryptionParameters from '../DTOs/AESEncryptionParameters';
 import HMACSigningParameters from '../DTOs/HMACSigningParameters';
-import ConversationKeys from '../DTOs/ConversationKeys';
+import ConversationService from './ConversationService';
 import NotificationService from './NotificationService';
+import AttachmentService from './AttachmentService';
 import Conversation from '../models/Conversation';
 import APIEndpoints from '../enum/APIEndpoints';
 import CryptoUtils from '../utils/CryptoUtils';
+import Attachment from '../DTOs/Attachment';
 import Injector from '../facades/Injector';
 import Request from '../facades/Request';
 import UserService from './UserService';
 import Message from '../models/Message';
-import App from '../facades/App';
 import Service from './Service';
 
 /**
@@ -20,6 +22,7 @@ import Service from './Service';
  *
  * @property {Conversation} conversation
  * @property {?boolean} isSignatureValid
+ * @property {Attachment[]} attachments
  * @property {string} encryptionIV
  * @property {boolean} isEdited
  * @property {string} signature
@@ -50,28 +53,6 @@ class MessageService extends Service {
     #message = null;
 
     /**
-     * Extracts the authenticate user's keys from the conversation defined.
-     *
-     * @returns {Promise<?ConversationKeys>}
-     */
-    async #getConversationKeys(){
-        let member = null, i = 0, memberList = this.#conversation.getMembers();
-        const authenticatedUserID = App.getAuthenticatedUser().getID();
-        // Lookup the authenticated user within the member list.
-        while ( member === null && i < memberList.length ){
-            if ( memberList[i].getUser().getID() === authenticatedUserID ){
-                member = memberList[i];
-            }
-            i++;
-        }
-        if ( member === null ){
-            console.error('No keys found for conversation ID ' + this.#conversation.getID());
-            return null;
-        }
-        return await ConversationKeys.extractFromMember(member);
-    }
-
-    /**
      * Generates some new encryption parameters for AES encryption/decryption.
      *
      * @returns {AESEncryptionParameters}
@@ -88,6 +69,43 @@ class MessageService extends Service {
     }
 
     /**
+     * Decrypt message content.
+     *
+     * @param {string} content
+     * @param {?string} encryptionIV
+     * @param {ConversationKeys} conversationKeys
+     *
+     * @returns {Promise<string>}
+     */
+    async #decryptMessage(content, encryptionIV, conversationKeys){
+        if ( encryptionIV !== null ){
+            const encryptionParameters = new AESEncryptionParameters(Object.assign({ iv: encryptionIV }, this.#conversation.getEncryptionParameters().toJSON()));
+            const importedEncryptionKey = await CryptoUtils.importAESKey(conversationKeys.getEncryptionKey(), encryptionParameters);
+            content = await CryptoUtils.AESDecryptText(content, importedEncryptionKey, encryptionParameters);
+        }
+        return content;
+    }
+
+    /**
+     * Verifies message content HMAC signature.
+     *
+     * @param {string} content
+     * @param {?string} signature
+     * @param {ConversationKeys} conversationKeys
+     *
+     * @returns {Promise<boolean>}
+     */
+    async #verifyMessageSignature(content, signature, conversationKeys){
+        let isSignatureValid = true;
+        if ( signature !== null ){
+            const signingParameters = this.#conversation.getSigningParameters();
+            const importedSigningKey = await CryptoUtils.importHMACKey(conversationKeys.getSigningKey(), signingParameters);
+            isSignatureValid = await CryptoUtils.HMACVerify(content, signature, importedSigningKey);
+        }
+        return isSignatureValid;
+    }
+
+    /**
      * Stores a message given its properties.
      *
      * @param {MessageProperties} properties
@@ -95,24 +113,22 @@ class MessageService extends Service {
      * @returns {Promise<Message>}
      */
     async #storeMessageByProperties(properties){
-        const encryptionParameters = new AESEncryptionParameters(Object.assign({
-            iv: properties.encryptionIV
-        }, this.#conversation.getEncryptionParameters().toJSON()));
-        const signingParameters = this.#conversation.getSigningParameters(), conversationKeys = await this.#getConversationKeys();
-        const importedEncryptionKey = await CryptoUtils.importAESKey(conversationKeys.getEncryptionKey(), encryptionParameters);
-        const content = await CryptoUtils.AESDecryptText(properties.content, importedEncryptionKey, encryptionParameters);
-        const importedSigningKey = await CryptoUtils.importHMACKey(conversationKeys.getSigningKey(), signingParameters);
-        const isSignatureValid = await CryptoUtils.HMACVerify(content, properties.signature, importedSigningKey);
-        const createdAt = new Date(properties.createdAt), updatedAt = new Date(properties.updatedAt);
+        const conversationKeys = await new ConversationService(this.#conversation).getConversationKeys();
+        const [ isSignatureValid, content ] = await Promise.all([
+            this.#verifyMessageSignature(properties.content, properties.signature, conversationKeys),
+            this.#decryptMessage(properties.content, properties.encryptionIV, conversationKeys)
+        ]);
+        properties.attachments = Attachment.makeListFromMessageProperties(properties, this.#conversation);
         return await this.#messageRepository.storeMessage({
+            createdAt: new Date(properties.createdAt),
+            updatedAt: new Date(properties.updatedAt),
+            attachments: properties.attachments,
             isSignatureValid: isSignatureValid,
             user: ( properties.user ?? null ),
             conversation: this.#conversation,
             isEdited: properties.isEdited,
             read: properties.read,
             type: properties.type,
-            createdAt: createdAt,
-            updatedAt: updatedAt,
             id: properties.id,
             content: content
         });
@@ -145,6 +161,21 @@ class MessageService extends Service {
                 }
             });
         }
+    }
+
+    /**
+     *
+     *
+     * @param {Message[]} messageList
+     */
+    #convertMessageEntities(messageList){
+        messageList.forEach((message) => {
+            const attachmentList = message.getAttachments();
+            message.setConversation(this.#conversation);
+            attachmentList.forEach((attachment, index) => {
+                attachmentList[index] = new Attachment(attachment);
+            });
+        });
     }
 
     /**
@@ -230,6 +261,7 @@ class MessageService extends Service {
         }
         await this.#assignUsersToMessageList([messageProperties]);
         this.#message = await this.#storeMessageByProperties(messageProperties);
+        this.#convertMessageEntities([this.#message]);
         this._eventBroker.emit('messageAdded', this.#message);
         return this.#message;
     }
@@ -249,6 +281,7 @@ class MessageService extends Service {
         }
         await this.#assignUsersToMessageList([messageProperties]);
         this.#message = await this.#storeMessageByProperties(messageProperties);
+        this.#convertMessageEntities([this.#message]);
         this._eventBroker.emit('messageEdit', this.#message);
         return this.#message;
     }
@@ -291,6 +324,7 @@ class MessageService extends Service {
             await this.#assignUsersToMessageList([messageProperties]);
             return await this.#storeMessageByProperties(messageProperties);
         }));
+        this.#convertMessageEntities(messageList);
         this._eventBroker.emit('loadedMessages', this.#conversation, messageList);
         return messageList;
     }
@@ -300,37 +334,50 @@ class MessageService extends Service {
      *
      * @param {string} content
      * @param {string} type
-     * @param {*[]} attachments
+     * @param {File[]} attachmentList
      *
      * @returns {Promise<?Message>}
      *
      * @throws {IllegalArgumentException} If an invalid attachments array is given.
      * @throws {IllegalArgumentException} If an invalid content is given.
      * @throws {IllegalArgumentException} If an invalid type is given.
+     * @throws {InvalidOperationException} If the message is empty.
      */
-    async send(content, type, attachments = []){
-        if ( content === '' || typeof content !== 'string' ){
-            throw new IllegalArgumentException('Invalid content.');
-        }
+    async send(content, type, attachmentList = []){
         if ( type === '' || typeof type !== 'string' ){
             throw new IllegalArgumentException('Invalid type.');
         }
-        if ( !Array.isArray(attachments) ){
-            throw new IllegalArgumentException('Invalid attachments.');
+        if ( !Array.isArray(attachmentList) ){
+            throw new IllegalArgumentException('Invalid attachment list.');
+        }
+        if ( typeof content !== 'string' ){
+            throw new IllegalArgumentException('Invalid content.');
+        }
+        if ( content === '' && attachmentList.length === 0 ){
+            throw new InvalidOperationException('Empty messages are not allowed.');
         }
         const url = APIEndpoints.MESSAGE_SEND.replace(':conversationID', this.#conversation.getID());
-        const hmacSigningParameters = new HMACSigningParameters({ hashName: 'SHA-512' });
-        const aesEncryptionParameters = this.#generateAESEncryptionParameters(), conversationKeys = await this.#getConversationKeys();
+        const params = { type: type, files: [], attachmentMetadataList: [], content: '' };
+        const hmacSigningParameters = new HMACSigningParameters({ hashName: 'SHA-512' }), attachmentService = new AttachmentService();
+        const conversationKeys = await new ConversationService(this.#conversation).getConversationKeys();
+        const aesEncryptionParameters = this.#generateAESEncryptionParameters();
         const importedEncryptionKey = await CryptoUtils.importAESKey(conversationKeys.getEncryptionKey(), aesEncryptionParameters);
         const importedSigningKey = await CryptoUtils.importHMACKey(conversationKeys.getSigningKey(), hmacSigningParameters);
-        const encryptedContent = await CryptoUtils.AESEncryptText(content, importedEncryptionKey, aesEncryptionParameters);
-        const signature = await CryptoUtils.HMACSign(content, importedSigningKey, hmacSigningParameters);
-        const response = await Request.post(url, {
-            encryptionIV: aesEncryptionParameters.getIV(),
-            content: encryptedContent,
-            signature: signature,
-            type: type
-        });
+        if ( content !== '' ){
+            params.content = await CryptoUtils.AESEncryptText(content, importedEncryptionKey, aesEncryptionParameters);
+            params.signature = await CryptoUtils.HMACSign(content, importedSigningKey, hmacSigningParameters);
+            params.encryptionIV = aesEncryptionParameters.getIV();
+        }
+        if ( attachmentList.length > 0 ){
+            attachmentService.setEncryptionParameters(importedEncryptionKey, this.#conversation.getEncryptionParameters());
+            attachmentService.setSigningParameters(importedSigningKey, hmacSigningParameters);
+            for ( let i = 0 ; i < attachmentList.length ; i++ ){
+                const processedAttachment = await attachmentService.processAttachmentFile(attachmentList[i]);
+                params.attachmentMetadataList.push(processedAttachment.attachmentMetadata);
+                params.files.push(processedAttachment.encryptedFile);
+            }
+        }
+        const response = await Request.post(url, params);
         return this.#message = await this.storeMessage(response.message);
     }
 
@@ -342,29 +389,34 @@ class MessageService extends Service {
      * @returns {Promise<?Message>}
      *
      * @throws {IllegalArgumentException} If an invalid content is given.
+     * @throws {InvalidOperationException} If the message is empty.
      */
     async edit(content){
-        if ( content === '' || typeof content !== 'string' ){
+        if ( typeof content !== 'string' ){
             throw new IllegalArgumentException('Invalid content.');
         }
+        if ( content === '' && this.#message.getAttachments().length === 0 ){
+            throw new InvalidOperationException('Empty messages are not allowed.');
+        }
         let url = APIEndpoints.MESSAGE_EDIT.replace(':conversationID', this.#conversation.getID());
-        const encryptionIV = crypto.getRandomValues(new Uint8Array(12));
-        const encodedEncryptionIV = btoa(String.fromCharCode(...new Uint8Array(encryptionIV)));
-        const aesEncryptionParameters = new AESEncryptionParameters(Object.assign({
-            iv: encodedEncryptionIV
-        }, this.#conversation.getEncryptionParameters().toJSON()));
-        const signingParameters = this.#conversation.getSigningParameters(), conversationKeys = await this.#getConversationKeys();
-        const importedEncryptionKey = await CryptoUtils.importAESKey(conversationKeys.getEncryptionKey(), aesEncryptionParameters);
-        const importedSigningKey = await CryptoUtils.importHMACKey(conversationKeys.getSigningKey(), signingParameters);
-        const encryptedContent = await CryptoUtils.AESEncryptText(content, importedEncryptionKey, aesEncryptionParameters);
-        const signature = await CryptoUtils.HMACSign(content, importedSigningKey, signingParameters);
-        const response = await Request.patch(url.replace(':messageID', this.#message.getID()), {
-            encryptionIV: aesEncryptionParameters.getIV(),
-            content: encryptedContent,
-            signature: signature
-        });
+        const params = { content: '' };
+        if ( content !== '' ){
+            const encryptionIV = crypto.getRandomValues(new Uint8Array(12)), params = { content: '' };
+            const aesEncryptionParameters = new AESEncryptionParameters(Object.assign({
+                iv: btoa(String.fromCharCode(...new Uint8Array(encryptionIV)))
+            }, this.#conversation.getEncryptionParameters().toJSON()));
+            const conversationKeys = await new ConversationService(this.#conversation).getConversationKeys();
+            const signingParameters = this.#conversation.getSigningParameters();
+            const importedEncryptionKey = await CryptoUtils.importAESKey(conversationKeys.getEncryptionKey(), aesEncryptionParameters);
+            const importedSigningKey = await CryptoUtils.importHMACKey(conversationKeys.getSigningKey(), signingParameters);
+            params.content = await CryptoUtils.AESEncryptText(content, importedEncryptionKey, aesEncryptionParameters);
+            params.signature = await CryptoUtils.HMACSign(content, importedSigningKey, signingParameters);
+            params.encryptionIV = aesEncryptionParameters.getIV();
+        }
+        const response = await Request.patch(url.replace(':messageID', this.#message.getID()), params);
         await this.#assignUsersToMessageList([response.message]);
         this.#message = await this.#storeMessageByProperties(response.message);
+        this.#convertMessageEntities([this.#message]);
         this._eventBroker.emit('messageEdit', this.#message);
         return this.#message;
     }
@@ -408,7 +460,9 @@ class MessageService extends Service {
         if ( limit === null || isNaN(limit) || limit <= 0 ){
             throw new IllegalArgumentException('Invalid limit.');
         }
-        return await this.#messageRepository.findByConversation(this.#conversation, limit, endingID, startingID);
+        const messageList = await this.#messageRepository.findByConversation(this.#conversation, limit, endingID, startingID);
+        this.#convertMessageEntities(messageList);
+        return messageList;
     }
 
     /**
@@ -417,7 +471,11 @@ class MessageService extends Service {
      * @returns {Promise<Message>}
      */
     async getOldestMessage(){
-        return await this.#messageRepository.getOldestMessage(this.#conversation);
+        const message = await this.#messageRepository.getOldestMessage(this.#conversation);
+        if ( message !== null ){
+            this.#convertMessageEntities([message]);
+        }
+        return message;
     }
 
     /**
@@ -426,7 +484,11 @@ class MessageService extends Service {
      * @returns {Promise<Message>}
      */
     async getNewestMessage(){
-        return await this.#messageRepository.getNewestMessage(this.#conversation);
+        const message = await this.#messageRepository.getNewestMessage(this.#conversation);
+        if ( message !== null ){
+            this.#convertMessageEntities([message]);
+        }
+        return message;
     }
 
     /**

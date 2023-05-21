@@ -20,6 +20,7 @@ class MessageRepository extends Repository {
             throw new IllegalArgumentException('Invalid message properties.');
         }
         const message = new Message();
+        message.setAttachments(properties.attachments.map((attachment) => attachment.toJSON()));
         message.setIsSignatureValid(properties.isSignatureValid);
         message.setConversation(properties.conversation);
         message.setCreatedAt(properties.createdAt);
@@ -37,7 +38,7 @@ class MessageRepository extends Repository {
     /**
      * Finds a message given its ID.
      *
-     * @param {string} conversation
+     * @param {Conversation} conversation
      * @param {string} id
      *
      * @returns {Promise<Model>}

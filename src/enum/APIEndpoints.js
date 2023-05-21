@@ -7,6 +7,7 @@
  * @readonly
  */
 export default Object.freeze({
+    ATTACHMENT_GET: '/api/conversation/:conversationID/message/:messageID/attachment/:attachmentID/get',
     MESSAGE_MARK_AS_READ: '/api/conversation/:conversationID/message/:messageID/mark-as-read',
     MESSAGE_DELETE: '/api/conversation/:conversationID/message/:messageID/delete',
     CONVERSATION_MARK_AS_READ: '/api/conversation/:conversationID/mark-as-read',

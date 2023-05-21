@@ -68,6 +68,15 @@ class AESEncryptionParameters extends AESStaticParameters {
     }
 
     /**
+     * Returns the IV used in AES encryption as a typed array.
+     *
+     * @returns {Uint8Array}
+     */
+    getIVAsTypedArray(){
+        return Uint8Array.from(atob(this.#iv), c => c.charCodeAt(0));
+    }
+
+    /**
      * Returns the IV used in AES encryption.
      *
      * @returns {string}

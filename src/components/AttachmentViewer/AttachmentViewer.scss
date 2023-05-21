@@ -1,0 +1,49 @@
+div.attachmentViewer {
+    div.container {
+        display: flex;
+        flex-wrap: wrap;
+        max-width: 500px;
+        margin-top: 12px;
+
+        div.previewWrapper {
+            position: relative;
+            cursor: pointer;
+
+            &[data-size="1"] {
+                width: 250px;
+            }
+
+            &[data-size="2"] {
+                flex-basis: 50%;
+            }
+
+            &[data-size="4"] {
+                width: 33%;
+
+                &:first-child {
+                    flex-basis: 100%;
+                }
+            }
+
+            img {
+                max-width: 100%;
+            }
+
+            p.remainingAttachmentCounter {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                margin: auto;
+                text-align: center;
+                width: 64px;
+                height: 64px;
+                background-color: rgba(0,0,0,0.75);
+                border-radius: 32px;
+                line-height: 2.2;
+                font-size: 28px;
+            }
+        }
+    }
+}

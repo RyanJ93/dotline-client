@@ -21,7 +21,7 @@ class MainView extends React.Component {
         return conversation;
     }
 
-    async #sendMessage(messageText, conversation, message){
+    async #sendMessage(messageText, attachmentList, conversation, message){
         if ( conversation instanceof ConversationDraft ){
             conversation = await this.#createNewConversation(conversation);
         }
@@ -29,7 +29,7 @@ class MainView extends React.Component {
         if ( message !== null ){
             return await messageService.setMessage(message).edit(messageText);
         }
-        await messageService.send(messageText, MessageType.TEXT);
+        await messageService.send(messageText, MessageType.TEXT, attachmentList);
         this.#selectConversation(conversation.getID());
     }
 
@@ -73,8 +73,8 @@ class MainView extends React.Component {
         this.#deleteConversation(conversation, deleteForEveryone);
     }
 
-    _handleMessageSend(messageText, conversation, message){
-       this.#sendMessage(messageText, conversation, message);
+    _handleMessageSend(messageText, attachmentList, conversation, message){
+       this.#sendMessage(messageText, attachmentList, conversation, message);
     }
 
     #selectConversation(conversationID){

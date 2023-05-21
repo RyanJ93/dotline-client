@@ -5,6 +5,7 @@ import IllegalArgumentException from '../exceptions/IllegalArgumentException';
 import HMACSigningParameters from '../DTOs/HMACSigningParameters';
 import AESStaticParameters from '../DTOs/AESStaticParameters';
 import ConversationMember from '../DTOs/ConversationMember';
+import ConversationKeys from '../DTOs/ConversationKeys';
 import Conversation from '../models/Conversation';
 import APIEndpoints from '../enum/APIEndpoints';
 import CryptoUtils from '../utils/CryptoUtils';
@@ -12,6 +13,7 @@ import MessageService from './MessageService';
 import Injector from '../facades/Injector';
 import Request from '../facades/Request';
 import UserService from './UserService';
+import App from '../facades/App';
 import Service from './Service';
 
 /**
@@ -154,22 +156,6 @@ class ConversationService extends Service {
      */
     getConversation(){
         return this.#conversation;
-    }
-
-    /**
-     * Stores a conversation locally given its properties.
-     *
-     * @param {ConversationProperties} conversationProperties
-     *
-     * @returns {Promise<Conversation>}
-     *
-     * @throws {IllegalArgumentException} If an invalid conversation properties object is given.
-     */
-    async storeConversation(conversationProperties){
-        if ( conversationProperties === null || typeof conversationProperties !== 'object' ){
-            throw new IllegalArgumentException('Invalid conversation properties.');
-        }
-        return this.#conversation = await this.#storeSingleConversation(conversationProperties);
     }
 
     /**
@@ -380,6 +366,28 @@ class ConversationService extends Service {
     async markAsRead(){
         await Request.patch(APIEndpoints.CONVERSATION_MARK_AS_READ.replace(':conversationID', this.#conversation.getID()));
         await new MessageService(this.#conversation).markMessagesAsRead();
+    }
+
+    /**
+     * Extracts the authenticate user's keys from the conversation defined.
+     *
+     * @returns {Promise<?ConversationKeys>}
+     */
+    async getConversationKeys(){
+        let member = null, i = 0, memberList = this.#conversation.getMembers();
+        const authenticatedUserID = App.getAuthenticatedUser().getID();
+        // Lookup the authenticated user within the member list.
+        while ( member === null && i < memberList.length ){
+            if ( memberList[i].getUser().getID() === authenticatedUserID ){
+                member = memberList[i];
+            }
+            i++;
+        }
+        if ( member === null ){
+            console.error('No keys found for conversation ID ' + this.#conversation.getID());
+            return null;
+        }
+        return await ConversationKeys.extractFromMember(member);
     }
 }
 

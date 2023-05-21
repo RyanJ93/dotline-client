@@ -27,6 +27,13 @@ section.conversationViewer {
                 text-align: center;
                 padding: 12px 0;
             }
+
+            li.emptyMessage {
+                text-align: center;
+                margin-top: 32px;
+                font-style: italic;
+                font-size: 14px;
+            }
         }
 
         div.scrollDownButton {
@@ -40,9 +47,37 @@ section.conversationViewer {
     }
 
     div.messageEditorWrapper {
-        padding: 9px;
         width: 100%;
+        padding: 9px;
         box-sizing: border-box;
-        border-top: 1px solid #7f8c8d;
+    }
+
+    div.dropZone {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #34495e;
+        border: 3px dashed;
+        box-sizing: border-box;
+        display: none;
+        z-index: -1;
+
+        &[data-active="true"] {
+            display: flex;
+            z-index: 15;
+        }
+
+        div.dropZoneContent {
+            align-self: center;
+            flex-grow: 1;
+            text-align: center;
+            font-size: 18px;
+
+            svg {
+                font-size: 54px;
+            }
+        }
     }
 }

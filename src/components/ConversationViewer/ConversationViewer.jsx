@@ -1,6 +1,7 @@
 'use strict';
 
 import ConversationViewerHeader from '../ConversationViewerHeader/ConversationViewerHeader';
+import AttachmentLightBox from '../AttachmentLightBox/AttachmentLightBox';
 import ConversationService from '../../services/ConversationService';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import MessageEditor from '../MessageEditor/MessageEditor';
@@ -11,18 +12,22 @@ import styles from './ConversationViewer.scss';
 import DateUtils from '../../utils/DateUtils';
 import DOMUtils from '../../utils/DOMUtils';
 import Event from '../../facades/Event';
-import React from 'react';
 import App from '../../facades/App';
+import React from 'react';
 
 class ConversationViewer extends React.Component {
+    #messageCardRefIndex = Object.create(null);
+    #attachmentLightBoxRef = React.createRef();
     #conversationViewerRef = React.createRef();
     #scrollDownButtonRef = React.createRef();
     #messageEditorRef = React.createRef();
     #messageListRef = React.createRef();
+    #dropZoneRef = React.createRef();
     #messageTypingSemaphore = true;
     #messageMarkIndex = new Set();
     #intersectionObserver = null;
     #messagePageLoading = false;
+    #dragEventsCounter = 0;
 
     #getSortedMessageList(){
         return Array.from(this.state.messageList.values()).sort((a, b) => {
@@ -36,18 +41,23 @@ class ConversationViewer extends React.Component {
 
     #renderMessageList(){
         let messageList = this.#getSortedMessageList(), renderedMessageList = [], previousPassedDate = null;
-        messageList.forEach((message) => {
-            const currentPassedDate = DateUtils.getPassedDate(message.getCreatedAt());
-            if ( currentPassedDate !== previousPassedDate ){
-                renderedMessageList.push(<li key={currentPassedDate} className={styles.dateSeparator}>{currentPassedDate}</li>);
-                previousPassedDate = currentPassedDate;
-            }
-            renderedMessageList.push(
-                <li key={message.getID()}>
-                    <MessageCard onMessageAction={this._handleMessageAction} message={message} />
-                </li>
-            );
-        });
+        if ( messageList.length === 0 && this.state.loading !== true ){
+            renderedMessageList.push(<li key={'0'} className={styles.emptyMessage}>No message yet, why don't your start saying hello?</li>);
+        }else{
+            messageList.forEach((message) => {
+                const currentPassedDate = DateUtils.getPassedDate(message.getCreatedAt());
+                this.#messageCardRefIndex[message.getID()] = React.createRef();
+                if ( currentPassedDate !== previousPassedDate ){
+                    renderedMessageList.push(<li key={currentPassedDate} className={styles.dateSeparator}>{currentPassedDate}</li>);
+                    previousPassedDate = currentPassedDate;
+                }
+                renderedMessageList.push(
+                    <li key={message.getID()} data-in-viewport={false}>
+                        <MessageCard onMessageAction={this._handleMessageAction} onAttachmentClick={this._handleAttachmentClick} message={message} ref={this.#messageCardRefIndex[message.getID()]} />
+                    </li>
+                );
+            });
+        }
         return <ul className={styles.messageList}>{renderedMessageList}</ul>;
     }
 
@@ -67,9 +77,7 @@ class ConversationViewer extends React.Component {
             elementList.forEach((element) => this.#intersectionObserver.observe(element));
             this.#updateScrollDownButtonVisibility();
             if ( scrollToBottom === true ){
-               window.setTimeout(() => {
-                  this.#scrollListToBottom();
-               }, 250);
+               window.setTimeout(() => this.#scrollListToBottom(), 250);
             }
         });
     }
@@ -145,6 +153,7 @@ class ConversationViewer extends React.Component {
 
     _handleMessageDelete(messageID){
         this.state.messageList.delete(messageID);
+        this.forceUpdate();
     }
 
     _handleConversationClose(){
@@ -161,14 +170,16 @@ class ConversationViewer extends React.Component {
         }
     }
 
-    _handleMessageSend(text, message){
+    _handleMessageSend(text, attachmentList, message){
         if ( typeof this.props.onMessageSend === 'function' ){
-            this.props.onMessageSend(text, this.state.conversation, message);
+            this.props.onMessageSend(text, attachmentList, this.state.conversation, message);
         }
     }
 
-    _handleIntersectionChange(entries, observer){
+    _handleIntersectionChange(entries){
         entries.forEach((entry) => {
+            const inViewport = entry.isIntersecting ? 'true' : 'false';
+            entry.target.closest('li[data-in-viewport]').setAttribute('data-in-viewport', inViewport);
             if ( entry.isIntersecting === true ){
                 const message = this.state.messageList.get(entry.target.getAttribute('data-message-id'));
                 if ( typeof message !== 'undefined' ){
@@ -207,6 +218,31 @@ class ConversationViewer extends React.Component {
         });
     }
 
+    _handleDropZoneDragEnter(event){
+        event.preventDefault();
+        this.#dragEventsCounter = this.#dragEventsCounter < 0 ? 1 : ( this.#dragEventsCounter + 1 );
+        this.#dropZoneRef.current.setAttribute('data-active', 'true');
+    }
+
+    _handleDropZoneDragLeave(event){
+        event.preventDefault();
+        this.#dragEventsCounter--;
+        if ( this.#dragEventsCounter <= 0 ){
+            this.#dropZoneRef.current.setAttribute('data-active', 'false');
+        }
+    }
+
+    _handleDropZoneDrop(event){
+        event.preventDefault();
+        this.#dragEventsCounter = 0;
+        this.#dropZoneRef.current.setAttribute('data-active', 'false');
+        this.#messageEditorRef.current.addAttachments(event.dataTransfer.files);
+    }
+
+    _handleAttachmentClick(index, downloadedAttachmentList){
+        this.#attachmentLightBoxRef.current.setDownloadedAttachmentList(downloadedAttachmentList).show(index);
+    }
+
     constructor(props){
         super(props);
 
@@ -215,7 +251,11 @@ class ConversationViewer extends React.Component {
         this._handleIntersectionChange = this._handleIntersectionChange.bind(this);
         this._handleConversationAction = this._handleConversationAction.bind(this);
         this._handleConversationClose = this._handleConversationClose.bind(this);
+        this._handleDropZoneDragEnter = this._handleDropZoneDragEnter.bind(this);
         this._handleLocalDataCleared = this._handleLocalDataCleared.bind(this);
+        this._handleDropZoneDragLeave = this._handleDropZoneDragLeave.bind(this);
+        this._handleAttachmentClick = this._handleAttachmentClick.bind(this);
+        this._handleDropZoneDrop = this._handleDropZoneDrop.bind(this);
         this._handleMessageDelete = this._handleMessageDelete.bind(this);
         this._handleMessageAction = this._handleMessageAction.bind(this);
         this._handleMessageTyping = this._handleMessageTyping.bind(this);
@@ -235,7 +275,7 @@ class ConversationViewer extends React.Component {
 
     render(){
         return (
-            <section className={styles.conversationViewer} ref={this.#conversationViewerRef}>
+            <section className={styles.conversationViewer} ref={this.#conversationViewerRef} onDragEnter={this._handleDropZoneDragEnter} onDragOver={this._handleDropZoneDragEnter} onDragLeave={this._handleDropZoneDragLeave} onDrop={this._handleDropZoneDrop}>
                 <div>
                     <ConversationViewerHeader conversation={this.state.conversation} user={this.state.user} onConversationClose={this._handleConversationClose} onConversationAction={this._handleConversationAction} />
                 </div>
@@ -249,6 +289,13 @@ class ConversationViewer extends React.Component {
                 <div className={styles.messageEditorWrapper}>
                     <MessageEditor ref={this.#messageEditorRef} onMessageSend={this._handleMessageSend} onTyping={this._handleMessageTyping} />
                 </div>
+                <div className={styles.dropZone} ref={this.#dropZoneRef} data-active={'false'}>
+                    <div className={styles.dropZoneContent}>
+                        <FontAwesomeIcon icon='fa-solid fa-paperclip' />
+                        <p>Drop files here to send them.</p>
+                    </div>
+                </div>
+                <AttachmentLightBox ref={this.#attachmentLightBoxRef} />
             </section>
         );
     }
