@@ -401,7 +401,7 @@ class MessageService extends Service {
         let url = APIEndpoints.MESSAGE_EDIT.replace(':conversationID', this.#conversation.getID());
         const params = { content: '' };
         if ( content !== '' ){
-            const encryptionIV = crypto.getRandomValues(new Uint8Array(12)), params = { content: '' };
+            const encryptionIV = crypto.getRandomValues(new Uint8Array(12));
             const aesEncryptionParameters = new AESEncryptionParameters(Object.assign({
                 iv: btoa(String.fromCharCode(...new Uint8Array(encryptionIV)))
             }, this.#conversation.getEncryptionParameters().toJSON()));

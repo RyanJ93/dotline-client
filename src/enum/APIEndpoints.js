@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- *
+ * Enum for all the available API endpoints.
  *
  * @enum {string}
  * @readonly
@@ -9,6 +9,7 @@
 export default Object.freeze({
     ATTACHMENT_GET: '/api/conversation/:conversationID/message/:messageID/attachment/:attachmentID/get',
     MESSAGE_MARK_AS_READ: '/api/conversation/:conversationID/message/:messageID/mark-as-read',
+    MESSAGE_LIST_COMMITS: '/api/conversation/:conversationID/message/list-commits',
     MESSAGE_DELETE: '/api/conversation/:conversationID/message/:messageID/delete',
     CONVERSATION_MARK_AS_READ: '/api/conversation/:conversationID/mark-as-read',
     MESSAGE_EDIT: '/api/conversation/:conversationID/message/:messageID/edit',
@@ -16,6 +17,7 @@ export default Object.freeze({
     MESSAGE_SEND: '/api/conversation/:conversationID/message/send',
     MESSAGE_LIST: '/api/conversation/:conversationID/message/list',
     USER_SESSION_DELETE: '/api/user/session/:accessToken/delete',
+    CONVERSATION_COMMIT_STATS: '/api/conversation/commit-stats',
     CONVERSATION_GET: '/api/conversation/:conversationID/get',
     USER_SESSION_DELETE_ALL: '/api/user/session/delete-all',
     USER_VERIFY_USERNAME: '/api/user/verify-username',

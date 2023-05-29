@@ -7,38 +7,38 @@ import React from 'react';
 class MessageImportStatsViewer extends React.Component {
     #computeImportStats(){
         let percentage = 0, label = '';
-        if ( this.state.messageImportProcessStats !== null ){
-            const totalImportedMessageCount = this.state.messageImportProcessStats.getTotalImportedMessageCount();
-            const totalMessageCount = this.state.messageImportProcessStats.getTotalMessageCount();
-            label = 'Imported ' + totalImportedMessageCount + ' messages out of ' + totalMessageCount + '...';
-            percentage = ( totalImportedMessageCount * 100 ) / totalMessageCount;
+        if ( this.state.messageSyncStats !== null ){
+            const totalProcessedMessageCount = this.state.messageSyncStats.getTotalProcessedMessageCount();
+            const totalMessageCommitCount = this.state.messageSyncStats.getTotalMessageCommitCount();
+            label = 'Imported ' + totalProcessedMessageCount + ' messages out of ' + totalMessageCommitCount + '...';
+            percentage = ( totalProcessedMessageCount * 100 ) / totalMessageCommitCount;
         }
         return { percentage: percentage, label: label };
     }
 
-    _handleMessageImportProgress(messageImportProcessStats){
+    _handleMessageSyncProgress(messageSyncStats){
         this.setState((prev) => {
-            return { ...prev, messageImportProcessStats: messageImportProcessStats, importing: true };
+            return { ...prev, messageSyncStats: messageSyncStats, importing: true };
         });
     }
 
-    _handleMessageImportEnd(){
+    _handleMessageSyncEnd(){
         this.setState((prev) => {
-            return { ...prev, importing: false, messageImportProcessStats: null };
+            return { ...prev, importing: false, messageSyncStats: null };
         });
     }
 
     constructor(props){
         super(props);
 
-        this._handleMessageImportProgress = this._handleMessageImportProgress.bind(this);
-        this._handleMessageImportEnd = this._handleMessageImportEnd.bind(this);
-        this.state = { importing: false, messageImportProcessStats: null };
+        this._handleMessageSyncProgress = this._handleMessageSyncProgress.bind(this);
+        this._handleMessageSyncEnd = this._handleMessageSyncEnd.bind(this);
+        this.state = { importing: false, messageSyncStats: null };
     }
 
     componentDidMount(){
-        Event.getBroker().on('messageImportProgress', this._handleMessageImportProgress);
-        Event.getBroker().on('messageImportEnd', this._handleMessageImportEnd);
+        Event.getBroker().on('messageSyncProgress', this._handleMessageSyncProgress);
+        Event.getBroker().on('messageSyncEnd', this._handleMessageSyncEnd);
     }
 
     render(){

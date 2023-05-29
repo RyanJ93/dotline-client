@@ -1,8 +1,8 @@
 'use strict';
 
-import MessageImportService from '../services/MessageImportService';
 import ConversationService from '../services/ConversationService';
 import databaseSchema from '../support/database/schema';
+import MessageSyncService from './MessageSyncService';
 import UserService from '../services/UserService';
 import Database from '../facades/Database';
 import Service from './Service';
@@ -60,7 +60,8 @@ class LocalDataService extends Service {
         await new UserService().getUserInfo();
         await new ConversationService().fetchConversations();
         this._eventBroker.emit('localDataImported');
-        new MessageImportService().initMessageImport();
+        new MessageSyncService().initSync();
+        //new MessageImportService().initMessageImport();
     }
 }
 

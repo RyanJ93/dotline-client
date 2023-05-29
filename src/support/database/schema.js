@@ -38,5 +38,14 @@ export default Object.freeze({
             name: { notNull: false, dataType: 'string' },
             id: { notNull: true, dataType: 'string' }
         }
+    }, {
+        name: 'message_commit_checkpoints',
+        columns: {
+            _primaryKey: { primaryKey: true, dataType: 'string' },
+            messageCommitID: { notNull: true, dataType: 'string' },
+            conversationID: { notNull: true, dataType: 'string' },
+            date: { notNull: true, dataType: 'date_time' },
+            type: { notNull: true, dataType: 'string' }
+        }
     }]
 });

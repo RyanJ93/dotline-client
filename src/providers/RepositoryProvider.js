@@ -1,6 +1,7 @@
 'use strict';
 
 import AuthenticatedUserRSAKeysRepositoryInjector from '../services/injectors/AuthenticatedUserRSAKeysRepositoryInjector';
+import MessageCommitCheckpointRepositoryInjector from '../services/injectors/MessageCommitCheckpointRepositoryInjector';
 import ConversationMemberRepositoryInjector from '../services/injectors/ConversationMemberRepositoryInjector';
 import AuthenticatedUserRepositoryInjector from '../services/injectors/AuthenticatedUserRepositoryInjector';
 import LoadedAttachmentRepositoryInjector from '../services/injectors/LoadedAttachmentRepositoryInjector';
@@ -13,8 +14,14 @@ import InjectionManager from '../support/InjectionManager';
 import Provider from './Provider';
 
 class RepositoryProvider extends Provider {
+    /**
+     * Registers all the available repositories.
+     *
+     * @returns {Promise<void>}
+     */
     async run(){
         InjectionManager.getInstance().register('AuthenticatedUserRSAKeysRepository', new AuthenticatedUserRSAKeysRepositoryInjector());
+        InjectionManager.getInstance().register('MessageCommitCheckpointRepository', new MessageCommitCheckpointRepositoryInjector());
         InjectionManager.getInstance().register('ConversationMemberRepository', new ConversationMemberRepositoryInjector());
         InjectionManager.getInstance().register('AuthenticatedUserRepository', new AuthenticatedUserRepositoryInjector());
         InjectionManager.getInstance().register('LoadedAttachmentRepository', new LoadedAttachmentRepositoryInjector());

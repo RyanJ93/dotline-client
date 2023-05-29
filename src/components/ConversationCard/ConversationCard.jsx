@@ -78,7 +78,7 @@ class ConversationCard extends React.Component {
         new MessageService(this.state.conversation).getNewestMessage().then((message) => this.#setLastMessage(message));
     }
 
-    _handleMessageImportEnd(){
+    _handleMessageSyncEnd(){
         this.#refreshUnreadMessageCount();
     }
 
@@ -91,8 +91,8 @@ class ConversationCard extends React.Component {
 
         this.state = { conversation: props.conversation, lastMessage: null, userTypingMessage: null, unreadMessageCount: 0 };
         this._handleConversationHeadReady = this._handleConversationHeadReady.bind(this);
-        this._handleMessageImportEnd = this._handleMessageImportEnd.bind(this);
         this._handleLocalDataCleared = this._handleLocalDataCleared.bind(this);
+        this._handleMessageSyncEnd = this._handleMessageSyncEnd.bind(this);
         this._handleMessageAdded = this._handleMessageAdded.bind(this);
         this._handleMessageEdit = this._handleMessageEdit.bind(this);
         this._handleUserTyping = this._handleUserTyping.bind(this);
@@ -100,8 +100,8 @@ class ConversationCard extends React.Component {
 
     componentDidMount(){
         Event.getBroker().on('conversationHeadReady', this._handleConversationHeadReady);
-        Event.getBroker().on('messageImportEnd', this._handleMessageImportEnd);
         Event.getBroker().on('localDataCleared', this._handleLocalDataCleared);
+        Event.getBroker().on('messageSyncEnd', this._handleMessageSyncEnd);
         Event.getBroker().on('messageAdded', this._handleMessageAdded);
         Event.getBroker().on('messageEdit', this._handleMessageEdit);
         Event.getBroker().on('userTyping', this._handleUserTyping);

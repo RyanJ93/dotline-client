@@ -8,6 +8,9 @@ import MessageService from './MessageService';
 import Request from '../facades/Request';
 import Service from './Service';
 
+/**
+ * @deprecated
+ */
 class MessageImportService extends Service {
     #messageImportProcessStats = null;
     #timeoutID = null;
