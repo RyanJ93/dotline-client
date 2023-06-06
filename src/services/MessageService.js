@@ -168,10 +168,12 @@ class MessageService extends Service {
      *
      * @param {Message[]} messageList
      */
-    #convertMessageEntities(messageList){
+    #convertMessageEntities(messageList, setConversation = true){
         messageList.forEach((message) => {
             const attachmentList = message.getAttachments();
-            message.setConversation(this.#conversation);
+            if ( setConversation !== false ){
+                message.setConversation(this.#conversation);
+            }
             attachmentList.forEach((attachment, index) => {
                 attachmentList[index] = new Attachment(attachment);
             });
@@ -466,6 +468,31 @@ class MessageService extends Service {
     }
 
     /**
+     * Searches among the stored messages and returns all the messages matching the given query.
+     *
+     * @param {string} query
+     * @param {?Conversation} [conversation]
+     * @param {number} [limit=50]
+     *
+     * @returns {Promise<Message[]>}
+     *
+     * @throws {IllegalArgumentException} If an invalid conversation is given.
+     * @throws {IllegalArgumentException} If an invalid search query is given.
+     * @throws {IllegalArgumentException} If an invalid limit is given.
+     */
+    async search(query, conversation = null, limit = 50){
+        const messageList = await this.#messageRepository.search(query, conversation, limit);
+        //
+        await Promise.all(messageList.map(async (message) => {
+            const conversationID = message.getConversation().getID(), conversationService = new ConversationService();
+            const conversation = await conversationService.getConversationByID(conversationID);
+            message.setConversation(conversation);
+        }));
+        this.#convertMessageEntities(messageList, false);
+        return messageList;
+    }
+
+    /**
      * Returns the oldest stored message for the conversation defined.
      *
      * @returns {Promise<Message>}
@@ -539,6 +566,19 @@ class MessageService extends Service {
         await Request.patch(url.replace(':messageID', this.#message.getID()));
         await this.#messageRepository.markMessageAsRead(this.#message);
         this._eventBroker.emit('messageEdit', this.#message);
+    }
+
+    /**
+     * Deletes all the messages within the given conversation.
+     *
+     * @param {string} conversationID
+     *
+     * @returns {Promise<void>}
+     *
+     * @throws {IllegalArgumentException} If an invalid conversation ID is given.
+     */
+    async deleteStoredMessagesByConversationID(conversationID){
+        await this.#messageRepository.deleteMessagesByConversationID(conversationID);
     }
 }
 

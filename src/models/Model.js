@@ -15,10 +15,7 @@ class Model {
                 for ( const name in options.order ){
                     const type = options.order[name] === 'desc' ? 'desc' : 'asc';
                     const fieldName = mapping.fields[name]?.name ?? name;
-                    selectionParams.order.push({
-                        by: fieldName,
-                        type: type
-                    });
+                    selectionParams.order.push({ by: fieldName, type: type });
                 }
             }
         }

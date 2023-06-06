@@ -6,13 +6,24 @@ import Event from '../../facades/Event';
 import React from 'react';
 
 class ConversationViewerList extends React.Component {
+    #conversationViewerRefIndex = Object.create(null);
+
+    #initConversationViewerRefIndex(){
+        for ( const [id, conversation] of this.state.conversationList ){
+            this.#conversationViewerRefIndex[id] = React.createRef();
+        }
+    }
+
     #renderConversationViewerList(){
         const renderedConversationViewerList = [];
+        this.#initConversationViewerRefIndex();
         for ( const [id, conversation] of this.state.conversationList ){
+            const goto = this.state.goto?.conversationID === id ? this.state.goto.message : null;
+            const bind = (node) => { this.#conversationViewerRefIndex[id].current = node };
             const isSelected = id === this.state.selectedConversationID;
             renderedConversationViewerList.push(
                 <div className={styles.conversationViewer} key={id} data-selected={isSelected}>
-                    <ConversationViewer selected={isSelected} conversation={conversation} onMessageSend={this._handleMessageSend} onMessageDelete={this._handleMessageDelete} onConversationClose={this._handleConversationClose} onConversationDelete={this._handleConversationDeleteAction} />
+                    <ConversationViewer ref={bind} goto={goto} selected={isSelected} conversation={conversation} onMessageSend={this._handleMessageSend} onMessageDelete={this._handleMessageDelete} onConversationClose={this._handleConversationClose} onConversationDelete={this._handleConversationDeleteAction} />
                 </div>
             );
         }
@@ -63,7 +74,7 @@ class ConversationViewerList extends React.Component {
     constructor(props){
         super(props);
 
-        this.state = { conversationList: new Map(), selectedConversationID: null, conversationDraft: null };
+        this.state = { conversationList: new Map(), selectedConversationID: null, conversationDraft: null, goto: null };
         this._handleConversationDeleteAction = this._handleConversationDeleteAction.bind(this);
         this._handleConversationDelete = this._handleConversationDelete.bind(this);
         this._handleConversationAdded = this._handleConversationAdded.bind(this);
@@ -77,8 +88,20 @@ class ConversationViewerList extends React.Component {
         Event.getBroker().on('conversationAdded', this._handleConversationAdded);
     }
 
+    componentDidUpdate(){
+        if ( this.state.goto !== null ){
+            const ref = this.#conversationViewerRefIndex[this.state.goto.conversationID];
+            ref.current.gotoMessage(this.state.goto.message);
+        }
+    }
+
     setConversationDraft(conversationDraft){
-        this.setState((prev) => ({ ...prev, selectedConversationID: null, conversationDraft : conversationDraft }));
+        this.setState((prev) => ({
+            ...prev,
+            conversationDraft : conversationDraft,
+            selectedConversationID: null,
+            goto: null
+        }));
         return this;
     }
 
@@ -86,8 +109,13 @@ class ConversationViewerList extends React.Component {
         return this.state.conversationDraft;
     }
 
-    setSelectedConversationID(selectedConversationID){
-        this.setState((prev) => ({ ...prev, selectedConversationID: selectedConversationID, conversationDraft : null }));
+    setSelectedConversationID(selectedConversationID, message = null){
+        this.setState((prev) => ({
+            ...prev,
+            goto: ( message === null ? null : { conversationID: message.getConversation().getID(), message: message } ),
+            selectedConversationID: selectedConversationID,
+            conversationDraft : null
+        }));
         return this;
     }
 

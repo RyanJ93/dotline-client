@@ -1,4 +1,9 @@
 div.field {
+    &[data-disabled="true"] {
+        filter: grayscale(1);
+        opacity: 0.5;
+    }
+
     div.fieldWrapper {
         position: relative;
         border: 3px solid #2c3e50;
@@ -6,6 +11,7 @@ div.field {
         padding: 3px;
         box-sizing: border-box;
         width: 100%;
+        display: flex;
 
         &[data-focus="true"] label.label {
             font-size: 14px;
@@ -36,11 +42,22 @@ div.field {
             box-sizing: border-box;
             outline: none;
             color: #ddd;
+            flex-grow: 1;
 
             &:autofill, &:-webkit-autofill {
                 background-color: transparent !important;
                 background-image: unset !important;
                 filter: unset !important;
+            }
+        }
+
+        div.clearButton {
+            align-self: center;
+            padding: 0 3px 0 9px;
+
+            svg {
+                color: #999;
+                cursor: pointer;
             }
         }
     }

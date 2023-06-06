@@ -192,6 +192,55 @@ class MessageRepository extends Repository {
         }
         await message.setRead(true).save();
     }
+
+    /**
+     * Searches among the stored messages and returns all the messages matching the given query.
+     *
+     * @param {string} query
+     * @param {?Conversation} [conversation]
+     * @param {number} [limit=50]
+     *
+     * @returns {Promise<Message[]>}
+     *
+     * @throws {IllegalArgumentException} If an invalid conversation is given.
+     * @throws {IllegalArgumentException} If an invalid search query is given.
+     * @throws {IllegalArgumentException} If an invalid limit is given.
+     */
+    async search(query, conversation = null, limit = 50){
+        if ( conversation !== null && !( conversation instanceof Conversation ) ){
+            throw new IllegalArgumentException('Invalid conversation.');
+        }
+        if ( limit === null || isNaN(limit) || limit <= 0 ){
+            throw new IllegalArgumentException('Invalid limit.');
+        }
+        if ( query === '' || typeof query !== 'string' ){
+            throw new IllegalArgumentException('Invalid search query.');
+        }
+        const filters = { content: { like: '%' + query + '%' } };
+        if ( conversation !== null ){
+            filters.conversation = conversation.getID();
+        }
+        return await Message.findAll(filters, {
+            order: { createdAt: 'desc' },
+            limit: limit
+        });
+    }
+
+    /**
+     * Deletes all the messages within a given conversation.
+     *
+     * @param {string} conversationID
+     *
+     * @returns {Promise<void>}
+     *
+     * @throws {IllegalArgumentException} If an invalid conversation ID is given.
+     */
+    async deleteMessagesByConversationID(conversationID){
+        if ( conversationID === '' || typeof conversationID !== 'string' ){
+            throw new IllegalArgumentException('Invalid conversation ID.');
+        }
+        await Message.findAndDelete({ conversation: conversationID });
+    }
 }
 
 export default MessageRepository;

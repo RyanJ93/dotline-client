@@ -90,22 +90,6 @@ class ConversationRepository extends Repository {
         }
         await Conversation.findAndDelete({ id: id });
     }
-
-    /**
-     * Deletes a given conversation.
-     *
-     * @param {Conversation} conversation
-     *
-     * @returns {Promise<void>}
-     *
-     * @throws {IllegalArgumentException} If an invalid conversation is given.
-     */
-    async delete(conversation){
-        if ( !( conversation instanceof Conversation ) ){
-            throw new IllegalArgumentException('Invalid conversation.');
-        }
-        await conversation.delete();
-    }
 }
 
 export default ConversationRepository;

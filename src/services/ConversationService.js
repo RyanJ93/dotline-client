@@ -340,6 +340,7 @@ class ConversationService extends Service {
         if ( conversationID === '' || typeof conversationID !== 'string' ){
             throw new IllegalArgumentException('Invalid conversation ID.');
         }
+        await new MessageService().deleteStoredMessagesByConversationID(conversationID);
         await this.#conversationRepository.deleteByID(conversationID);
         this._eventBroker.emit('conversationDelete', conversationID);
     }
@@ -354,8 +355,7 @@ class ConversationService extends Service {
     async delete(deleteForEveryone){
         const url = APIEndpoints.CONVERSATION_DELETE.replace(':conversationID', this.#conversation.getID());
         await Request.delete(url, { deleteForEveryone: ( deleteForEveryone === true ? '1' : '0' ) }, true);
-        await this.#conversationRepository.delete(this.#conversation);
-        this._eventBroker.emit('conversationDelete', this.#conversation.getID());
+        await this.deleteConversationByID(this.#conversation.getID());
     }
 
     /**

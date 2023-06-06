@@ -1,21 +1,23 @@
 'use strict';
 
+import UserSessionsSection from '../UserSessionsSection/UserSessionsSection';
 import ConversationList from '../ConversationList/ConversationList';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import SettingsSection from '../SettingsSection/SettingsSection';
 import SearchEngine from '../SearchEngine/SearchEngine';
 import SearchBar from '../SearchBar/SearchBar';
+import Event from '../../facades/Event';
 import styles from './SideBar.scss';
 import React from 'react';
-import UserSessionsSection from '../UserSessionsSection/UserSessionsSection';
 
 class SideBar extends React.Component {
     #conversationListRef = React.createRef();
     #searchEngineRef = React.createRef();
+    #searchBarRef = React.createRef();
 
-    _handleConversationSelect(selectedConversationID){
+    _handleConversationSelect(selectedConversationID, message){
         if ( typeof this.props.onConversationSelect === 'function' ){
-            this.props.onConversationSelect(selectedConversationID);
+            this.props.onConversationSelect(selectedConversationID, message);
         }
     }
 
@@ -23,6 +25,7 @@ class SideBar extends React.Component {
         if ( typeof this.props.onSearchResultPick === 'function' ){
             this.props.onSearchResultPick(searchResultEntry);
         }
+        this.resetView();
     }
 
     _handleTabControlClick(event){
@@ -30,17 +33,49 @@ class SideBar extends React.Component {
         this.setState((prev) => ({ ...prev, activeTab: activeTab }));
     }
 
+    _handleSearchBarSearch(query){
+        this.#searchEngineRef.current.search(query);
+    }
+
+    _handleSearchBarClear(){
+        this.#searchEngineRef.current.clear();
+    }
+
+    _handleSearch(){
+        this.setState((prev) => ({ ...prev, activeTab: 'search-results' }));
+    }
+
+    _handleMessageSyncStart(){
+        this.#searchEngineRef.current.setDisabled(true);
+        this.#searchBarRef.current.setDisabled(true);
+    }
+
+    _handleMessageSyncEnd(){
+        this.#searchEngineRef.current.setDisabled(false);
+        this.#searchBarRef.current.setDisabled(false);
+    }
+
     constructor(props){
         super(props);
 
         this._handleConversationSelect = this._handleConversationSelect.bind(this);
+        this._handleMessageSyncStart = this._handleMessageSyncStart.bind(this);
         this._handleSearchResultPick = this._handleSearchResultPick.bind(this);
         this._handleTabControlClick = this._handleTabControlClick.bind(this);
+        this._handleSearchBarSearch = this._handleSearchBarSearch.bind(this);
+        this._handleSearchBarClear = this._handleSearchBarClear.bind(this);
+        this._handleMessageSyncEnd = this._handleMessageSyncEnd.bind(this);
+        this._handleSearch = this._handleSearch.bind(this);
         this.state = { activeTab: 'conversation-list' };
     }
 
-    setSelectedConversationID(conversationID){
-        this.#conversationListRef.current.setSelectedConversationID(conversationID);
+    componentDidMount(){
+        Event.getBroker().on('messageSyncStart', this._handleMessageSyncStart);
+        Event.getBroker().on('messageSyncEnd', this._handleMessageSyncEnd);
+    }
+
+    setSelectedConversationID(conversationID, message = null){
+        this.#conversationListRef.current.setSelectedConversationID(conversationID, message);
         return this;
     }
 
@@ -50,6 +85,7 @@ class SideBar extends React.Component {
 
     clearSearchResults(){
         this.#searchEngineRef.current.clear();
+        this.#searchBarRef.current.clear();
         return this;
     }
 
@@ -64,14 +100,14 @@ class SideBar extends React.Component {
         return (
             <aside className={styles.sideBar}>
                 <div className={styles.searchBarWrapper}>
-                    <SearchBar />
+                    <SearchBar ref={this.#searchBarRef} onSearch={this._handleSearchBarSearch} onClear={this._handleSearchBarClear} />
                 </div>
                 <div className={styles.tabsWrapper}>
                     <div className={styles.tab} data-active={this.state.activeTab === 'conversation-list'}>
                         <ConversationList ref={this.#conversationListRef} onConversationSelect={this._handleConversationSelect} />
                     </div>
                     <div className={styles.tab} data-active={this.state.activeTab === 'search-results'}>
-                        <SearchEngine ref={this.#searchEngineRef} onSearchResultPick={this._handleSearchResultPick} />
+                        <SearchEngine ref={this.#searchEngineRef} onSearchResultPick={this._handleSearchResultPick} onSearch={this._handleSearch} />
                     </div>
                     <div className={styles.tab} data-active={this.state.activeTab === 'settings'}>
                         <SettingsSection />

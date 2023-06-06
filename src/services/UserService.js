@@ -233,16 +233,17 @@ class UserService extends Service {
      * Returns all the users matching a given username.
      *
      * @param {string} username
+     * @param {number} [limit=10]
      *
      * @returns {Promise<User[]>}
      *
      * @throws {IllegalArgumentException} If an invalid username is given.
      */
-    async searchByUsername(username){
+    async searchByUsername(username, limit = 10){
         if ( username === '' || typeof username !== 'string' ){
             throw new IllegalArgumentException('Invalid username.');
         }
-        const response = await Request.get(APIEndpoints.USER_SEARCH, { username: username }, true);
+        const response = await Request.get(APIEndpoints.USER_SEARCH, { username: username, limit: limit }, true);
         return response.userList.map((user) => User.makeFromHTTPResponse({ user: user }));
     }
 

@@ -1,7 +1,9 @@
 'use strict';
 
+import MessageSearchResultEntry from '../MessageSearchResultEntry/MessageSearchResultEntry';
 import UserSearchResultEntry from '../UserSearchResultEntry/UserSearchResultEntry';
 import SearchResultEntryType from '../../enum/SearchResultEntryType';
+import styles from './SearchResultEntry.scss';
 import React from 'react';
 
 class SearchResultEntry extends React.Component {
@@ -9,6 +11,9 @@ class SearchResultEntry extends React.Component {
 
     #renderSearchResultEntry(){
         switch ( this.#resultType ){
+            case SearchResultEntryType.MESSAGE: {
+                return <MessageSearchResultEntry message={this.props.searchResultEntry.getEntity()} />
+            }
             case SearchResultEntryType.USER: {
                 return <UserSearchResultEntry user={this.props.searchResultEntry.getEntity()} />
             }
@@ -26,7 +31,11 @@ class SearchResultEntry extends React.Component {
     }
 
     render(){
-        return <div>{this.#renderSearchResultEntry()}</div>;
+        return (
+            <div className={styles.searchResultEntry}>
+                {this.#renderSearchResultEntry()}
+            </div>
+        );
     }
 }
 

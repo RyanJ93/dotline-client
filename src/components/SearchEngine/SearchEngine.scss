@@ -9,7 +9,32 @@ div.searchEngine {
         width: 100%;
 
         li {
+            margin-top: 12px;
 
+            &.emptyElement {
+                text-align: center;
+                font-size: 14px;
+                font-style: italic;
+            }
+
+            &:first-child {
+                margin: 0 !important;
+            }
+        }
+    }
+
+    div.searchDisabledMessage {
+        text-align: center;
+        font-style: italic;
+
+        p.subtitle {
+            font-size: 11px;
+            margin: 3px 0 0 0;
+        }
+
+        p.title {
+            font-size: 14px;
+            margin: 0;
         }
     }
 }

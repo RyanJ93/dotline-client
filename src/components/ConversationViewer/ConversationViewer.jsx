@@ -52,7 +52,7 @@ class ConversationViewer extends React.Component {
                     previousPassedDate = currentPassedDate;
                 }
                 renderedMessageList.push(
-                    <li key={message.getID()} data-in-viewport={false}>
+                    <li key={message.getID()} data-in-viewport={false} data-message-id={message.getID()}>
                         <MessageCard onMessageAction={this._handleMessageAction} onAttachmentClick={this._handleAttachmentClick} message={message} ref={this.#messageCardRefIndex[message.getID()]} />
                     </li>
                 );
@@ -99,6 +99,34 @@ class ConversationViewer extends React.Component {
                     this.#messagePageLoading = false;
                 });
             }
+        }
+    }
+
+    #gotoLoadedMessage(message){
+        const element = this.#messageListRef.current.querySelector('li[data-message-id="' + message.getID() + '"]');
+        if ( element !== null ){
+            window.setTimeout(() => element.setAttribute('data-highlighted', 'false'), 1000);
+            element.setAttribute('data-highlighted', 'true');
+            element.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+
+    #loadConversationPageByMessage(message){
+        const messageService = new MessageService(this.state.conversation);
+        if ( this.state.conversation instanceof Conversation ){
+            this.state.messageList.set(message.getID(), message);
+            Promise.all([
+                messageService.getMessages(24, null, message.getID()),
+                messageService.getMessages(25, message.getID())
+            ]).then((messageLists) => {
+                messageLists.forEach((messageList) => {
+                    messageList.forEach((message) => this.state.messageList.set(message.getID(), message));
+                });
+            });
+            this.setState((prev) => ({ ...prev, loading: false }));
+            this.#triggerMessageListUpdate();
+            this.#messagePageLoading = false;
+            this.#gotoLoadedMessage(message);
         }
     }
 
@@ -271,6 +299,11 @@ class ConversationViewer extends React.Component {
         Event.getBroker().on('messageAdded', this._handleMessageAdded);
         this.#messageListRef.current.onscroll = this._handleScroll;
         this.#loadConversationMessages();
+    }
+
+    gotoMessage(message){
+        this.#loadConversationPageByMessage(message);
+        return this;
     }
 
     render(){

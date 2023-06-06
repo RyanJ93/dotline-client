@@ -3,6 +3,7 @@
 import MessageImportStatsViewer from '../MessageImportStatsViewer/MessageImportStatsViewer';
 import ConversationViewerList from '../ConversationViewerList/ConversationViewerList';
 import ConversationService from '../../services/ConversationService';
+import SearchResultEntryType from '../../enum/SearchResultEntryType';
 import ConversationDraft from '../../DTOs/ConversationDraft';
 import MessageService from '../../services/MessageService';
 import MessageType from '../../enum/MessageType';
@@ -12,12 +13,12 @@ import App from '../../facades/App';
 import React from 'react';
 
 class MainView extends React.Component {
-    #conversationViewerList = React.createRef();
+    #conversationViewerListRef = React.createRef();
     #sideBarRef = React.createRef();
 
     async #createNewConversation(conversationDraft){
         const conversation = await new ConversationService().createConversation(conversationDraft.getMembers());
-        this.#conversationViewerList.current.setSelectedConversationID(conversation.getID());
+        this.#conversationViewerListRef.current.setSelectedConversationID(conversation.getID());
         return conversation;
     }
 
@@ -47,7 +48,7 @@ class MainView extends React.Component {
         const conversation = await new ConversationService().getDMConversationByMembers(sender.getID(), recipient.getID());
         if ( conversation === null ){
             const conversationDraft = new ConversationDraft({ members: [sender, recipient] });
-            return this.#conversationViewerList.current.setConversationDraft(conversationDraft);
+            return this.#conversationViewerListRef.current.setConversationDraft(conversationDraft);
         }
         this.#selectConversation(conversation.getID());
     }
@@ -57,9 +58,13 @@ class MainView extends React.Component {
     }
 
     _handleSearchResultPick(searchResultEntry){
+        this.#sideBarRef.current.clearSearchResults();
         switch ( searchResultEntry.getResultType() ){
-            case 'user': {
-                this.#sideBarRef.current.clearSearchResults();
+            case SearchResultEntryType.MESSAGE: {
+                const message = searchResultEntry.getEntity();
+                this.#selectConversation(message.getConversation().getID(), message);
+            }break;
+            case SearchResultEntryType.USER: {
                this.#startConversation(searchResultEntry);
             }break;
         }
@@ -77,13 +82,13 @@ class MainView extends React.Component {
        this.#sendMessage(messageText, attachmentList, conversation, message);
     }
 
-    #selectConversation(conversationID){
+    #selectConversation(conversationID, message = null){
+        this.#conversationViewerListRef.current.setSelectedConversationID(conversationID, message);
         this.setState((prev) => ({ ...prev, conversationSelected: ( conversationID !== null ) }));
-        this.#conversationViewerList.current.setSelectedConversationID(conversationID);
     }
 
-    _handleConversationSelect(selectedConversationID){
-        this.#selectConversation(selectedConversationID);
+    _handleConversationSelect(selectedConversationID, message){
+        this.#selectConversation(selectedConversationID, message);
     }
 
     constructor(props){
@@ -116,7 +121,7 @@ class MainView extends React.Component {
                     </div>
                 </div>
                 <div className={styles.conversationViewerList}>
-                    <ConversationViewerList ref={this.#conversationViewerList} onMessageSend={this._handleMessageSend} onMessageDelete={this._handleMessageDelete} onConversationClose={this._handleConversationClose} onConversationDelete={this._handleConversationDelete} />
+                    <ConversationViewerList ref={this.#conversationViewerListRef} onMessageSend={this._handleMessageSend} onMessageDelete={this._handleMessageDelete} onConversationClose={this._handleConversationClose} onConversationDelete={this._handleConversationDelete} />
                 </div>
             </div>
         );

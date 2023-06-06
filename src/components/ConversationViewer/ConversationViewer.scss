@@ -23,16 +23,25 @@ section.conversationViewer {
             padding: 12px 0;
             box-sizing: border-box;
 
-            li.dateSeparator {
-                text-align: center;
-                padding: 12px 0;
-            }
+            li {
+                transition: background-color 1s ease-in-out;
+                will-change: background-color;
 
-            li.emptyMessage {
-                text-align: center;
-                margin-top: 32px;
-                font-style: italic;
-                font-size: 14px;
+                &[data-highlighted="true"] {
+                    background-color: rgba(243, 156, 18, 0.5);
+                }
+
+                &.dateSeparator {
+                    text-align: center;
+                    padding: 12px 0;
+                }
+
+                &.emptyMessage {
+                    text-align: center;
+                    margin-top: 32px;
+                    font-style: italic;
+                    font-size: 14px;
+                }
             }
         }
 

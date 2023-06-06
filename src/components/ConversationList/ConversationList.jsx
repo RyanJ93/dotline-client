@@ -50,10 +50,10 @@ class ConversationList extends React.Component {
         Event.getBroker().on('conversationAdded', this._handleConversationAdded);
     }
 
-    setSelectedConversationID(selectedConversationID){
+    setSelectedConversationID(selectedConversationID, message = null){
         this.setState((prev) => ({ ...prev, selectedConversationID: selectedConversationID }), () => {
            if ( typeof this.props.onConversationSelect === 'function' ){
-               this.props.onConversationSelect(selectedConversationID);
+               this.props.onConversationSelect(selectedConversationID, message);
            }
         });
         return this;
