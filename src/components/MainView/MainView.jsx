@@ -6,7 +6,9 @@ import ConversationService from '../../services/ConversationService';
 import SearchResultEntryType from '../../enum/SearchResultEntryType';
 import ConversationDraft from '../../DTOs/ConversationDraft';
 import MessageService from '../../services/MessageService';
+import MessageBox from '../../facades/MessageBox';
 import MessageType from '../../enum/MessageType';
+import { withTranslation } from 'react-i18next';
 import SideBar from '../SideBar/SideBar';
 import styles from './MainView.scss';
 import App from '../../facades/App';
@@ -35,12 +37,22 @@ class MainView extends React.Component {
     }
 
     async #deleteMessage(message, deleteForEveryone){
-        await new MessageService(message.getConversation(), message).delete(deleteForEveryone);
+        const title = this.props.t('message.delete.confirmation.title');
+        const text = this.props.t('message.delete.confirmation.text');
+        const isConfirmed = await MessageBox.confirm(text, title);
+        if ( isConfirmed === true ){
+            await new MessageService(message.getConversation(), message).delete(deleteForEveryone);
+        }
     }
 
     async #deleteConversation(conversation, deleteForEveryone){
-        await new ConversationService(conversation).delete(deleteForEveryone);
-        this.#selectConversation(null);
+        const title = this.props.t('conversation.delete.confirmation.title');
+        const text = this.props.t('conversation.delete.confirmation.text');
+        const isConfirmed = await MessageBox.confirm(text, title);
+        if ( isConfirmed === true ){
+            await new ConversationService(conversation).delete(deleteForEveryone);
+            this.#selectConversation(null);
+        }
     }
 
     async #startConversation(searchResultEntry){
@@ -128,4 +140,4 @@ class MainView extends React.Component {
     }
 }
 
-export default MainView;
+export default withTranslation(null, { withRef: true })(MainView);

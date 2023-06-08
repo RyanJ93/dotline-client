@@ -16,5 +16,13 @@
     "authView.noAccountAnswer": "Jump in!",
     "authView.accountQuestion": "Do you already have an account?",
     "authView.accountAnswer": "Log in!",
-    "loginForm.rememberMe": "Remember me"
+    "loginForm.rememberMe": "Remember me",
+    "messageBox.confirmButton": "Confirm",
+    "messageBox.cancelButton": "Cancel",
+    "messageBox.okButton": "OK",
+    "exception.message": "An error occurred, please try again later.",
+    "message.delete.confirmation.title": "This action can't be undone",
+    "message.delete.confirmation.text": "Do you really want to delete this message?",
+    "conversation.delete.confirmation.title": "This action can't be undone",
+    "conversation.delete.confirmation.text": "Do you really want to delete this conversation?"
 }

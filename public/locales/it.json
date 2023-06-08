@@ -16,5 +16,13 @@
     "authView.noAccountAnswer": "Salta a bordo!",
     "authView.accountQuestion": "Hai già un account?",
     "authView.accountAnswer": "Accedi!",
-    "loginForm.rememberMe": "Ricordami"
+    "loginForm.rememberMe": "Ricordami",
+    "messageBox.confirmButton": "Conferma",
+    "messageBox.cancelButton": "Annulla",
+    "messageBox.okButton": "OK",
+    "exception.message": "Si è verificato un errore, per favore riprova più tardi.",
+    "message.delete.confirmation.title": "Questa azione non può essere annullata",
+    "message.delete.confirmation.text": "Vuoi veramente eliminare questo messaggio?",
+    "conversation.delete.confirmation.title": "Questa azione non può essere annullata",
+    "conversation.delete.confirmation.text": "Vuoi veramente eliminare questa conversazione?"
 }

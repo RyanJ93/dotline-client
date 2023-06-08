@@ -1,11 +1,13 @@
 'use strict';
 
 import UnauthorizedException from '../../exceptions/UnauthorizedException';
+import MessageBoxManager from '../MessageBoxManager/MessageBoxManager';
 import NotFoundException from '../../exceptions/NotFoundException';
 import LocalDataService from '../../services/LocalDataService';
 import { default as AppFacade } from '../../facades/App';
 import LoadingView from '../LoadingView/LoadingView';
 import UserService from '../../services/UserService';
+import MessageBox from '../../facades/MessageBox';
 import AuthView from '../AuthView/AuthView';
 import MainView from '../MainView/MainView';
 import Event from '../../facades/Event';
@@ -13,6 +15,7 @@ import styles from './App.scss';
 import React from 'react';
 
 class App extends React.Component {
+    #messageBoxManagerRef = React.createRef();
     #loadingViewRef = React.createRef();
     #authViewRef = React.createRef();
     #mainViewRef = React.createRef();
@@ -24,8 +27,8 @@ class App extends React.Component {
             await new LocalDataService().dropLocalData();
             return this.setView('auth');
         }
+        MessageBox.reportError(ex);
         console.error(ex);
-        // handle
     }
 
     async #fetchUserInfo(){
@@ -62,6 +65,12 @@ class App extends React.Component {
         this.setView('auth');
     }
 
+    _handleError(event){
+        const error = event.error ?? event.reason;
+        MessageBox.reportError(error);
+        console.error(error);
+    }
+
     constructor(props){
         super(props);
 
@@ -69,6 +78,7 @@ class App extends React.Component {
         this._handleLocalDataImported = this._handleLocalDataImported.bind(this);
         this._handleLocalDataCleared = this._handleLocalDataCleared.bind(this);
         this._handleLogOut = this._handleLogOut.bind(this);
+        this._handleError = this._handleError.bind(this);
         this.state = { view: 'loading' };
     }
 
@@ -77,6 +87,8 @@ class App extends React.Component {
             Event.getBroker().on('localDataImported', this._handleLocalDataImported);
             Event.getBroker().on('localDataCleared', this._handleLocalDataCleared);
             Event.getBroker().on('logout', this._handleLogOut);
+            window.onunhandledrejection = this._handleError;
+            window.onerror = this._handleError;
             this.#initialized = true;
             this.#fetchUserInfo();
         }
@@ -100,6 +112,7 @@ class App extends React.Component {
                 <div className={styles.view} data-active={this.state.view === 'main'}>
                     <MainView ref={this.#mainViewRef} />
                 </div>
+                <MessageBoxManager ref={this.#messageBoxManagerRef} />
             </main>
         );
     }
