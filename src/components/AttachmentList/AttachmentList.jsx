@@ -7,7 +7,7 @@ import styles from './AttachmentList.scss';
 import React from 'react';
 
 class AttachmentList extends React.Component {
-    #renderAttachmentPreview(file){
+    #renderAttachmentPreview(file){console.log(file);
         switch ( file.type ){
             case 'image/webp':
             case 'image/jpeg':
@@ -15,6 +15,13 @@ class AttachmentList extends React.Component {
             case 'image/jpg':
             case 'image/png': {
                 return <div className={styles.imagePreview} style={{ backgroundImage: 'url(' + URL.createObjectURL(file) + ')' }} />;
+            }
+            case 'video/mp4': {
+                return (
+                    <div className={styles.videoPreviewWrapper}>
+                        <video src={URL.createObjectURL(file)} controls={true} />
+                    </div>
+                );
             }
         }
     }

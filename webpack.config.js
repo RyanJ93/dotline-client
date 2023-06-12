@@ -1,7 +1,11 @@
 'use strict';
 
 const WebpackNotifierPlugin = require('webpack-notifier');
+const webpack = require('webpack');
 const path = require('path');
+const fs = require('fs');
+
+const config = JSON.parse(fs.readFileSync('config/config.json').toString());
 
 module.exports = {
     devtool: 'eval-source-map',
@@ -23,7 +27,7 @@ module.exports = {
                 loader: 'babel-loader'
             }
         }, {
-            test: /\.scss$/,
+            test: /\.(scss|css)$/,
             use: [{
                 loader: "style-loader"
             }, {
@@ -36,5 +40,7 @@ module.exports = {
             }]
         }]
     },
-    plugins: [new WebpackNotifierPlugin()]
+    plugins: [new WebpackNotifierPlugin(), new webpack.DefinePlugin({
+        YANDEX_MAPS_KEY: JSON.stringify(config.yandexMapsKey)
+    })]
 };

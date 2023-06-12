@@ -56,12 +56,17 @@ div.attachmentList {
                     text-overflow: ellipsis;
                 }
 
-                div.imagePreview {
+                div.imagePreview, div.videoPreviewWrapper {
                     width: 150px;
                     height: 150px;
                     background-repeat: no-repeat;
                     background-size: contain;
                     background-position: center;
+                    display: flex;
+
+                    video {
+                        max-width: 100%;
+                    }
                 }
 
                 div.controls {

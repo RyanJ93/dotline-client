@@ -548,7 +548,7 @@ class MessageService extends Service {
     async notifyMessage(){
         if ( !document.hasFocus() ){
             const title = this.#message.getUser().getUsername();
-            let text = this.#message.getContent();
+            let text = this.#message.getPreviewContent();
             if ( text.length > 100 ){
                 text = text.slice(0, 100) + '...';
             }

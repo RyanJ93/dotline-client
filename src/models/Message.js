@@ -1,5 +1,6 @@
 'use strict';
 
+import MessageType from '../enum/MessageType';
 import Conversation from './Conversation';
 import Model from './Model';
 import User from './User';
@@ -25,6 +26,23 @@ class Message extends Model {
                 id: { name: 'id', type: 'timeuuid' }
             }
         };
+    }
+
+    getPreviewContent(){
+        let previewContent = this.getContent();
+        if ( this.getType() !== MessageType.TEXT ){
+            switch ( this.getType() ){
+                case MessageType.LOCATION: {
+                    previewContent = 'Location';
+                }break;
+            }
+        }else if ( previewContent === '' ){
+            const count = this.getAttachments().length;
+            if ( count > 0 ){
+                previewContent = count + ' files';
+            }
+        }
+        return previewContent;
     }
 
     setConversation(conversation){

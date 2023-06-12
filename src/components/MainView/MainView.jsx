@@ -7,7 +7,6 @@ import SearchResultEntryType from '../../enum/SearchResultEntryType';
 import ConversationDraft from '../../DTOs/ConversationDraft';
 import MessageService from '../../services/MessageService';
 import MessageBox from '../../facades/MessageBox';
-import MessageType from '../../enum/MessageType';
 import { withTranslation } from 'react-i18next';
 import SideBar from '../SideBar/SideBar';
 import styles from './MainView.scss';
@@ -24,7 +23,7 @@ class MainView extends React.Component {
         return conversation;
     }
 
-    async #sendMessage(messageText, attachmentList, conversation, message){
+    async #sendMessage(messageText, messageType, attachmentList, conversation, message){
         if ( conversation instanceof ConversationDraft ){
             conversation = await this.#createNewConversation(conversation);
         }
@@ -32,7 +31,7 @@ class MainView extends React.Component {
         if ( message !== null ){
             return await messageService.setMessage(message).edit(messageText);
         }
-        await messageService.send(messageText, MessageType.TEXT, attachmentList);
+        await messageService.send(messageText, messageType, attachmentList);
         this.#selectConversation(conversation.getID());
     }
 
@@ -90,8 +89,8 @@ class MainView extends React.Component {
         this.#deleteConversation(conversation, deleteForEveryone);
     }
 
-    _handleMessageSend(messageText, attachmentList, conversation, message){
-       this.#sendMessage(messageText, attachmentList, conversation, message);
+    _handleMessageSend(messageText, messageType, attachmentList, conversation, message){
+       this.#sendMessage(messageText, messageType, attachmentList, conversation, message);
     }
 
     #selectConversation(conversationID, message = null){

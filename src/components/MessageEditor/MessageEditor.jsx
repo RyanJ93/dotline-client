@@ -2,6 +2,9 @@
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import AttachmentList from '../AttachmentList/AttachmentList';
+import MessageLocation from '../../DTOs/MessageLocation';
+import MessageType from '../../enum/MessageType';
+import GeoUtils from '../../utils/GeoUtils';
 import styles from './MessageEditor.scss';
 import React from 'react';
 
@@ -27,8 +30,8 @@ class MessageEditor extends React.Component {
                     <li data-attachment-type={'file'} onClick={this._handleAttachmentMenuEntryClick}>
                         <FontAwesomeIcon icon='fa-solid fa-file' /> File
                     </li>
-                    <li data-attachment-type={'position'} onClick={this._handleAttachmentMenuEntryClick}>
-                        <FontAwesomeIcon icon='fa-solid fa-location-dot' /> Position
+                    <li data-attachment-type={'location'} onClick={this._handleAttachmentMenuEntryClick}>
+                        <FontAwesomeIcon icon='fa-solid fa-location-dot' /> Location
                     </li>
                 </ul>
             </div>
@@ -50,6 +53,15 @@ class MessageEditor extends React.Component {
                 </div>
             </div>
         );
+    }
+
+    async #sendLocation(){
+        const position = await GeoUtils.getCurrentPosition();
+        const messageLocation = MessageLocation.makeFromGeolocationPosition(position);
+        const content = messageLocation.toSerializedLocation();
+
+        this.props.onMessageSend(content, MessageType.LOCATION, [], null);
+
     }
 
     _handleEditMessageDiscardClick(){
@@ -89,6 +101,21 @@ class MessageEditor extends React.Component {
                 this.#inputFileRef.current.accept = 'image/*';
                 this.#inputFileRef.current.click();
             }break;
+            case 'video': {
+                this.#inputFileRef.current.accept = 'video/*';
+                this.#inputFileRef.current.click();
+            }break;
+            case 'audio': {
+                this.#inputFileRef.current.accept = 'audio/*';
+                this.#inputFileRef.current.click();
+            }break;
+            case 'file': {
+                this.#inputFileRef.current.accept = '';
+                this.#inputFileRef.current.click();
+            }break;
+            case 'location': {
+                this.#sendLocation();
+            }
         }
     }
 
@@ -123,10 +150,10 @@ class MessageEditor extends React.Component {
         return !hasAttachments && this.#inputRef.current.value.trim() === '';
     }
 
-    sendMessage(){
+    sendMessage(content, type){
         if ( !this.isMessageEmpty() && typeof this.props.onMessageSend === 'function' ){
             const attachmentList = this.#attachmentListRef.current.getAttachmentList();
-            this.props.onMessageSend(this.#inputRef.current.value.trim(), attachmentList, this.state.message);
+            this.props.onMessageSend(this.#inputRef.current.value.trim(), MessageType.TEXT, attachmentList, this.state.message);
             this.setMessage(null).clear();
         }
         return this;

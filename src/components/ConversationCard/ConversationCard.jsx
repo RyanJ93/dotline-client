@@ -36,17 +36,9 @@ class ConversationCard extends React.Component {
     }
 
     #computeLastMessageText(){
-        let lastMessageText = null;
+        let lastMessageText = this.state.lastMessage?.getPreviewContent() ?? '';
         if ( this.state.userTypingMessage !== null ){
             lastMessageText = this.state.userTypingMessage;
-        }else if ( this.state.lastMessage !== null ){
-            lastMessageText = this.state.lastMessage.getContent();
-            if ( lastMessageText === '' ){
-                const count = this.state.lastMessage.getAttachments().length;
-                if ( count > 0 ){
-                    lastMessageText = count + ' files';
-                }
-            }
         }
         return lastMessageText;
     }

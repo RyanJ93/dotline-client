@@ -7,15 +7,24 @@ import React from 'react';
 class AttachmentViewer extends React.Component {
     #attachmentFetched = false;
 
+    #getImageAttachmentCount(){
+        return this.state.downloadedAttachmentList.reduce((accumulator, downloadedAttachment) => {
+            if ( downloadedAttachment.getMimetype().indexOf('image/') === 0 ){
+                accumulator++;
+            }
+            return accumulator;
+        }, 0);
+    }
+
     #getSizingMapping(){
-        let sizes = [];
-        if ( this.state.downloadedAttachmentList.length === 1 ){
+        let sizes = [], imageCount = this.#getImageAttachmentCount();
+        if ( imageCount === 1 ){
             sizes = [1];
-        }else if ( this.state.downloadedAttachmentList.length === 2 ){
+        }else if ( imageCount === 2 ){
             sizes = [2, 2];
-        }else if ( this.state.downloadedAttachmentList.length === 3 ){
+        }else if ( imageCount === 3 ){
             sizes = [2, 4, 4];
-        }else if ( this.state.downloadedAttachmentList.length >= 4 ){
+        }else if ( imageCount >= 4 ){
             sizes = [4, 4, 4, 4];
         }
         return sizes;
@@ -40,6 +49,9 @@ class AttachmentViewer extends React.Component {
                     <img src={objectURL} alt={filename} onClick={this._handleAttachmentClick} />
                 </div>
             );
+        });
+        this.state.downloadedAttachmentList.forEach(() => {
+
         });
         return sizes.length === 0 ? null : <div className={styles.container}>{renderedAttachmentList}</div>;
     }

@@ -65,9 +65,9 @@ class ConversationViewerList extends React.Component {
         }
     }
 
-    _handleMessageSend(text, attachmentList, conversation, message){
+    _handleMessageSend(text, type, attachmentList, conversation, message){
         if ( typeof this.props.onMessageSend === 'function' ){
-            this.props.onMessageSend(text, attachmentList, conversation, message);
+            this.props.onMessageSend(text, type, attachmentList, conversation, message);
         }
     }
 

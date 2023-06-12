@@ -1,10 +1,10 @@
 public/main.js.LICENSE.txt
 public/main.js.map
+config/config.json
 public/*.main.js
 public/main.js
 node_modules/
 .DS_Store
-config/
 .idea/
 logs/
 data/

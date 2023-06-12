@@ -67,8 +67,10 @@ class App extends React.Component {
 
     _handleError(event){
         const error = event.error ?? event.reason;
-        MessageBox.reportError(error);
-        console.error(error);
+        if ( typeof error !== 'undefined' ){
+            MessageBox.reportError(error);
+            console.error(error);
+        }
     }
 
     constructor(props){

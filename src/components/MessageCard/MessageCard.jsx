@@ -2,6 +2,7 @@
 
 import AttachmentViewer from '../AttachmentViewer/AttachmentViewer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import MessageContent from '../MessageContent/MessageContent';
 import Event from '../../facades/Event';
 import styles from './MessageCard.scss';
 import App from '../../facades/App';
@@ -111,7 +112,7 @@ class MessageCard extends React.Component {
         return (
             <div className={styles.messageCard} data-direction={direction} data-message-id={this.state.message.getID()} ref={this.#messageCardRef}>
                 <div className={styles.wrapper}>
-                    <span>{this.state.message.getContent()}</span>
+                    <MessageContent message={this.state.message} />
                     <div className={styles.date}>{this.#renderEditedLabel()}{this.#getMessageTime()}</div>
                     <AttachmentViewer ref={this.#attachmentViewerRef} message={this.state.message} onAttachmentClick={this._handleAttachmentClick} />
                     {direction === 'sent' ? this.#renderContextMenu() : null}
