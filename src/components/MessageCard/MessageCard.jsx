@@ -75,9 +75,9 @@ class MessageCard extends React.Component {
         }
     }
 
-    _handleAttachmentClick(index, downloadedAttachmentList){
+    _handleAttachmentClick(attachmentID, downloadedAttachmentList){
         if ( typeof this.props.onAttachmentClick === 'function' ){
-            this.props.onAttachmentClick(index, downloadedAttachmentList);
+            this.props.onAttachmentClick(attachmentID, downloadedAttachmentList);
         }
     }
 

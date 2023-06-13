@@ -2,6 +2,7 @@
 
 import IllegalArgumentException from '../exceptions/IllegalArgumentException';
 import Serializable from '../support/traits/Serializable';
+import StringUtils from '../utils/StringUtils';
 
 /**
  * @typedef AttachmentMetadataProperties
@@ -143,6 +144,15 @@ class AttachmentMetadata extends Serializable {
      */
     getSize(){
         return this._size;
+    }
+
+    /**
+     * Returns the file size as an human-readable string.
+     *
+     * @returns {string}
+     */
+    getHumanReadableSize(){
+        return StringUtils.sizeToHumanReadableString(this._size);
     }
 
     /**

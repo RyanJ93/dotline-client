@@ -21,6 +21,7 @@ div.view {
         display: flex;
         flex-direction: column;
         min-width: 300px;
+        flex-shrink: 0;
 
         div.conversationList {
             flex-grow: 1;
@@ -29,6 +30,7 @@ div.view {
 
     div.conversationViewerList {
         flex-grow: 1;
+        min-width: 0;
     }
 
     @media ( max-width: 480px ) {

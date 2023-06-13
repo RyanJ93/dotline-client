@@ -23,6 +23,32 @@ class FileUtils {
             fileReader.readAsArrayBuffer(file);
         });
     }
+
+    /**
+     * Returns the CSS class associated to the icon that represents the given file type.
+     *
+     * @param {string} type
+     *
+     * @returns {string}
+     *
+     * @throws {IllegalArgumentException} If an invalid file type is given.
+     */
+    static getFileIconClass(type){
+        if ( type === '' || typeof type !== 'string' ){
+            throw IllegalArgumentException('Invalid file type.');
+        }
+        switch ( type ){
+            case 'application/pdf': {
+                return 'fa-solid fa-file-pdf';
+            }
+            case 'audio/mpeg': {
+                return 'fa-solid fa-file-audio';
+            }
+            default: {
+                return 'fa-solid fa-file';
+            }
+        }
+    }
 }
 
 export default FileUtils;

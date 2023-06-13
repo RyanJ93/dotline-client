@@ -91,7 +91,6 @@ class MessageEditor extends React.Component {
 
     _handleInputFileChange(event){
         this.#attachmentListRef.current.addAttachments(event.target.files);
-        console.log(event);
     }
 
     _handleAttachmentMenuEntryClick(event){
@@ -150,10 +149,11 @@ class MessageEditor extends React.Component {
         return !hasAttachments && this.#inputRef.current.value.trim() === '';
     }
 
-    sendMessage(content, type){
+    sendMessage(){
         if ( !this.isMessageEmpty() && typeof this.props.onMessageSend === 'function' ){
             const attachmentList = this.#attachmentListRef.current.getAttachmentList();
-            this.props.onMessageSend(this.#inputRef.current.value.trim(), MessageType.TEXT, attachmentList, this.state.message);
+            const content = this.#inputRef.current.value.trim();
+            this.props.onMessageSend(content, MessageType.TEXT, attachmentList, this.state.message);
             this.setMessage(null).clear();
         }
         return this;

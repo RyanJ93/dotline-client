@@ -3,11 +3,12 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import AttachmentService from '../../services/AttachmentService';
 import StringUtils from '../../utils/StringUtils';
+import FileUtils from '../../utils/FileUtils';
 import styles from './AttachmentList.scss';
 import React from 'react';
 
 class AttachmentList extends React.Component {
-    #renderAttachmentPreview(file){console.log(file);
+    #renderAttachmentPreview(file){
         switch ( file.type ){
             case 'image/webp':
             case 'image/jpeg':
@@ -20,6 +21,13 @@ class AttachmentList extends React.Component {
                 return (
                     <div className={styles.videoPreviewWrapper}>
                         <video src={URL.createObjectURL(file)} controls={true} />
+                    </div>
+                );
+            }
+            default: {
+                return (
+                    <div className={styles.fileIconPreview}>
+                        <FontAwesomeIcon icon={FileUtils.getFileIconClass(file.type)} />
                     </div>
                 );
             }

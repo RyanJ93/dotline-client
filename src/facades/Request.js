@@ -47,7 +47,7 @@ class Request extends Facade {
     }
 
     static #preparePOSTFields(data){
-        const formData = new FormData();console.log(data);
+        const formData = new FormData();
         for ( const fieldName in data ){
             if ( typeof data[fieldName] !== 'undefined' && data[fieldName] !== null ){
                 if ( Array.isArray(data[fieldName]) ){
@@ -118,7 +118,7 @@ class Request extends Facade {
     }
 
     static async download(url, query = null, authenticated = true){
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             const request = new XMLHttpRequest();
             request.open('GET', Request.#buildRequestURL(url, query), true);
             if ( authenticated === true ){

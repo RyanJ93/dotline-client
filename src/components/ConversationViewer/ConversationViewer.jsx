@@ -267,8 +267,8 @@ class ConversationViewer extends React.Component {
         this.#messageEditorRef.current.addAttachments(event.dataTransfer.files);
     }
 
-    _handleAttachmentClick(index, downloadedAttachmentList){
-        this.#attachmentLightBoxRef.current.setDownloadedAttachmentList(downloadedAttachmentList).show(index);
+    _handleAttachmentClick(attachmentID, downloadedAttachmentList){
+        this.#attachmentLightBoxRef.current.setDownloadedAttachmentList(downloadedAttachmentList).show(attachmentID);
     }
 
     constructor(props){

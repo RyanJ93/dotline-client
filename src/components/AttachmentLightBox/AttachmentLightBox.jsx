@@ -5,17 +5,33 @@ import styles from './AttachmentLightBox.scss';
 import React from 'react';
 
 class AttachmentLightBox extends React.Component {
+    #findAttachmentByID(attachmentID){
+        let downloadedAttachmentIndex = null, i = 0;
+        while ( downloadedAttachmentIndex === null && i < this.state.downloadedAttachmentList.length ){
+            if ( this.state.downloadedAttachmentList[i].getID() === attachmentID ){
+                downloadedAttachmentIndex = i;
+            }
+            i++;
+        }
+        return downloadedAttachmentIndex;
+    }
+
     #renderMainContent(){
-        const downloadedAttachment = this.state.downloadedAttachmentList[this.state.currentIndex] ?? null;
-        return downloadedAttachment === null ? null : (
-            <div className={styles.image} style={{ backgroundImage: 'url(' + downloadedAttachment.getObjectURL() + ')' }} />
+        let selectedDownloadedAttachment = null;
+        if ( typeof this.state.currentID === 'string' ){
+            const currentIndex = this.#findAttachmentByID(this.state.currentID);
+            selectedDownloadedAttachment = this.state.downloadedAttachmentList[currentIndex];
+        }
+        return selectedDownloadedAttachment === null ? null : (
+            <div className={styles.image} style={{ backgroundImage: 'url(' + selectedDownloadedAttachment.getObjectURL() + ')' }} />
         );
     }
 
     #renderPreviewList(){
-        const renderedPreviewList = this.state.downloadedAttachmentList.map((downloadedAttachment, index) => {
+        const renderedPreviewList = this.state.downloadedAttachmentList.map((downloadedAttachment) => {
+            const id = downloadedAttachment.getID();
             return (
-                <li key={index} data-index={index} data-selected={index === this.state.currentIndex} onClick={this._handlePreviewClick}>
+                <li key={id} data-aid={id} data-selected={id === this.state.currentID} onClick={this._handlePreviewClick}>
                     <div className={styles.previewImage} style={{ backgroundImage: 'url(' + downloadedAttachment.getObjectURL() + ')' }} />
                 </li>
             );
@@ -28,15 +44,17 @@ class AttachmentLightBox extends React.Component {
         if ( nextIndex > ( this.state.downloadedAttachmentList.length - 1 ) ){
             nextIndex = 0;
         }
-        this.setState((prev) => ({ ...prev, currentIndex: nextIndex, show: true }));
+        const currentID = this.state.downloadedAttachmentList[nextIndex].getID();
+        this.setState((prev) => ({ ...prev, currentIndex: nextIndex, currentID: currentID, show: true }));
     }
 
     _handleLeftArrowClick(){
         let nextIndex = this.state.currentIndex - 1;
         if ( nextIndex < 0 ){
-            nextIndex = this.state.downloadedAttachmentList.length;
+            nextIndex = this.state.downloadedAttachmentList.length - 1;
         }
-        this.setState((prev) => ({ ...prev, currentIndex: nextIndex, show: true }));
+        const currentID = this.state.downloadedAttachmentList[nextIndex].getID();
+        this.setState((prev) => ({ ...prev, currentIndex: nextIndex, currentID: currentID, show: true }));
     }
 
     _handleCloseButtonClick(){
@@ -44,14 +62,15 @@ class AttachmentLightBox extends React.Component {
     }
 
     _handlePreviewClick(event){
-        const nextIndex = parseInt(event.target.closest('li[data-index]').getAttribute('data-index'));
-        this.setState((prev) => ({ ...prev, currentIndex: nextIndex, show: true }));
+        const currentID = event.target.closest('li[data-aid]').getAttribute('data-aid');
+        const currentIndex = this.#findAttachmentByID(currentID);
+        this.setState((prev) => ({ ...prev, currentIndex: currentIndex, currentID: currentID, show: true }));
     }
 
     constructor(props){
         super(props);
 
-        this.state = { downloadedAttachmentList: [], currentIndex: 0, show: false };
+        this.state = { downloadedAttachmentList: [], currentIndex: 0, currentID: null, show: false };
         this._handleCloseButtonClick = this._handleCloseButtonClick.bind(this);
         this._handleRightArrowClick = this._handleRightArrowClick.bind(this);
         this._handleLeftArrowClick = this._handleLeftArrowClick.bind(this);
@@ -59,12 +78,15 @@ class AttachmentLightBox extends React.Component {
     }
 
     setDownloadedAttachmentList(downloadedAttachmentList){
+        downloadedAttachmentList = downloadedAttachmentList.filter((downloadedAttachment) => {
+            return downloadedAttachment.getMimetype().indexOf('image/') === 0;
+        });
         this.setState((prev) => ({ ...prev, downloadedAttachmentList: downloadedAttachmentList }));
         return this;
     }
 
-    show(index = 0){
-        this.setState((prev) => ({ ...prev, currentIndex: index, show: true }));
+    show(attachmentID = null){
+        this.setState((prev) => ({ ...prev, currentID: attachmentID, show: true }));
         return this;
     }
 
