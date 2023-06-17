@@ -74,6 +74,11 @@ div.messageEditor {
 
             svg {
                 cursor: pointer;
+                margin-left: 24px;
+
+                &:first-child {
+                    margin: 0 !important;
+                }
             }
         }
     }

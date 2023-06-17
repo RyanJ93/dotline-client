@@ -185,6 +185,8 @@ class MessageEditor extends React.Component {
                     </div>
                     <div className={styles.controlsWrapper}>
                         <FontAwesomeIcon icon='fa-solid fa-paper-plane' onClick={this._handleSendButtonClick} />
+                        <FontAwesomeIcon icon='fa-solid fa-icons' />
+                        <FontAwesomeIcon icon='fa-solid fa-microphone' />
                     </div>
                 </div>
                 {this.#renderAttachmentMenu()}

@@ -78,7 +78,9 @@ class AttachmentViewer extends React.Component {
             const id = attachment.getID();
             renderedAttachmentList.push(
                 <div key={id} className={styles.previewWrapper} data-aid={id} data-at={'video'}>
-                    <video src={attachment.getObjectURL()} controls={true} onPlaying={this._handlePlay}></video>
+                    <video controls={true} onPlaying={this._handlePlay}>
+                        <source src={attachment.getObjectURL()} type={attachment.getMimetype()} />
+                    </video>
                 </div>
             );
         });
