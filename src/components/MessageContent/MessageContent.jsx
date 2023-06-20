@@ -1,6 +1,7 @@
 'use strict';
 
 import LocationMessageContent from '../LocationMessageContent/LocationMessageContent';
+import StickerMessageContent from '../StickerMessageContent/StickerMessageContent';
 import TextMessageContent from '../TextMessageContent/TextMessageContent';
 import MessageType from '../../enum/MessageType';
 import styles from './MessageContent.scss';
@@ -11,6 +12,9 @@ class MessageContent extends React.Component {
         switch ( this.props.message?.getType() ){
             case MessageType.LOCATION: {
                 return <LocationMessageContent message={this.props.message} />;
+            }
+            case MessageType.STICKER: {
+                return <StickerMessageContent message={this.props.message} />;
             }
             case MessageType.TEXT: {
                 return <TextMessageContent message={this.props.message} />;

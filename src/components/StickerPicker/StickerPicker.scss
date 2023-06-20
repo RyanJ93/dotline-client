@@ -1,0 +1,104 @@
+div.stickerPicker {
+    div.views {
+        width: 100%;
+
+        div.view {
+            display: none;
+            width: 100%;
+
+            &[data-active="true"] {
+                display: block;
+            }
+
+            div.loader {
+                background-image: url(/public/assets/rounded_loader.svg);
+                width: 32px;
+                height: 32px;
+                background-position: center;
+                background-size: contain;
+                margin: auto;
+            }
+
+            p.label {
+                margin: 0;
+                text-align: center;
+                font-size: 14px;
+                font-style: italic;
+            }
+
+            div.controls {
+                width: 100%;
+                display: flex;
+                margin-bottom: 12px;
+
+                div.controlWrapper {
+                    flex-grow: 1;
+                    text-align: left;
+
+                    &:last-child {
+                        text-align: right;
+                    }
+
+                    a, a:hover, a:active {
+                        text-decoration: none;
+                        font-size: 14px;
+                        cursor: pointer;
+                    }
+                }
+            }
+        }
+    }
+
+    ul.stickerPackList, ul.stickerList {
+        width: 100%;
+        white-space: nowrap;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+        overflow-x: auto;
+
+        li {
+            width: 100px;
+            display: inline-block;
+            margin-left: 12px;
+            position: relative;
+
+            &:first-child {
+                margin: 0 !important;
+            }
+
+            div.stickerPackCoverPicture, div.stickerContent {
+                width: 100px;
+                height: 100px;
+                background-position: center;
+                background-repeat: no-repeat;
+                background-size: cover;
+                cursor: pointer;
+            }
+
+            p.stickerPackName {
+                margin: 6px 0 0;
+                text-align: center;
+                font-size: 14px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                cursor: pointer;
+            }
+
+            video.stickerContent {
+                cursor: pointer;
+                width: 100px;
+                height: 100px;
+            }
+
+            p.emoji {
+                margin: 0;
+                font-size: 28px;
+                position: absolute;
+                top: 70px;
+                right: 4px;
+            }
+        }
+    }
+}

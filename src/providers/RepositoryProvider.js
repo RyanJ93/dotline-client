@@ -8,6 +8,8 @@ import LoadedAttachmentRepositoryInjector from '../services/injectors/LoadedAtta
 import UserSettingsRepositoryInjector from '../services/injectors/UserSettingsRepositoryInjector';
 import ConversationRepositoryInjector from '../services/injectors/ConversationRepositoryInjector';
 import AccessTokenRepositoryInjector from '../services/injectors/AccessTokenRepositoryInjector';
+import StickerPackRepositoryInjector from '../services/injectors/StickerPackRepositoryInjector';
+import StickerRepositoryInjector from '../services/injectors/StickerRepositoryInjector';
 import MessageRepositoryInjector from '../services/injectors/MessageRepositoryInjector';
 import UserRepositoryInjector from '../services/injectors/UserRepositoryInjector';
 import InjectionManager from '../support/InjectionManager';
@@ -28,6 +30,8 @@ class RepositoryProvider extends Provider {
         InjectionManager.getInstance().register('UserSettingsRepository', new UserSettingsRepositoryInjector());
         InjectionManager.getInstance().register('ConversationRepository', new ConversationRepositoryInjector());
         InjectionManager.getInstance().register('AccessTokenRepository', new AccessTokenRepositoryInjector());
+        InjectionManager.getInstance().register('StickerPackRepository', new StickerPackRepositoryInjector());
+        InjectionManager.getInstance().register('StickerRepository', new StickerRepositoryInjector());
         InjectionManager.getInstance().register('MessageRepository', new MessageRepositoryInjector());
         InjectionManager.getInstance().register('UserRepository', new UserRepositoryInjector());
     }

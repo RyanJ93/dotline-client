@@ -2,6 +2,7 @@
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import AttachmentList from '../AttachmentList/AttachmentList';
+import StickerPicker from '../StickerPicker/StickerPicker';
 import MessageLocation from '../../DTOs/MessageLocation';
 import MessageType from '../../enum/MessageType';
 import GeoUtils from '../../utils/GeoUtils';
@@ -10,6 +11,7 @@ import React from 'react';
 
 class MessageEditor extends React.Component {
     #attachmentListRef = React.createRef();
+    #stickerPickerRef = React.createRef();
     #inputFileRef = React.createRef();
     #inputRef = React.createRef();
 
@@ -59,9 +61,7 @@ class MessageEditor extends React.Component {
         const position = await GeoUtils.getCurrentPosition();
         const messageLocation = MessageLocation.makeFromGeolocationPosition(position);
         const content = messageLocation.toSerializedLocation();
-
         this.props.onMessageSend(content, MessageType.LOCATION, [], null);
-
     }
 
     _handleEditMessageDiscardClick(){
@@ -118,6 +118,18 @@ class MessageEditor extends React.Component {
         }
     }
 
+    _handleStickerSelect(sticker){
+        this.props.onMessageSend(sticker.toSerializedSticker(), MessageType.STICKER, [], null);
+    }
+
+    _handleStickerPickerToggle(){
+        const stickerPickerActive = !this.state.stickerPickerActive;
+        if ( !stickerPickerActive ){
+            this.#stickerPickerRef.current.reset();
+        }
+        this.setState((prev) => ({ ...prev, stickerPickerActive: stickerPickerActive }));
+    }
+
     constructor(props){
         super(props);
 
@@ -125,10 +137,12 @@ class MessageEditor extends React.Component {
         this._handleAttachmentMenuEntryClick = this._handleAttachmentMenuEntryClick.bind(this);
         this._handleAttachmentAddButtonClick = this._handleAttachmentAddButtonClick.bind(this);
         this._handleEditMessageDiscardClick = this._handleEditMessageDiscardClick.bind(this);
+        this._handleStickerPickerToggle = this._handleStickerPickerToggle.bind(this);
         this._handleSendButtonClick = this._handleSendButtonClick.bind(this);
         this._handleInputFileChange = this._handleInputFileChange.bind(this);
+        this._handleStickerSelect = this._handleStickerSelect.bind(this);
         this._handleKeyPress = this._handleKeyPress.bind(this);
-        this.state = { message: null, attachmentMenuActive: false };
+        this.state = { message: null, attachmentMenuActive: false, stickerPickerActive: false };
     }
 
     setMessage(message){
@@ -175,6 +189,9 @@ class MessageEditor extends React.Component {
             <div className={styles.messageEditor}>
                 {this.#renderEditMessageReview()}
                 <AttachmentList ref={this.#attachmentListRef} />
+                <div className={styles.stickerPickerWrapper} data-active={this.state.stickerPickerActive}>
+                    <StickerPicker ref={this.#stickerPickerRef} onStickerSelect={this._handleStickerSelect} />
+                </div>
                 <div className={styles.messageEditorWrapper}>
                     <div className={styles.controlsWrapper}>
                         <FontAwesomeIcon icon='fa-solid fa-paperclip' onClick={this._handleAttachmentAddButtonClick} />
@@ -185,7 +202,7 @@ class MessageEditor extends React.Component {
                     </div>
                     <div className={styles.controlsWrapper}>
                         <FontAwesomeIcon icon='fa-solid fa-paper-plane' onClick={this._handleSendButtonClick} />
-                        <FontAwesomeIcon icon='fa-solid fa-icons' />
+                        <FontAwesomeIcon icon='fa-solid fa-icons' onClick={this._handleStickerPickerToggle} />
                         <FontAwesomeIcon icon='fa-solid fa-microphone' />
                     </div>
                 </div>

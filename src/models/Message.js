@@ -1,5 +1,6 @@
 'use strict';
 
+import StickerPlaceholder from '../DTOs/StickerPlaceholder';
 import MessageType from '../enum/MessageType';
 import Conversation from './Conversation';
 import Model from './Model';
@@ -34,6 +35,10 @@ class Message extends Model {
             switch ( this.getType() ){
                 case MessageType.LOCATION: {
                     previewContent = 'Location';
+                }break;
+                case MessageType.STICKER: {
+                    const stickerPlaceholder = StickerPlaceholder.makeFromSerializedSticker(previewContent);
+                    previewContent = 'Sticker: ' + stickerPlaceholder.getEmoji();
                 }break;
             }
         }else if ( previewContent === '' ){

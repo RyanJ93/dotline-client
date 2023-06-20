@@ -1,0 +1,27 @@
+div.stickerMessageContent {
+    p.emoji {
+        text-align: center;
+        font-size: 72px;
+        margin: 0;
+    }
+
+    p.serviceLabel {
+        font-size: 14px;
+        margin: 3px 0 0;
+        font-style: italic;
+        text-align: center;
+    }
+
+    video.stickerContent {
+        width: 256px;
+        height: 256px;
+    }
+
+    div.stickerContent {
+        width: 256px;
+        height: 256px;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+}
