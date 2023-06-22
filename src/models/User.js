@@ -20,6 +20,18 @@ class User extends Model {
         };
     }
 
+    getComputedUser(){
+        let computedName = this._attributes?.name ?? '';
+        if ( computedName !== '' ){
+            computedName += ' ';
+        }
+        computedName += this._attributes?.surname ?? '';
+        if ( computedName === '' ){
+            computedName = '@' + this._attributes?.username;
+        }
+        return computedName;
+    }
+
     setRSAPublicKey(RSAPublicKey){
         this._attributes.RSAPublicKey = RSAPublicKey;
         return this;

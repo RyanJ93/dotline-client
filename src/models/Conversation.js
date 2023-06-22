@@ -25,13 +25,13 @@ class Conversation extends Model {
     getComputedName(){
         let name = this.getName();
         if ( name === null ){
-            const usernameList = this.getMembers().map((member) => {
-                return member.getUser().getUsername();
+            const authenticatedUserID = App.getAuthenticatedUser().getID(), nameList = [];
+            this.getMembers().forEach((member) => {
+                if ( member.getUser().getID() !== authenticatedUserID ){
+                    nameList.push(member.getUser().getComputedUser());
+                }
             });
-            const authenticatedUserUsername = App.getAuthenticatedUser().getUsername();
-            name = usernameList.filter((username) => {
-                return username !== authenticatedUserUsername;
-            }).join(', ');
+            name = nameList.join(', ');
         }
         return name;
     }

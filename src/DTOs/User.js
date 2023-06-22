@@ -27,6 +27,18 @@ class User {
         this._id = properties.id;
     }
 
+    getComputedUser(){
+        let computedName = this._name ?? '';
+        if ( computedName !== '' ){
+            computedName += ' ';
+        }
+        computedName += this._surname ?? '';
+        if ( computedName === '' ){
+            computedName = '@' + this._username;
+        }
+        return computedName;
+    }
+
     getRSAPublicKey(){
         return this._RSAPublicKey;
     }
