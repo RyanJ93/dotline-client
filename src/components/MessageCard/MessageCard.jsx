@@ -3,6 +3,8 @@
 import AttachmentViewer from '../AttachmentViewer/AttachmentViewer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import MessageContent from '../MessageContent/MessageContent';
+import StringUtils from '../../utils/StringUtils';
+import MessageType from '../../enum/MessageType';
 import Event from '../../facades/Event';
 import styles from './MessageCard.scss';
 import App from '../../facades/App';
@@ -12,6 +14,11 @@ class MessageCard extends React.Component {
     #attachmentViewerRef = React.createRef();
     #messageCardRef = React.createRef();
     #parentMutationObserver;
+
+    #isWithoutBackground(){
+        const isWithoutBackground = StringUtils.isSingleEmoji(this.props.message.getContent());
+        return isWithoutBackground || this.state.message.getType() === MessageType.STICKER;
+    }
 
     #getMessageTime(){
         let time = ( '0' + this.state.message.getCreatedAt().getHours() ).slice(-2);
@@ -111,7 +118,7 @@ class MessageCard extends React.Component {
         const direction = messageUserID === authenticatedUserID ? 'sent' : 'received';
         return (
             <div className={styles.messageCard} data-direction={direction} data-message-id={this.state.message.getID()} ref={this.#messageCardRef}>
-                <div className={styles.wrapper}>
+                <div className={styles.wrapper} data-without-background={this.#isWithoutBackground()}>
                     <MessageContent message={this.state.message} />
                     <div className={styles.date}>{this.#renderEditedLabel()}{this.#getMessageTime()}</div>
                     <AttachmentViewer ref={this.#attachmentViewerRef} message={this.state.message} onAttachmentClick={this._handleAttachmentClick} />

@@ -25,6 +25,17 @@ class StringUtils {
         humanReadableString = ( i === 0 ? size : ( Math.round(size * 100) / 100 ) ) + ' ' + multipleName;
         return humanReadableString;
     }
+
+    /**
+     * Checks if the given string contains one single character and that's an emoji.
+     *
+     * @param {string} string
+     *
+     * @returns {boolean}
+     */
+    static isSingleEmoji(string){
+        return typeof string === 'string' && string.length === 2 && /\p{Emoji}/u.test(string);
+    }
 }
 
 /**

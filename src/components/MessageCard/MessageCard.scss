@@ -52,6 +52,23 @@ div.messageCard {
         position: relative;
         max-width: 75%;
 
+        &[data-without-background="true"] {
+            background-color: transparent !important;
+
+            &:after {
+                display: none !important;
+            }
+
+            div.date {
+                background-color: #34495e;
+                padding: 3px 6px;
+                border-radius: 3px;
+                position: absolute;
+                right: 12px;
+                bottom: 12px;
+            }
+        }
+
         &:after {
             width: 0;
             height: 0;

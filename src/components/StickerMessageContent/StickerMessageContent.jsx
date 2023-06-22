@@ -8,19 +8,19 @@ import React from 'react';
 
 class StickerMessageContent extends React.Component {
     #renderSticker(){
-        let renderedSticker;
+        let renderedSticker, emoji = this.state.stickerPlaceholder.getEmoji();
         if ( this.state.sticker instanceof Sticker ){
             const contentURL = this.state.sticker.getContentURL();
             if ( this.state.sticker.getAnimated() ){
-                renderedSticker = <video className={styles.stickerContent} src={contentURL} autoPlay={true} controls={false} loop={true} />
+                renderedSticker = <video className={styles.stickerContent} src={contentURL} autoPlay={true} controls={false} loop={true} title={emoji} />
             }else{
-                renderedSticker = <div className={styles.stickerContent} style={{ backgroundImage: 'url(' + contentURL + ')' }} />
+                renderedSticker = <div className={styles.stickerContent} style={{ backgroundImage: 'url(' + contentURL + ')' }} title={emoji} />
             }
         }else{
             const label = this.state.loading ? 'Loading sticker..' : 'Fallback emoji';
             renderedSticker = (
                 <React.Fragment>
-                    <p className={styles.emoji}>{this.state.stickerPlaceholder.getEmoji()}</p>
+                    <p className={styles.emoji}>{emoji}</p>
                     <p className={styles.serviceLabel}>{label}</p>
                 </React.Fragment>
             );
