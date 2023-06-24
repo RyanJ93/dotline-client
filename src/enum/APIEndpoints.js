@@ -22,6 +22,7 @@ export default Object.freeze({
     CONVERSATION_COMMIT_STATS: '/api/conversation/commit-stats',
     CONVERSATION_GET: '/api/conversation/:conversationID/get',
     USER_SESSION_DELETE_ALL: '/api/user/session/delete-all',
+    USER_CHANGE_PASSWORD: '/api/user/change-password',
     USER_VERIFY_USERNAME: '/api/user/verify-username',
     CONVERSATION_CREATE: '/api/conversation/create',
     CONVERSATION_STATS: '/api/conversation/stats',

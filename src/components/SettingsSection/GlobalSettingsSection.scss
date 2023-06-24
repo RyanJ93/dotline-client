@@ -1,0 +1,30 @@
+div.section {
+    div.content, form.content {
+        p.sectionTitle {
+            margin: 0 0 32px 0;
+            font-size: 24px;
+        }
+
+        div.field {
+            margin-top: 12px;
+        }
+
+        div.submit {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        div.operation {
+            margin-top: 12px;
+
+            button {
+                width: 100%;
+            }
+        }
+
+        p.note {
+            font-size: 13px;
+            margin: 3px 0 0;
+        }
+    }
+}

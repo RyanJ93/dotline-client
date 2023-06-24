@@ -5,6 +5,20 @@ import AESEncryptionParameters from '../DTOs/AESEncryptionParameters';
 import AESStaticParameters from '../DTOs/AESStaticParameters';
 import BinaryUtils from './BinaryUtils';
 
+/**
+ * @typedef ImportedRSAKeys
+ *
+ * @property {CryptoKey} privateKey
+ * @property {CryptoKey} publicKey
+ */
+
+/**
+ * @typedef ExportedRSAKeys
+ *
+ * @property {string} privateKey
+ * @property {string} publicKey
+ */
+
 class CryptoUtils {
     /**
      * Generates a new pair of RSA keys.
@@ -234,30 +248,24 @@ class CryptoUtils {
      * Decrypts a given value using the RSA algorithm.
      *
      * @param {string} value
-     * @param {string} publicKey
-     * @param {string} privateKey
+     * @param {CryptoKey} privateKey
      *
      * @returns {Promise<string>}
      *
      * @throws {IllegalArgumentException} If an invalid RSA private key is given.
-     * @throws {IllegalArgumentException} If an invalid RSA public key is given.
      * @throws {IllegalArgumentException} If an invalid value is given.
      */
-    static async RSADecryptText(value, publicKey, privateKey){
-        if ( privateKey === '' || typeof privateKey !== 'string' ){
+    static async RSADecryptText(value, privateKey){
+        if ( !( privateKey instanceof CryptoKey ) ){
             throw new IllegalArgumentException('Invalid RSA private key.');
-        }
-        if ( publicKey === '' || typeof publicKey !== 'string' ){
-            throw new IllegalArgumentException('Invalid RSA public key.');
         }
         if ( value === '' || typeof value !== 'string' ){
             throw new IllegalArgumentException('Invalid value.');
         }
-        const importedKey = await CryptoUtils.importRSAKeys(publicKey, privateKey);
         const encodedValue = Uint8Array.from(atob(value), c => c.charCodeAt(0));
         const decryptedContent = await crypto.subtle.decrypt({
             name: 'RSA-OAEP'
-        }, importedKey.privateKey, encodedValue);
+        }, privateKey, encodedValue);
         return new TextDecoder().decode(new Uint8Array(decryptedContent));
     }
 
@@ -301,7 +309,7 @@ class CryptoUtils {
      * @param {string} publicKeyData
      * @param {string} privateKeyData
      *
-     * @returns {Promise<{privateKey: CryptoKey, publicKey: CryptoKey}>}
+     * @returns {Promise<ImportedRSAKeys>}
      */
     static async importRSAKeys(publicKeyData, privateKeyData){
         privateKeyData = JSON.parse(atob(privateKeyData));

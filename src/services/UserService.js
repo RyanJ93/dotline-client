@@ -365,6 +365,35 @@ class UserService extends Service {
         this._eventBroker.emit('logout');
         await new LocalDataService().dropLocalData();
     }
+
+    /**
+     * Changes the user's password.
+     *
+     * @param {string} currentPassword
+     * @param {string} newPassword
+     *
+     * @throws {IllegalArgumentException} If an invalid current password is given.
+     * @throws {IllegalArgumentException} If an invalid new password is given.
+     */
+    async changePassword(currentPassword, newPassword){
+        if ( currentPassword === '' || typeof currentPassword !== 'string' ){
+            throw new IllegalArgumentException('Invalid current password.');
+        }
+        if ( newPassword === '' || typeof newPassword !== 'string' ){
+            throw new IllegalArgumentException('Invalid new password.');
+        }
+        const cryptoService = new CryptoService(), rsaKeys = cryptoService.getAuthenticatedUserRSAKeys();
+        const authenticatedUserExportedRSAKeys = await cryptoService.encryptRSAKeys(rsaKeys, newPassword);
+        const RSAPrivateKeyEncryptionParameters = authenticatedUserExportedRSAKeys.getAESEncryptionParameters();
+        await Request.patch(APIEndpoints.USER_CHANGE_PASSWORD, {
+            RSAPrivateKeyEncryptionParametersKeyLength: RSAPrivateKeyEncryptionParameters.getKeyLength(),
+            RSAPrivateKeyEncryptionParametersMode: RSAPrivateKeyEncryptionParameters.getMode(),
+            RSAPrivateKeyEncryptionParametersIV: RSAPrivateKeyEncryptionParameters.getIV(),
+            RSAPrivateKey: authenticatedUserExportedRSAKeys.getEncryptedRSAPrivateKey(),
+            currentPassword: ( await CryptoUtils.stringHash(currentPassword, 'SHA-512') ),
+            newPassword: ( await CryptoUtils.stringHash(newPassword, 'SHA-512') )
+        });
+    }
 }
 
 export default UserService;

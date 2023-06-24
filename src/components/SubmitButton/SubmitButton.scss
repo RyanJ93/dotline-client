@@ -3,6 +3,14 @@ div.submitButton {
     position: relative;
     border-radius: 3px;
 
+    &[data-status="completed"] input[type="submit"] {
+        background-color: #27ae60 !important;
+    }
+
+    &[data-status="error"] input[type="submit"] {
+        background-color: #e74c3c !important;
+    }
+
     &[data-status="loading"] {
         div.loader {
             display: block;
