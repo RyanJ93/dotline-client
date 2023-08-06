@@ -5,6 +5,15 @@ import Facade from './Facade';
 
 class App extends Facade {
     /**
+     * Returns application version number.
+     *
+     * @returns {string}
+     */
+    static getVersion(){
+        return VERSION;
+    }
+
+    /**
      * Returns the authenticated user.
      *
      * @returns {?AuthenticatedUser}

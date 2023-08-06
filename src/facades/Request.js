@@ -9,17 +9,23 @@ import Facade from './Facade';
 import App from './App';
 
 class Request extends Facade {
-    static #processResponse(response){
-        let exception = null;
-        if ( response?.status !== 'SUCCESS' ){
-            let exceptionClass = ExceptionMapper.getInstance().getExceptionByStatus(response?.status);
+    static #processResponse(request){
+        let exception = null, exceptionMapper = ExceptionMapper.getInstance();
+        if ( typeof request.response?.status !== 'string' && request.status > 200 ){
+            const exceptionMessage = 'Remote service responded with an error: ' + request.status;
+            const exceptionClass = exceptionMapper.getExceptionByHTTPCode(request.status);
+            if ( exceptionClass !== null ){
+                exception = new exceptionClass(exceptionMessage);
+            }
+        }else if ( request.response?.status !== 'SUCCESS' ){
+            let exceptionClass = exceptionMapper.getExceptionByStatus(request.response?.status);
             if ( exceptionClass === null ){
                 exceptionClass = RemoteServiceException;
             }
-            const exceptionMessage = 'Remote service returned error: ' + response?.status;
+            const exceptionMessage = 'Remote service returned error: ' + request.response?.status;
             exception = new exceptionClass(exceptionMessage);
             if ( exception instanceof InvalidInputException ){
-                const errorMessageBag = ErrorMessageBag.makeFromHTTPResponse(response);
+                const errorMessageBag = ErrorMessageBag.makeFromHTTPResponse(request.response);
                 exception.setErrorMessageBag(errorMessageBag);
             }
         }
@@ -90,7 +96,7 @@ class Request extends Facade {
             request.responseType = 'json';
             request.onreadystatechange = () => {
                 if ( request.readyState === XMLHttpRequest.DONE ){
-                    const exception = Request.#processResponse(request.response);
+                    const exception = Request.#processResponse(request);
                     if ( exception !== null ){
                         return reject(exception);
                     }

@@ -31,6 +31,7 @@ export default Object.freeze({
     USER_SESSION_LIST: '/api/user/session/list',
     CONVERSATION_LIST: '/api/conversation/list',
     STICKER_PACK_LIST: '/api/sticker-pack/list',
+    SERVER_INFO: '/api/server/info',
     USER_SEARCH: '/api/user/search',
     USER_SIGNUP: '/api/user/signup',
     USER_LOGOUT: '/api/user/logout',

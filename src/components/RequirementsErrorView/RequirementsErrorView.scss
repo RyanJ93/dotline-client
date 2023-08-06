@@ -1,0 +1,38 @@
+div.requirementsErrorView {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #34495e;
+
+    div.container {
+        position: absolute;
+        text-align: center;
+        height: 250px;
+        margin: auto;
+        width: 450px;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        top: 0;
+
+        svg {
+            font-size: 72px;
+        }
+
+        p.title {
+            font-size: 32px;
+            margin: 24px 0 9px 0;
+        }
+
+        p.text {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        button.button {
+            margin-top: 32px;
+        }
+    }
+}

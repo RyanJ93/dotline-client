@@ -5,6 +5,7 @@ const webpack = require('webpack');
 const path = require('path');
 const fs = require('fs');
 
+const version = JSON.parse(fs.readFileSync('package.json').toString()).version;
 const config = JSON.parse(fs.readFileSync('config/config.json').toString());
 
 module.exports = {
@@ -41,6 +42,7 @@ module.exports = {
         }]
     },
     plugins: [new WebpackNotifierPlugin(), new webpack.DefinePlugin({
-        YANDEX_MAPS_KEY: JSON.stringify(config.yandexMapsKey)
+        YANDEX_MAPS_KEY: JSON.stringify(config.yandexMapsKey),
+        VERSION: JSON.stringify(version)
     })]
 };
