@@ -18,10 +18,9 @@ import MainView from '../MainView/MainView';
 import Event from '../../facades/Event';
 import styles from './App.scss';
 import React from 'react';
-import MessageSyncService from '../../services/MessageSyncService';
 
 class App extends React.Component {
-    #requirementsErrorView = React.createRef();
+    #requirementsErrorViewRef = React.createRef();
     #messageBoxManagerRef = React.createRef();
     #loadingViewRef = React.createRef();
     #authViewRef = React.createRef();
@@ -29,7 +28,7 @@ class App extends React.Component {
     #currentView = 'loading';
     #initialized = false;
 
-    async #handleUserInfoException(ex){
+    async #handleUserInfoException(ex){console.log('err1', ex.stack, ex.code, ex.message, ex.constructor.name);
         if ( ex instanceof UnauthorizedException || ex instanceof NotFoundException ){
             await new LocalDataService().dropLocalData();
             return this.setView('auth');
@@ -88,31 +87,15 @@ class App extends React.Component {
         }
     }
 
-    _handleAuthenticationSuccessful(){
-        this.#mainViewRef.current.resetView();
-        new MessageSyncService().initSync();
-        this.setView('main');
-    }
-
-    _handleLocalDataImported(){
+    async _handleAuthenticationSuccessful(){
+        await new LocalDataService().ensureLocalData();
         this.#mainViewRef.current.resetView();
         this.setView('main');
-    }
-
-    _handleLocalDataCleared(){
-        if ( this.#currentView !== 'auth' ){
-            this.setView('loading');
-        }
-    }
-
-    _handleLogOut(){
-        this.#authViewRef.current.resetView();
-        this.setView('auth');
     }
 
     async _handleError(event){
-        const error = event.error ?? event.reason;
-        if ( typeof error !== 'undefined' ){
+        const error = event.error ?? event.reason;console.log('err0');
+        if ( typeof error !== 'undefined' ){console.log('err2', error.stack, error.code, error.message, error.constructor.name);
             if ( error instanceof UnauthorizedException ){
                 await new LocalDataService().dropLocalData();
                 return this.setView('auth');
@@ -126,9 +109,6 @@ class App extends React.Component {
         super(props);
 
         this._handleAuthenticationSuccessful = this._handleAuthenticationSuccessful.bind(this);
-        this._handleLocalDataImported = this._handleLocalDataImported.bind(this);
-        this._handleLocalDataCleared = this._handleLocalDataCleared.bind(this);
-        this._handleLogOut = this._handleLogOut.bind(this);
         this._handleError = this._handleError.bind(this);
 
         this.state = { view: 'loading', unmetRequirements: null };
@@ -136,9 +116,19 @@ class App extends React.Component {
 
     componentDidMount(){
         if ( this.#initialized === false ){
-            Event.getBroker().on('localDataImported', this._handleLocalDataImported);
-            Event.getBroker().on('localDataCleared', this._handleLocalDataCleared);
-            Event.getBroker().on('logout', this._handleLogOut);
+            Event.getBroker().on('localDataImported', () => {
+                this.#mainViewRef.current.resetView();
+                this.setView('main');
+            });
+            Event.getBroker().on('localDataCleared', () => {
+                if ( this.#currentView !== 'auth' ){
+                    this.setView('loading');
+                }
+            });
+            Event.getBroker().on('logout', () => {
+                this.#authViewRef.current.resetView();
+                this.setView('auth');
+            });
             window.onunhandledrejection = this._handleError;
             window.onerror = this._handleError;
             this.#initialized = true;
@@ -155,8 +145,9 @@ class App extends React.Component {
     render(){
         return (
             <main className={styles.app}>
+                <div className={styles.headerSpacer + ' bg-blue'} />
                 <div className={styles.view} data-active={this.state.view === 'requirements-error'}>
-                    <RequirementsErrorView ref={this.#requirementsErrorView} unmetRequirements={this.state.unmetRequirements} />
+                    <RequirementsErrorView ref={this.#requirementsErrorViewRef} unmetRequirements={this.state.unmetRequirements} />
                 </div>
                 <div className={styles.view} data-active={this.state.view === 'loading'}>
                     <LoadingView ref={this.#loadingViewRef} />

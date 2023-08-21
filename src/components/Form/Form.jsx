@@ -2,6 +2,7 @@
 
 import styles from './Form.scss';
 import React from 'react';
+
 class Form extends React.Component {
     _handleSubmit(event){
         if ( typeof this.props.onSubmit === 'function' ){

@@ -2,6 +2,7 @@
 
 import StickerPackService from '../../services/StickerPackService';
 import StickerService from '../../services/StickerService';
+import { withTranslation } from 'react-i18next';
 import styles from './StickerPicker.scss';
 import React from 'react';
 
@@ -12,7 +13,7 @@ class StickerPicker extends React.Component {
             return (
                 <li key={stickerPack.getID()} onClick={this._handleStickerPackClick} data-sticker-pack-id={stickerPack.getID()}>
                     <div className={styles.stickerPackCoverPicture} style={{ backgroundImage: backgroundImage }} />
-                    <p className={styles.stickerPackName}>{stickerPack.getName()}</p>
+                    <p className={styles.stickerPackName + ' text-white'}>{stickerPack.getName()}</p>
                 </li>
             );
         });
@@ -103,7 +104,7 @@ class StickerPicker extends React.Component {
     }
 
     render(){
-        const activeViewName = this.#getActiveViewName();
+        const activeViewName = this.#getActiveViewName(), { t } = this.props;
         return (
             <div className={styles.stickerPicker}>
                 <div className={styles.views}>
@@ -111,24 +112,24 @@ class StickerPicker extends React.Component {
                         {this.#renderStickerPackList()}
                     </div>
                     <div className={styles.view} data-active={activeViewName === 'sticker-picker'}>
-                        <div className={styles.controls}>
+                        <div className={styles.controls + ' text-white'}>
                             <div className={styles.controlWrapper}>
-                                <a onClick={this._handleCloseStickerPack}>Close pack</a>
+                                <a onClick={this._handleCloseStickerPack} title={t('stickerPicker.closePack')}>{t('stickerPicker.closePack')}</a>
                             </div>
                             <div className={styles.controlWrapper}>
-                                <a onClick={this._handleStickerPackReload}>Reload pack</a>
+                                <a onClick={this._handleStickerPackReload} title={t('stickerPicker.reloadPack')}>{t('stickerPicker.reloadPack')}</a>
                             </div>
                         </div>
                         {this.#renderStickerList()}
                     </div>
                     <div className={styles.view} data-active={activeViewName === 'loader'}>
-                        <div className={styles.controls}>
+                        <div className={styles.controls + ' text-white'}>
                             <div className={styles.controlWrapper}>
-                                <a onClick={this._handleCloseStickerPack}>Close pack</a>
+                                <a onClick={this._handleCloseStickerPack} title={t('stickerPicker.closePack')}>{t('stickerPicker.closePack')}</a>
                             </div>
                         </div>
-                        <div className={styles.loader} />
-                        <p className={styles.label}>Loading sticker pack...</p>
+                        <div className={styles.loader + ' loader-img-white'} />
+                        <p className={styles.label + ' text-white'}>{t('stickerPicker.loadingPack')}</p>
                     </div>
                 </div>
             </div>
@@ -136,4 +137,4 @@ class StickerPicker extends React.Component {
     }
 }
 
-export default StickerPicker;
+export default withTranslation(null, { withRef: true })(StickerPicker);

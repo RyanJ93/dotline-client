@@ -1,1 +1,48 @@
-@use 'themes/dark';
+@import 'themes/light';
+@import 'themes/dark';
+
+:global {
+    .border-primary, .border-secondary, .border-accent, select {
+        transition: .25s border-color ease-in-out;
+        will-change: border-color;
+    }
+
+    .text-primary, .text-secondary, .text-accent, select {
+        transition: .25s color ease-in-out;
+        will-change: color;
+    }
+
+    .bg-primary, .bg-secondary, .bg-accent, select {
+        transition: .25s background-color ease-in-out;
+        will-change: background-color;
+    }
+
+    select {
+        display: block;
+        appearance: none;
+        border-radius: 3px;
+        padding: 3px;
+        box-sizing: border-box;
+        width: 100%;
+        cursor: pointer;
+        font-size: 16px;
+        outline: none;
+    }
+
+    button, input[type="reset"], input[type="submit"] {
+        transition: background-color .25s ease-in-out;
+        will-change: background-color;
+        color: #FFFFFF !important;
+        border: none;
+        padding: 9px 18px;
+        border-radius: 3px;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    a, a:active, a:hover {
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+    }
+}

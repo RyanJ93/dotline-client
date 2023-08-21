@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import FileUtils from '../../utils/FileUtils';
 import styles from './AttachmentViewer.scss';
 import React from 'react';
+import {withTranslation} from 'react-i18next';
 
 class AttachmentViewer extends React.Component {
     static #getSizingMapping(imageCount){
@@ -60,7 +61,7 @@ class AttachmentViewer extends React.Component {
                 renderedAttachmentList.push(
                     <div key={id} className={styles.previewWrapper} data-size={sizingMapping[n - 1]} data-aid={id} data-at={'image'} onClick={this._handleAttachmentClick}>
                         <img src={objectURL} alt={filename} onClick={this._handleAttachmentClick} />
-                        <p className={styles.remainingAttachmentCounter}>+{remainingAttachments}</p>
+                        <p className={styles.remainingAttachmentCounter + ' text-white'}>+{remainingAttachments}</p>
                     </div>
                 );
                 break;
@@ -99,7 +100,7 @@ class AttachmentViewer extends React.Component {
 
     #renderOtherAttachments(renderedAttachmentList, groupedAttachments){
         groupedAttachments.others.forEach((attachment) => {
-            const id = attachment.getID();
+            const id = attachment.getID(), { t } = this.props;
             renderedAttachmentList.push(
                 <div key={id} className={styles.previewWrapper} data-aid={id} data-at={'other'}>
                     <div className={styles.genericFilePreview}>
@@ -111,7 +112,7 @@ class AttachmentViewer extends React.Component {
                             <p className={styles.fileSize}>{attachment.getHumanReadableSize()}</p>
                         </div>
                         <div className={styles.controls}>
-                            <a download={attachment.getFilename()} href={attachment.getObjectURL()} title={'Download this file'}>
+                            <a download={attachment.getFilename()} href={attachment.getObjectURL()} title={t('attachmentViewer.downloadTitle')}>
                                 <FontAwesomeIcon icon='fa-solid fa-download' />
                             </a>
                         </div>
@@ -171,4 +172,4 @@ class AttachmentViewer extends React.Component {
     }
 }
 
-export default AttachmentViewer;
+export default withTranslation(null, { withRef: true })(AttachmentViewer);

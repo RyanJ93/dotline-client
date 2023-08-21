@@ -46,7 +46,6 @@ Object.defineProperty(RequirementsChecker, 'REQUIRED_API_ASSERT_CHECKLIST', {
         ['Web Crypto']: () => { return ( typeof window.crypto?.subtle  === 'object' && window.crypto?.subtle !== null ) },
         ['IndexedDB']: () => { return ( typeof window.indexedDB === 'object' && window.indexedDB !== null ) },
         ['IntersectionObserver']: () => { return ( typeof window.IntersectionObserver === 'function' ) },
-        ['Web notifications']: () => { return ( typeof window.Notification === 'function' ) },
         ['Drag-n-drop']: () => { return ( 'draggable' in document.createElement('span') ) },
         ['Web Audio']: () => { return ( !!document.createElement('audio').canPlayType ) },
         ['Geolocation']: () => { return ( typeof window.Geolocation === 'function' ) },

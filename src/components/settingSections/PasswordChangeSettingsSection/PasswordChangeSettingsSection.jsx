@@ -4,6 +4,7 @@ import SubmitButton from '../../SubmitButton/SubmitButton';
 import styles from './PasswordChangeSettingsSection.scss';
 import UserService from '../../../services/UserService';
 import TextField from '../../TextField/TextField';
+import { withTranslation } from 'react-i18next';
 import React from 'react';
 
 class PasswordChangeSettingsSection extends React.Component {
@@ -16,32 +17,35 @@ class PasswordChangeSettingsSection extends React.Component {
         this.#currentPasswordInputRef.current.setErrorMessage(null);
         this.#confirmPasswordInputRef.current.setErrorMessage(null);
         this.#newPasswordInputRef.current.setErrorMessage(null);
+        const { t } = this.props;
         if ( this.#currentPasswordInputRef.current.getValue() === '' ){
-            this.#currentPasswordInputRef.current.setErrorMessage('You must provide your current password!');
+            this.#currentPasswordInputRef.current.setErrorMessage(t('passwordChangeSettingsSection.invalidCurrentPassword'));
             return false;
         }
         const confirmPassword = this.#confirmPasswordInputRef.current.getValue();
         const newPassword = this.#newPasswordInputRef.current.getValue();
         if ( newPassword === '' ){
-            this.#newPasswordInputRef.current.setErrorMessage('You must provide a new password!');
+            this.#newPasswordInputRef.current.setErrorMessage(t('passwordChangeSettingsSection.invalidNewPassword'));
             return false;
         }
         if ( confirmPassword !== newPassword ){
-            this.#confirmPasswordInputRef.current.setErrorMessage('Passwords must match!');
+            this.#confirmPasswordInputRef.current.setErrorMessage(t('passwordChangeSettingsSection.passwordMismatch'));
             return false;
         }
         return true;
     }
 
     async #submit(){
+        const currentPassword = this.#currentPasswordInputRef.current.getValue(), { t } = this.props;
+        const message = t('passwordChangeSettingsSection.passwordChanged');
+        const newPassword = this.#newPasswordInputRef.current.getValue();
+        const label = t('passwordChangeSettingsSection.label.save');
+        this.#submitButtonRef.current.setStatus('loading');
         try{
-            const currentPassword = this.#currentPasswordInputRef.current.getValue();
-            const newPassword = this.#newPasswordInputRef.current.getValue();
-            this.#submitButtonRef.current.setStatus('loading');
             await new UserService().changePassword(currentPassword, newPassword);
-            this.#submitButtonRef.current.setTemporaryStatus('completed', 'Password changed', 'Save');
+            this.#submitButtonRef.current.setTemporaryStatus('completed', message, label);
         }catch(ex){
-            this.#submitButtonRef.current.setTemporaryStatus('error', 'Save', 'Save');
+            this.#submitButtonRef.current.setTemporaryStatus('error', label, label);
             throw ex;
         }
     }
@@ -61,22 +65,23 @@ class PasswordChangeSettingsSection extends React.Component {
     }
 
     render(){
+        const { t } = this.props;
         return (
             <div className={styles.section} onSubmit={this._handleSubmit}>
                 <form className={styles.content} >
-                    <p className={styles.sectionTitle}>Change password</p>
+                    <p className={styles.sectionTitle + ' text-primary'}>{t('passwordChangeSettingsSection.title')}</p>
                     <div className={styles.field}>
-                        <TextField label={'Current password'} type={'password'} ref={this.#currentPasswordInputRef} />
+                        <TextField label={t('passwordChangeSettingsSection.label.currentPassword')} type={'password'} ref={this.#currentPasswordInputRef} />
                     </div>
                     <div className={styles.field}>
-                        <TextField label={'New password'} type={'password'} ref={this.#newPasswordInputRef} />
+                        <TextField label={t('passwordChangeSettingsSection.label.newPassword')} type={'password'} ref={this.#newPasswordInputRef} />
                     </div>
                     <div className={styles.field}>
-                        <TextField label={'Confirm password'} type={'password'} ref={this.#confirmPasswordInputRef} />
-                        <p className={styles.note}>Note that when password is changes all other open sessions will be closed.</p>
+                        <TextField label={t('passwordChangeSettingsSection.label.confirmPassword')} type={'password'} ref={this.#confirmPasswordInputRef} />
+                        <p className={styles.note + ' text-primary'}>{t('passwordChangeSettingsSection.label.passwordNote')}</p>
                     </div>
                     <div className={styles.submit}>
-                        <SubmitButton value={'Change password'} ref={this.#submitButtonRef} />
+                        <SubmitButton value={t('passwordChangeSettingsSection.label.changePassword')} ref={this.#submitButtonRef} />
                     </div>
                 </form>
             </div>
@@ -84,4 +89,4 @@ class PasswordChangeSettingsSection extends React.Component {
     }
 }
 
-export default PasswordChangeSettingsSection;
+export default withTranslation(null, { withRef: true })(PasswordChangeSettingsSection);

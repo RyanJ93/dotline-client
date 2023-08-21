@@ -6,6 +6,7 @@ import MessageSyncService from './MessageSyncService';
 import UserService from '../services/UserService';
 import Database from '../facades/Database';
 import Service from './Service';
+import UserSettingsService from './UserSettingsService';
 
 class LocalDataService extends Service {
     /**
@@ -57,8 +58,11 @@ class LocalDataService extends Service {
      * @returns {Promise<void>}
      */
     async ensureLocalData(){
+        const userSettingsService = new UserSettingsService();
         await new UserService().getUserInfo();
         await new ConversationService().fetchConversations();
+        await userSettingsService.fetch();
+        userSettingsService.applyLocalSettings();
         this._eventBroker.emit('localDataImported');
         new MessageSyncService().initSync();
         //new MessageImportService().initMessageImport();

@@ -1,10 +1,23 @@
 'use strict';
 
+import { withTranslation } from 'react-i18next';
 import styles from './SubmitButton.scss';
 import React from 'react';
 
 class SubmitButton extends React.Component {
     #statusResetTimeoutID = null;
+
+    #getStatusClass(){
+        switch ( this.state.status ){
+            case 'completed': {
+                return styles.submitButton + ' bg-success text-primary';
+            }
+            case 'error': {
+                return styles.submitButton + ' bg-danger text-primary';
+            }
+        }
+        return styles.submitButton + ' bg-secondary text-primary';
+    }
 
     constructor(props){
         super(props);
@@ -51,12 +64,12 @@ class SubmitButton extends React.Component {
 
     render(){
         return (
-            <div data-status={this.state.status} className={styles.submitButton}>
-                <div className={styles.loader} />
+            <div data-status={this.state.status} className={this.#getStatusClass()}>
+                <div className={styles.loader + ' loader-img-white'} />
                 <input disabled={this.state.disabled} value={this.state.value} type={'submit'} />
             </div>
         );
     }
 }
 
-export default SubmitButton;
+export default withTranslation(null, { withRef: true })(SubmitButton);

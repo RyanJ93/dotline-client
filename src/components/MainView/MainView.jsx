@@ -122,17 +122,21 @@ class MainView extends React.Component {
 
     render(){
         return (
-            <div className={styles.view} data-conversation-selected={this.state.conversationSelected}>
-                <div className={styles.sideBar}>
-                    <div className={styles.conversationList}>
-                        <SideBar ref={this.#sideBarRef} onSearchResultPick={this._handleSearchResultPick} onConversationSelect={this._handleConversationSelect} />
+            <div className={styles.view + ' bg-primary full-viewport'} data-conversation-selected={this.state.conversationSelected}>
+                <div className={'full-viewport-container'}>
+                    <div className={styles.container}>
+                        <div className={styles.sideBar + ' border-secondary bg-primary'}>
+                            <div className={styles.conversationList + ' bg-primary'}>
+                                <SideBar ref={this.#sideBarRef} onSearchResultPick={this._handleSearchResultPick} onConversationSelect={this._handleConversationSelect} />
+                            </div>
+                            <div className={styles.messageImportStatsViewer}>
+                                <MessageImportStatsViewer />
+                            </div>
+                        </div>
+                        <div className={styles.conversationViewerList}>
+                            <ConversationViewerList ref={this.#conversationViewerListRef} onMessageSend={this._handleMessageSend} onMessageDelete={this._handleMessageDelete} onConversationClose={this._handleConversationClose} onConversationDelete={this._handleConversationDelete} />
+                        </div>
                     </div>
-                    <div>
-                        <MessageImportStatsViewer />
-                    </div>
-                </div>
-                <div className={styles.conversationViewerList}>
-                    <ConversationViewerList ref={this.#conversationViewerListRef} onMessageSend={this._handleMessageSend} onMessageDelete={this._handleMessageDelete} onConversationClose={this._handleConversationClose} onConversationDelete={this._handleConversationDelete} />
                 </div>
             </div>
         );

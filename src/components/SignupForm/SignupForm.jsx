@@ -2,18 +2,20 @@
 
 import AuthenticationForm from '../AuthenticationForm/AuthenticationForm';
 import UserService from '../../services/UserService';
+import { withTranslation } from 'react-i18next';
 import TextField from '../TextField/TextField';
 import styles from './SignupForm.scss';
 import Form from '../Form/Form';
 import React from 'react';
 
 class SignupForm extends AuthenticationForm {
-    #passwordConfirmation = React.createRef();
+    #passwordConfirmationRef = React.createRef();
 
     #isPasswordConfirmValid(){
-        this.#passwordConfirmation.current.setErrorMessage(null);
-        if ( this.#passwordConfirmation.current.getValue() !== this._password.current.getValue() ){
-            this.#passwordConfirmation.current.setErrorMessage('Passwords don\'t match!');
+        this.#passwordConfirmationRef.current.setErrorMessage(null);
+        const { t } = this.props;
+        if ( this.#passwordConfirmationRef.current.getValue() !== this._passwordRef.current.getValue() ){
+            this.#passwordConfirmationRef.current.setErrorMessage(t('signupForm.error.passwordMismatch'));
             return false;
         }
         return true;
@@ -21,7 +23,7 @@ class SignupForm extends AuthenticationForm {
 
     async _isValid(){
         if ( this._isUsernameValid() ){
-            let isValid = ( await super._isValid() ), username = this._username.current.getValue();
+            let isValid = ( await super._isValid() ), username = this._usernameRef.current.getValue();
             isValid = ( await this.#verifyUsername(username) ) && isValid;
             return this.#isPasswordConfirmValid() && isValid;
         }
@@ -30,12 +32,11 @@ class SignupForm extends AuthenticationForm {
     }
 
     async #verifyUsername(username){
-        const userService = new UserService();
-        const isUsernameAvailable = await userService.isUsernameAvailable(username);
-        this._username.current.setErrorMessage(null);
+        const isUsernameAvailable = await new UserService().isUsernameAvailable(username);
+        this._usernameRef.current.setErrorMessage(null);
+        const { t } = this.props;
         if ( !isUsernameAvailable ){
-            const message = 'This username has been taken already.';
-            this._username.current.setErrorMessage(message);
+            this._usernameRef.current.setErrorMessage(t('signupForm.error.usernameTaken'));
         }
         return isUsernameAvailable;
     }
@@ -46,7 +47,7 @@ class SignupForm extends AuthenticationForm {
 
     _handleUsernameChange(){
         if ( this._isUsernameValid() ){
-            this.#verifyUsername(this._username.current.getValue());
+            this.#verifyUsername(this._usernameRef.current.getValue());
         }
     }
 
@@ -59,36 +60,37 @@ class SignupForm extends AuthenticationForm {
     async submit(event){
         const isValid = await this._isValid();
         if ( isValid ){
-            const isUsernameAvailable = await this.#verifyUsername(this._username.current.getValue());
+            const isUsernameAvailable = await this.#verifyUsername(this._usernameRef.current.getValue());
             if ( isUsernameAvailable ){
                 this.props.onSubmit({
-                    password: this._password.current.getValue(),
-                    username: this._username.current.getValue()
+                    password: this._passwordRef.current.getValue(),
+                    username: this._usernameRef.current.getValue()
                 }, event);
             }
         }
     }
 
     render(){
+        const { t } = this.props;
         return (
             <Form onSubmit={this._handleSubmit}>
                 <div className={styles.formContainer}>
                     <div className={styles.field}>
-                        <TextField type={'text'} name={'username'} label={'Username'} ref={this._username} onChange={this._handleUsernameChange} />
+                        <TextField type={'text'} name={'username'} label={t('signupForm.label.username')} ref={this._usernameRef} onChange={this._handleUsernameChange} />
                     </div>
                     <div className={styles.field}>
-                        <TextField type={'password'} name={'password'} label={'Password'} ref={this._password} onChange={this._handlePasswordChange} />
+                        <TextField type={'password'} name={'password'} label={t('signupForm.label.password')} ref={this._passwordRef} onChange={this._handlePasswordChange} />
                     </div>
                     <div className={styles.field}>
-                        <TextField type={'password'} name={'password-confirmation'} label={'Password confirmation'} ref={this.#passwordConfirmation} onChange={this._handlePasswordConfirmationChange} />
+                        <TextField type={'password'} name={'password-confirmation'} label={t('signupForm.label.passwordConfirmation')} ref={this.#passwordConfirmationRef} onChange={this._handlePasswordConfirmationChange} />
                     </div>
-                    <div className={styles.field}>
-                        <p className={styles.question}>Where do I have to input my phone number or e-mail?</p>
-                        <p className={styles.answer}>We don't need any of your personal information, enjoy a service focused on privacy at all.</p>
+                    <div className={styles.field + ' text-primary'}>
+                        <p className={styles.question}>{t('signupForm.question')}</p>
+                        <p className={styles.answer}>{t('signupForm.answer')}</p>
                     </div>
                     {this._renderGenericErrorMessages()}
                     <div className={styles.submit}>
-                        <input className={styles.button} type={'submit'} value={'Create my account'} />
+                        <input type={'submit'} value={t('signupForm.label.submit')} />
                     </div>
                 </div>
             </Form>
@@ -96,4 +98,4 @@ class SignupForm extends AuthenticationForm {
     }
 }
 
-export default SignupForm;
+export default withTranslation(null, { withRef: true })(SignupForm);

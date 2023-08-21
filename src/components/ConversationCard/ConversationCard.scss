@@ -11,14 +11,18 @@ div.conversationCard {
             font-size: 18px;
         }
 
-        p.messagePreview {
-            font-size: 13px;
-            margin: 3px 0 0;
-            max-width: 130px;
-            display: block;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
+        div.messagePreviewWrapper {
+            position: relative;
+
+            p.messagePreview {
+                font-size: 13px;
+                margin: 3px 0 0;
+                position: absolute;
+                width: 200px;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+            }
         }
     }
 
@@ -34,7 +38,6 @@ div.conversationCard {
         p.unreadMessageCounter {
             display: inline-block;
             margin: 9px 0 0 0;
-            background-color: #7f8c8d;
             padding: 1px 6px;
             border-radius: 12px;
             font-size: 14px;

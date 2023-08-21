@@ -1,6 +1,6 @@
 section.conversationViewerHeader {
     display: flex;
-    border-bottom: 1px solid #2c3e50;
+    border-bottom: 1px solid;
     box-sizing: border-box;
     padding: 9px 24px;
 
@@ -35,7 +35,6 @@ section.conversationViewerHeader {
         div.onlineBadge {
             width: 9px;
             height: 9px;
-            background-color: #27ae60;
             display: inline-block;
             vertical-align: middle;
             border-radius: 9px;
@@ -107,10 +106,6 @@ section.conversationViewerHeader {
                 li {
                     margin-bottom: 6px;
                     cursor: pointer;
-
-                    &.dangerousAction {
-                        color: #e74c3c;
-                    }
 
                     svg {
                         margin-right: 12px;

@@ -8,13 +8,20 @@ section.conversationViewer {
         overflow-x: hidden;
         flex-grow: 1;
 
-        div.loader {
-            background-image: url(/public/assets/rounded_loader.svg);
-            width: 48px;
-            height: 48px;
-            background-position: center;
-            background-size: contain;
-            margin: 50px auto auto auto;
+        div.loaderWrapper {
+            div.loader {
+                margin: 50px auto auto auto;
+                background-position: center;
+                background-size: contain;
+                height: 48px;
+                width: 48px;
+            }
+
+            p.label {
+                margin: 3px 0 0 0;
+                font-style: italic;
+                font-size: 14px;
+            }
         }
 
         ul.messageList {
@@ -33,7 +40,13 @@ section.conversationViewer {
 
                 &.dateSeparator {
                     text-align: center;
-                    padding: 12px 0;
+                    padding: 18px 0;
+
+                    span {
+                        padding: 3px 9px;
+                        border-radius: 9px;
+                        font-size: 14px;
+                    }
                 }
 
                 &.emptyMessage {
@@ -47,7 +60,7 @@ section.conversationViewer {
 
         div.scrollDownButton {
             position: fixed;
-            bottom: 74px;
+            bottom: 80px;
             right: 18px;
             font-size: 36px;
             cursor: pointer;
@@ -67,7 +80,6 @@ section.conversationViewer {
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: #34495e;
         border: 3px dashed;
         box-sizing: border-box;
         display: none;

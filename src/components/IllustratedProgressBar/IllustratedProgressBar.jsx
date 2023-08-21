@@ -68,8 +68,8 @@ class IllustratedProgressBar extends React.Component {
             <div className={styles.illustratedProgressBar}>
                 {this.#renderIcon()}
                 {this.#renderMessage()}
-                <div className={styles.progressBar}>
-                    <div className={styles.progressBarValue} style={{ width: width }} />
+                <div className={styles.progressBar + ' border-primary'}>
+                    <div className={styles.progressBarValue + ' bg-accent'} style={{ width: width }} />
                 </div>
             </div>
         );

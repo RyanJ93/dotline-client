@@ -8,6 +8,7 @@ import MessageEditor from '../MessageEditor/MessageEditor';
 import MessageService from '../../services/MessageService';
 import MessageCard from '../MessageCard/MessageCard';
 import Conversation from '../../models/Conversation';
+import { withTranslation } from 'react-i18next';
 import styles from './ConversationViewer.scss';
 import DateUtils from '../../utils/DateUtils';
 import DOMUtils from '../../utils/DOMUtils';
@@ -36,19 +37,29 @@ class ConversationViewer extends React.Component {
     }
 
     #renderMessageLoader(){
-        return this.state.loading === true ? <div className={styles.loader} /> : null;
+        const { t } = this.props;
+        return this.state.loading === true ? (
+            <div className={styles.loaderWrapper + ' text-primary'}>
+                <div className={styles.loader + ' loader-img'} />
+                <p className={styles.label}>{t('conversationViewer.loading')}</p>
+            </div>
+        ) : null;
     }
 
     #renderMessageList(){
-        let messageList = this.#getSortedMessageList(), renderedMessageList = [], previousPassedDate = null;
+        let messageList = this.#getSortedMessageList(), renderedMessageList = [], previousPassedDate = null, { t } = this.props;
         if ( messageList.length === 0 && this.state.loading !== true ){
-            renderedMessageList.push(<li key={'0'} className={styles.emptyMessage}>No message yet, why don't your start saying hello?</li>);
+            renderedMessageList.push(<li key={'0'} className={styles.emptyMessage}>{t('conversationViewer.noMessage')}</li>);
         }else{
             messageList.forEach((message) => {
                 const currentPassedDate = DateUtils.getPassedDate(message.getCreatedAt());
                 this.#messageCardRefIndex[message.getID()] = React.createRef();
                 if ( currentPassedDate !== previousPassedDate ){
-                    renderedMessageList.push(<li key={currentPassedDate} className={styles.dateSeparator}>{currentPassedDate}</li>);
+                    renderedMessageList.push(
+                        <li key={currentPassedDate} className={styles.dateSeparator}>
+                            <span className={'bg-secondary text-white'}>{currentPassedDate}</span>
+                        </li>
+                    );
                     previousPassedDate = currentPassedDate;
                 }
                 renderedMessageList.push(
@@ -142,11 +153,13 @@ class ConversationViewer extends React.Component {
     }
 
     #addMessage(message){
-        const isMine = message.getUser().getID() === App.getAuthenticatedUser().getID();
-        this.state.messageList.set(message.getID(), message);
-        this.#triggerMessageListUpdate();
-        if ( isMine ){
-            this.#scrollListToBottom();
+        if ( message.getConversation().getID() === this.props.conversation?.getID() ){
+            const isMine = message.getUser().getID() === App.getAuthenticatedUser().getID();
+            this.state.messageList.set(message.getID(), message);
+            this.#triggerMessageListUpdate();
+            if ( isMine ){
+                this.#scrollListToBottom();
+            }
         }
     }
 
@@ -173,15 +186,6 @@ class ConversationViewer extends React.Component {
                 }
             }break;
         }
-    }
-
-    _handleMessageAdded(message){
-        this.#addMessage(message);
-    }
-
-    _handleMessageDelete(messageID){
-        this.state.messageList.delete(messageID);
-        this.forceUpdate();
     }
 
     _handleConversationClose(){
@@ -233,19 +237,6 @@ class ConversationViewer extends React.Component {
         this.#updateScrollDownButtonVisibility();
     }
 
-    _handleConversationHeadReady(conversationID){
-        if ( this.state.conversation?.getID() === conversationID ){
-            this.#loadConversationMessages();
-        }
-    }
-
-    _handleLocalDataCleared(){
-        this.setState((prev) => ({ ...prev, loading: true }), () => {
-            this.#messageMarkIndex.clear();
-            this.state.messageList.clear();
-        });
-    }
-
     _handleDropZoneDragEnter(event){
         event.preventDefault();
         this.#dragEventsCounter = this.#dragEventsCounter < 0 ? 1 : ( this.#dragEventsCounter + 1 );
@@ -275,28 +266,36 @@ class ConversationViewer extends React.Component {
         super(props);
 
         this.state = { conversation: ( this.props.conversation ?? null ), userTypingMessage: null, messageList: new Map(), loading: true };
-        this._handleConversationHeadReady = this._handleConversationHeadReady.bind(this);
         this._handleIntersectionChange = this._handleIntersectionChange.bind(this);
         this._handleConversationAction = this._handleConversationAction.bind(this);
         this._handleConversationClose = this._handleConversationClose.bind(this);
         this._handleDropZoneDragEnter = this._handleDropZoneDragEnter.bind(this);
-        this._handleLocalDataCleared = this._handleLocalDataCleared.bind(this);
         this._handleDropZoneDragLeave = this._handleDropZoneDragLeave.bind(this);
         this._handleAttachmentClick = this._handleAttachmentClick.bind(this);
         this._handleDropZoneDrop = this._handleDropZoneDrop.bind(this);
-        this._handleMessageDelete = this._handleMessageDelete.bind(this);
         this._handleMessageAction = this._handleMessageAction.bind(this);
         this._handleMessageTyping = this._handleMessageTyping.bind(this);
-        this._handleMessageAdded = this._handleMessageAdded.bind(this);
         this._handleMessageSend = this._handleMessageSend.bind(this);
         this._handleScroll = this._handleScroll.bind(this);
     }
 
     componentDidMount(){
-        Event.getBroker().on('conversationHeadReady', this._handleConversationHeadReady);
-        Event.getBroker().on('localDataCleared', this._handleLocalDataCleared);
-        Event.getBroker().on('messageDelete', this._handleMessageDelete);
-        Event.getBroker().on('messageAdded', this._handleMessageAdded);
+        Event.getBroker().on('messageAdded', (message) => this.#addMessage(message));
+        Event.getBroker().on('conversationHeadReady', (conversationID) => {
+            if ( this.state.conversation?.getID() === conversationID ){
+                this.#loadConversationMessages();
+            }
+        });
+        Event.getBroker().on('localDataCleared', () => {
+            this.setState((prev) => ({ ...prev, loading: true }), () => {
+                this.#messageMarkIndex.clear();
+                this.state.messageList.clear();
+            });
+        });
+        Event.getBroker().on('messageDelete', (messageID) => {
+            this.state.messageList.delete(messageID);
+            this.forceUpdate();
+        });
         this.#messageListRef.current.onscroll = this._handleScroll;
         this.#loadConversationMessages();
     }
@@ -307,6 +306,7 @@ class ConversationViewer extends React.Component {
     }
 
     render(){
+        const { t } = this.props;
         return (
             <section className={styles.conversationViewer} ref={this.#conversationViewerRef} onDragEnter={this._handleDropZoneDragEnter} onDragOver={this._handleDropZoneDragEnter} onDragLeave={this._handleDropZoneDragLeave} onDrop={this._handleDropZoneDrop}>
                 <div>
@@ -315,17 +315,17 @@ class ConversationViewer extends React.Component {
                 <div className={styles.content} ref={this.#messageListRef}>
                     {this.#renderMessageLoader()}
                     {this.#renderMessageList()}
-                    <div className={styles.scrollDownButton} onClick={() => this.#scrollListToBottom()} ref={this.#scrollDownButtonRef}>
+                    <div className={styles.scrollDownButton + ' text-primary'} onClick={() => this.#scrollListToBottom()} ref={this.#scrollDownButtonRef}>
                         <FontAwesomeIcon icon='fa-solid fa-chevron-circle-down' />
                     </div>
                 </div>
                 <div className={styles.messageEditorWrapper}>
                     <MessageEditor ref={this.#messageEditorRef} onMessageSend={this._handleMessageSend} onTyping={this._handleMessageTyping} />
                 </div>
-                <div className={styles.dropZone} ref={this.#dropZoneRef} data-active={'false'}>
+                <div className={styles.dropZone + ' bg-primary'} ref={this.#dropZoneRef} data-active={'false'}>
                     <div className={styles.dropZoneContent}>
                         <FontAwesomeIcon icon='fa-solid fa-paperclip' />
-                        <p>Drop files here to send them.</p>
+                        <p>{t('conversationViewer.dropZoneLabel')}</p>
                     </div>
                 </div>
                 <AttachmentLightBox ref={this.#attachmentLightBoxRef} />
@@ -334,4 +334,4 @@ class ConversationViewer extends React.Component {
     }
 }
 
-export default ConversationViewer;
+export default withTranslation(null, { withRef: true })(ConversationViewer);

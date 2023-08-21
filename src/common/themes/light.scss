@@ -2,34 +2,34 @@ $primary-color: #1C3A57;
 $secondary-color: #30659B;
 $accent-color: #2E5D90;
 
-$bg-primary-color: #1C3A57;
-$bg-secondary-color: #30659B;
-$bg-accent-color: #D8D8D8;
+$bg-primary-color: #FFFFFF;
+$bg-secondary-color: #4F92C4;
+$bg-accent-color: #748598;
 
-$text-primary-color: #D8D8D8;
-$text-secondary-color: #93A0AF;
-$text-accent-color: #478ED9;
+$text-primary-color: #333333;
+$text-secondary-color: #2E5D90;
+$text-accent-color: #748598;
 
-$border-primary-color: #D8D8D8;
-$border-secondary-color: #93A0AF;
-$border-accent-color: #478ED9;
+$border-primary-color: #333333;
+$border-secondary-color: #2E5D90;
+$border-accent-color: #748598;
 
 $success-color: #27ae60;
 $danger-color: #e74c3c;
 $warn-color: #f1c40f;
 
-$message-bubble-received: #30659B;
-$message-bubble-sent: darken($message-bubble-received, 25%);
+$message-bubble-received: #7CC1F0;
+$message-bubble-sent: #A3E5D8;
 
 $white: #FFFFFF;
 $black: #222222;
 $blue: #1C3A57;
 
 $white-loader-image-path: '/public/assets/rounded-loader-dark-mode.svg';
-$loader-image-path: '/public/assets/rounded-loader-dark-mode.svg';
-$logo-image-path: '/public/assets/logo-dark-mode.svg';
+$loader-image-path: '/public/assets/rounded-loader-light-mode.svg';
+$logo-image-path: '/public/assets/logo-light-mode.svg';
 
-@mixin darkTheme(){
+@mixin lightTheme(){
     .border-secondary { border-color: $border-secondary-color !important; }
     .border-primary { border-color: $border-primary-color !important; }
     .border-accent { border-color: $border-accent-color !important; }
@@ -131,13 +131,12 @@ $logo-image-path: '/public/assets/logo-dark-mode.svg';
     .message-bubble-received {
         background-color: $message-bubble-received;
         border-color: $message-bubble-received;
-        color: $text-primary-color;
+        color: #333333;
     }
 
     .message-bubble-sent {
-        background-color: darken($message-bubble-received, 25%);
+        background-color: $message-bubble-sent;
         border-color: $message-bubble-sent;
-        color: $text-primary-color;
     }
 
     button, input[type="reset"], input[type="submit"] {
@@ -179,11 +178,11 @@ $logo-image-path: '/public/assets/logo-dark-mode.svg';
 }
 
 :global {
-    html[data-theme="dark"] {
-        @include darkTheme();
+    html[data-theme="light"] {
+        @include lightTheme();
     }
 
-    @media ( prefers-color-scheme: dark ) {
-        @include darkTheme();
+    @media ( prefers-color-scheme: light ){
+        @include lightTheme();
     }
 }

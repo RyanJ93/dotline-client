@@ -1,4 +1,13 @@
 main.app {
+    div.headerSpacer {
+        height: env(safe-area-inset-top, 0px);
+        position: fixed;
+        z-index: 10;
+        width: 100%;
+        left: 0;
+        top: 0;
+    }
+
     div.view {
         display: none;
 

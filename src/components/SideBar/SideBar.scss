@@ -4,7 +4,6 @@ aside.sideBar {
     width: 100%;
 
     div.searchBarWrapper {
-        background-color: #34495e;
         position: absolute;
         z-index: 8;
         width: 100%;
@@ -24,7 +23,6 @@ aside.sideBar {
         div.tab {
             transition: opacity .25s ease-in-out;
             will-change: opacity, z-index;
-            background-color: #34495e;
             padding-bottom: 72px;
             padding-top: 61px;
             box-sizing: border-box;
@@ -54,9 +52,8 @@ aside.sideBar {
         bottom: 0;
         left: 0;
         z-index: 8;
-        border-top: 1px solid #2c3e50;
+        border-top: 1px solid;
         box-sizing: border-box;
-        background-color: #34495e;
 
         li {
             transition: color .25s ease-in-out;
@@ -68,6 +65,7 @@ aside.sideBar {
             padding: 12px 6px;
             box-sizing: border-box;
             font-size: 24px;
+            width: 25%;
 
             &[data-active="true"] {
                 color: #1e608a;

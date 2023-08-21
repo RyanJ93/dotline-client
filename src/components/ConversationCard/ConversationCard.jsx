@@ -2,6 +2,7 @@
 
 import MessageService from '../../services/MessageService';
 import EntityIcon from '../EntityIcon/EntityIcon';
+import { withTranslation } from 'react-i18next';
 import DateLabel from '../DateLabel/DateLabel';
 import styles from './ConversationCard.scss';
 import Event from '../../facades/Event';
@@ -14,25 +15,19 @@ class ConversationCard extends React.Component {
     #dateLabelRef = React.createRef();
 
     #setLastMessage(message){
-        if ( message !== null && ( this.state.lastMessage === null || this.state.lastMessage.getCreatedAt() < message.getCreatedAt() ) ){
-            this.setState((prev) => ({ ...prev, lastMessage: message }));
-            this.#dateLabelRef.current?.setDate(message.getCreatedAt());
+        if ( message !== null && message.getConversation().getID() === this.props.conversation?.getID() ){
+            if ( this.state.lastMessage === null || this.state.lastMessage.getCreatedAt() < message.getCreatedAt() ){
+                this.setState((prev) => ({ ...prev, lastMessage: message }));
+                this.#dateLabelRef.current?.setDate(message.getCreatedAt());
+            }
         }
     }
 
     #refreshUnreadMessageCount(){
-        new MessageService(this.state.conversation).getUnreadMessageCount().then((unreadMessageCount) => {
+        new MessageService(this.props.conversation).getUnreadMessageCount().then((unreadMessageCount) => {
             unreadMessageCount = unreadMessageCount >= 1000 ? '999+' : unreadMessageCount.toString();
             this.setState((prev) => ({ ...prev, unreadMessageCount: unreadMessageCount }));
         });
-    }
-
-    #renderUnreadMessageCount(){
-        let renderedUnreadMessageCount = null;
-        if ( this.state.unreadMessageCount > 0 ){
-            renderedUnreadMessageCount = <p className={styles.unreadMessageCounter}>{this.state.unreadMessageCount}</p>;
-        }
-        return renderedUnreadMessageCount;
     }
 
     #computeLastMessageText(){
@@ -43,94 +38,68 @@ class ConversationCard extends React.Component {
         return lastMessageText;
     }
 
-    _handleMessageAdded(message){
-        this.#refreshUnreadMessageCount();
-        this.#setLastMessage(message);
-    }
-
-    _handleMessageEdit(){
-        this.#refreshUnreadMessageCount();
-    }
-
     _handleUserTyping(conversation, user){
-        const isThisConversation = conversation?.getID() === this.state.conversation?.getID();
+        const isThisConversation = conversation?.getID() === this.props.conversation?.getID();
         const isEventReferredToMe = user?.getID() === App.getAuthenticatedUser().getID();
+        const { t } = this.props, userTypingMessage = t('conversationCard.typing');
         if ( isThisConversation && !isEventReferredToMe ){
             if ( this.#userTypingMessageTimeoutID !== null ){
                 window.clearTimeout(this.#userTypingMessageTimeoutID);
             }
-            this.setState((prev) => { return { ...prev, userTypingMessage: 'Typing...' } });
+            this.setState((prev) => { return { ...prev, userTypingMessage: userTypingMessage } });
             this.#userTypingMessageTimeoutID = window.setTimeout(() => {
                 this.setState((prev) => { return { ...prev, userTypingMessage: null } });
             }, 2000);
         }
     }
 
-    _handleConversationHeadReady(){
-        new MessageService(this.state.conversation).getNewestMessage().then((message) => this.#setLastMessage(message));
-    }
-
-    _handleMessageSyncEnd(){
-        this.#refreshUnreadMessageCount();
-    }
-
-    _handleLocalDataCleared(){
-        this.setState((prev) => ({ ...prev, lastMessage: null, unreadMessageCount: 0 }));
-    }
-
     constructor(props){
         super(props);
 
-        this.state = { conversation: props.conversation, lastMessage: null, userTypingMessage: null, unreadMessageCount: 0 };
-        this._handleConversationHeadReady = this._handleConversationHeadReady.bind(this);
-        this._handleLocalDataCleared = this._handleLocalDataCleared.bind(this);
-        this._handleMessageSyncEnd = this._handleMessageSyncEnd.bind(this);
-        this._handleMessageAdded = this._handleMessageAdded.bind(this);
-        this._handleMessageEdit = this._handleMessageEdit.bind(this);
+        this.state = { lastMessage: null, userTypingMessage: null, unreadMessageCount: 0 };
         this._handleUserTyping = this._handleUserTyping.bind(this);
     }
 
     componentDidMount(){
-        Event.getBroker().on('conversationHeadReady', this._handleConversationHeadReady);
-        Event.getBroker().on('localDataCleared', this._handleLocalDataCleared);
-        Event.getBroker().on('messageSyncEnd', this._handleMessageSyncEnd);
-        Event.getBroker().on('messageAdded', this._handleMessageAdded);
-        Event.getBroker().on('messageEdit', this._handleMessageEdit);
+        Event.getBroker().on('conversationHeadReady', () => {
+            new MessageService(this.props.conversation).getNewestMessage().then((message) => this.#setLastMessage(message));
+        });
+        Event.getBroker().on('localDataCleared', () => this.setState((prev) => ({ ...prev, lastMessage: null, unreadMessageCount: 0 })));
+        Event.getBroker().on('messageSyncEnd', () => this.#refreshUnreadMessageCount());
+        Event.getBroker().on('messageEdit', () => this.#refreshUnreadMessageCount());
         Event.getBroker().on('userTyping', this._handleUserTyping);
-        new MessageService(this.state.conversation).getNewestMessage().then((message) => {
+        Event.getBroker().on('messageAdded', (message) => {
+            this.#refreshUnreadMessageCount();
+            this.#setLastMessage(message);
+        });
+        new MessageService(this.props.conversation).getNewestMessage().then((message) => {
             this.#refreshUnreadMessageCount();
             this.#setLastMessage(message);
         });
     }
 
-    setConversation(conversation){
-        this.setState((prev) => ({ ...prev, conversation: conversation }));
-        return this;
-    }
-
-    getConversation(){
-        return this.state.conversation;
-    }
-
     render(){
-        const conversationName = this.state.conversation.getComputedName();
+        const conversationName = this.props.conversation.getComputedName();
         const lastMessageText = this.#computeLastMessageText();
+        const { unreadMessageCount } = this.state;
         return (
             <div className={styles.conversationCard} ref={this.#conversationCardRef}>
                 <EntityIcon text={conversationName} />
                 <div className={styles.lastMessage}>
                     <p className={styles.name}>{conversationName}</p>
-                    <p className={styles.messagePreview}>{lastMessageText}</p>
+                    <div className={styles.messagePreviewWrapper}>
+                        <p className={styles.messagePreview}>{lastMessageText}</p>
+                    </div>
                 </div>
                 <div className={styles.dateWrapper}>
                     <p className={styles.date}>
                         <DateLabel ref={this.#dateLabelRef} />
                     </p>
-                    {this.#renderUnreadMessageCount()}
+                    { unreadMessageCount > 0 && <p className={styles.unreadMessageCounter + ' bg-accent text-white'}>{unreadMessageCount}</p> }
                 </div>
             </div>
         );
     }
 }
 
-export default ConversationCard;
+export default withTranslation(null, { withRef: true })(ConversationCard);

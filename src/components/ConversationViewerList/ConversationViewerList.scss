@@ -9,14 +9,13 @@ div.conversationViewerList {
         right: 0;
         bottom: 0;
         margin: auto;
-        width: 250px;
+        width: 90%;
         height: 24px;
         text-align: center;
         z-index: -1;
     }
 
     div.conversationViewer {
-        background-color: #34495e;
         display: none;
         height: 100%;
 

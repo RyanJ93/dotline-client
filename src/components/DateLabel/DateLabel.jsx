@@ -1,34 +1,40 @@
 'use strict';
 
 import IllegalArgumentException from '../../exceptions/IllegalArgumentException';
+import { withTranslation } from 'react-i18next';
+import styles from './DateLabel.scss';
 import React from 'react';
 
 class DateLabel extends React.Component {
     #processCurrentLabel(){
-        let currentLabel = '', nextUpdateTimeout = 0;
+        let currentLabel = '', nextUpdateTimeout = 0, { t, i18n } = this.props;
         if ( this.state.date instanceof Date ){
             const difference = ( (+new Date()) - this.state.date.getTime() ) / 1000;
             if ( difference < 1 ){
+                currentLabel = t('dateLabel.now');
                 nextUpdateTimeout = 1000;
-                currentLabel = 'Now';
             }else if ( difference < 60 ){
                 const seconds = Math.floor(difference);
-                currentLabel = seconds + ( seconds > 1 ? ' seconds' : ' second' ) + ' ago';
+                const labelName = seconds > 1 ? 'dateLabel.seconds' : 'dateLabel.second';
+                currentLabel = t(labelName).replace('[amount]', seconds);
                 nextUpdateTimeout = 1;
             }else if ( difference < 3600 ){
                 const minutes = Math.floor(difference / 60);
-                currentLabel = minutes + ( minutes > 1 ? ' minutes' : ' minute' ) + ' ago';
+                const labelName = minutes > 1 ? 'dateLabel.minutes' : 'dateLabel.minute';
+                currentLabel = t(labelName).replace('[amount]', minutes);
                 nextUpdateTimeout = 60 - difference;
             }else if ( difference < 86400 ){
                 const hours = Math.floor(difference / 3600);
-                currentLabel = hours + ( hours > 1 ? ' hours' : ' hour' ) + ' ago';
+                const labelName = hours > 1 ? 'dateLabel.hours' : 'dateLabel.hour';
+                currentLabel = t(labelName).replace('[amount]', hours);
                 nextUpdateTimeout = 3600 - difference;
             }else if ( difference < 2592000 ){
                 const days = Math.floor(difference / 86400);
-                currentLabel = days + ( days > 1 ? ' days' : ' day' ) + ' ago';
+                const labelName = days > 1 ? 'dateLabel.days' : 'dateLabel.day';
+                currentLabel = t(labelName).replace('[amount]', days);
                 nextUpdateTimeout = 86400 - difference;
             }else{
-                currentLabel = this.state.date.toLocaleDateString(undefined, {
+                currentLabel = this.state.date.toLocaleDateString(i18n.language, {
                     year: 'numeric', day: 'numeric', month: 'long'
                 });
             }
@@ -70,8 +76,8 @@ class DateLabel extends React.Component {
     }
 
     render(){
-        return <span>{this.state.currentLabel}</span>;
+        return <span className={styles.dateLabel}>{this.state.currentLabel}</span>;
     }
 }
 
-export default DateLabel;
+export default withTranslation(null, { withRef: true })(DateLabel);

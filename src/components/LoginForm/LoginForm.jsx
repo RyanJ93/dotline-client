@@ -10,11 +10,14 @@ class LoginForm extends AuthenticationForm {
     #rememberMeRef = React.createRef();
 
     async submit(event){
-        this.props.onSubmit({
-            isSession: !this.#rememberMeRef.current.checked,
-            password: this._password.current.getValue(),
-            username: this._username.current.getValue(),
-        }, event);
+        const isValid = await this._isValid();
+        if ( isValid ){
+            this.props.onSubmit({
+                isSession: !this.#rememberMeRef.current.checked,
+                password: this._passwordRef.current.getValue(),
+                username: this._usernameRef.current.getValue()
+            }, event);
+        }
     }
 
     render(){
@@ -23,18 +26,18 @@ class LoginForm extends AuthenticationForm {
             <form className={styles.form} onSubmit={this._handleSubmit}>
                 <div className={styles.fieldSet}>
                     <div className={styles.field}>
-                        <TextField type={'text'} name={'username'} label={'Username'} ref={this._username} onChange={this._handleUsernameChange} />
+                        <TextField type={'text'} name={'username'} label={t('loginForm.label.username')} ref={this._usernameRef} />
                     </div>
                     <div className={styles.field}>
-                        <TextField type={'password'} name={'password'} label={'Password'} ref={this._password} onChange={this._handlePasswordChange} />
+                        <TextField type={'password'} name={'password'} label={t('loginForm.label.password')} ref={this._passwordRef} />
                     </div>
                     <div className={styles.field}>
                         <input type={'checkbox'} name={'remember_me'} ref={this.#rememberMeRef} />
-                        <label form={'remember_me'}>{t('loginForm.rememberMe')}</label>
+                        <label form={'remember_me'} className={'text-primary'}>{t('loginForm.label.rememberMe')}</label>
                     </div>
                     {this._renderGenericErrorMessages()}
                     <div className={styles.submit}>
-                        <input className={styles.button} type={'submit'} value={'Login'} />
+                        <input type={'submit'} value={t('loginForm.label.submit')} />
                     </div>
                 </div>
             </form>

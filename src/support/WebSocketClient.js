@@ -89,8 +89,11 @@ class WebSocketClient extends Injectable {
      *
      * @returns {Promise<Object.<string, any>>}
      */
-    #sendMessage(message){
-        return new Promise((resolve) => {
+    async #sendMessage(message){
+        if ( this.#webSocket?.readyState !== WebSocket.OPEN ){
+            await this.waitForConnectionReady();
+        }
+        return await new Promise((resolve) => {
             message.transactionID = crypto.randomUUID();
             this.#openRequests[message.transactionID] = (response) => resolve(response);
             this.#webSocket.send(JSON.stringify(message));
@@ -170,7 +173,8 @@ class WebSocketClient extends Injectable {
     waitForConnectionReady(){
         return new Promise((resolve) => {
             const intervalID = window.setInterval(() => {
-                if ( this.#isClientReady === true ){
+                const isConnectionOpen = this.#webSocket?.readyState === WebSocket.OPEN;
+                if ( this.#isClientReady === true && isConnectionOpen ){
                     window.clearInterval(intervalID);
                     resolve();
                 }

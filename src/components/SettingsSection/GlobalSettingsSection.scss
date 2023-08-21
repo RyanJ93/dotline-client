@@ -23,8 +23,10 @@ div.section {
         }
 
         p.note {
+            box-sizing: border-box;
             font-size: 13px;
             margin: 3px 0 0;
+            padding: 0 3px;
         }
     }
 }

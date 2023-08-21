@@ -1,9 +1,10 @@
 div.messageImportStatsViewer {
-    width: 100%;
-    background-color: #2c3e50;
-    padding: 12px 6px;
+    border-top-color: inherit;
     box-sizing: border-box;
+    border-top: 1px solid;
+    padding: 12px 6px;
     display: none;
+    width: 100%;
 
     &[data-show="true"]{
         display: block;
@@ -17,14 +18,17 @@ div.messageImportStatsViewer {
         display: block;
         width: 100%;
         height: 7px;
-        border: 1px solid #666;
+        border: 1px solid;
+        border-color: inherit;
         border-radius: 5px;
         margin-top: 12px;
         box-sizing: border-box;
 
         div.progressBarValue {
+            transition: width .25s ease-in-out;
+            will-change: width;
+            border-radius: 5px;
             height: 100%;
-            background-color: #34495e;
             max-width: 100%;
             display: block;
         }

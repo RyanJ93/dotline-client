@@ -2,12 +2,13 @@
 
 import SearchResultEntry from '../SearchResultEntry/SearchResultEntry';
 import SearchService from '../../services/SearchService';
+import { withTranslation } from 'react-i18next';
 import styles from './SearchEngine.scss';
 import React from 'react';
 
 class SearchEngine extends React.Component {
     #renderResults(){
-        const renderedResults = [];
+        const renderedResults = [], { t } = this.props;
         if ( this.state.disabled !== true && Array.isArray(this.state.searchResultEntryList) ){
             this.state.searchResultEntryList.forEach((searchResultEntry, index) => {
                 if ( searchResultEntry.getEntity() !== null ){
@@ -19,7 +20,7 @@ class SearchEngine extends React.Component {
                 }
             });
             if ( renderedResults.length === 0 ){
-                renderedResults.push(<li className={styles.emptyElement} key={'-'}>No result found</li>);
+                renderedResults.push(<li className={styles.emptyElement + ' text-primary'} key={'-'}>{t('searchEngine.noResults')}</li>);
             }
         }
         return <ul className={styles.searchResults}>{renderedResults}</ul>;
@@ -27,10 +28,11 @@ class SearchEngine extends React.Component {
 
     #renderSearchDisabledMessage(){
         if ( this.state.disabled === true ){
+            const { t } = this.props;
             return (
                 <div className={styles.searchDisabledMessage}>
-                    <p className={styles.title}>Search is disabled while indexing messages</p>
-                    <p className={styles.subtitle}>Please be patient until the message import and index process is completed</p>
+                    <p className={styles.title}>{t('searchEngine.disabledTitle')}</p>
+                    <p className={styles.subtitle}>{t('searchEngine.disabledText')}</p>
                 </div>
             );
         }
@@ -83,4 +85,4 @@ class SearchEngine extends React.Component {
     }
 }
 
-export default SearchEngine;
+export default withTranslation(null, { withRef: true })(SearchEngine);

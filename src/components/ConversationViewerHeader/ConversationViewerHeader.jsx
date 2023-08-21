@@ -6,6 +6,7 @@ import UserService from '../../services/UserService';
 import styles from './ConversationViewerHeader.scss';
 import Conversation from '../../models/Conversation';
 import EntityIcon from '../EntityIcon/EntityIcon';
+import { withTranslation } from 'react-i18next';
 import DateLabel from '../DateLabel/DateLabel';
 import Event from '../../facades/Event';
 import App from '../../facades/App';
@@ -45,6 +46,7 @@ class ConversationViewerHeader extends React.Component {
     }
 
     #renderHeaderBarConversationOperations(){
+        const { t } = this.props;
         return this.state.conversation instanceof Conversation ? (
             <div className={styles.controlsWrapper}>
                 <div onClick={this._handleContextMenuOpenerClick}>
@@ -53,8 +55,8 @@ class ConversationViewerHeader extends React.Component {
                 <div className={styles.contextMenuWrapper} data-context-menu-enabled={this.state.contextmenuEnabled}>
                     <div className={styles.contextMenuOverlay} onClick={this._handleContextMenuOverlayClick}></div>
                     <ul className={styles.contextMenu}>
-                        <li data-action-name={'delete-local'} className={styles.dangerousAction} onClick={this._handleContextMenuActionClick}><FontAwesomeIcon icon="fa-solid fa-trash" /> Delete (for me)</li>
-                        <li data-action-name={'delete-global'} className={styles.dangerousAction} onClick={this._handleContextMenuActionClick}><FontAwesomeIcon icon="fa-solid fa-trash" /> Delete (for everyone)</li>
+                        <li data-action-name={'delete-local'} className={'text-danger'} onClick={this._handleContextMenuActionClick}><FontAwesomeIcon icon="fa-solid fa-trash" />{t('conversationViewerHeader.contextMenu.deleteLocal')}</li>
+                        <li data-action-name={'delete-global'} className={'text-danger'} onClick={this._handleContextMenuActionClick}><FontAwesomeIcon icon="fa-solid fa-trash" />{t('conversationViewerHeader.contextMenu.deleteGlobal')}</li>
                     </ul>
                 </div>
             </div>
@@ -62,11 +64,12 @@ class ConversationViewerHeader extends React.Component {
     }
 
     #renderLastAccessLabel(){
-        let lastAccessLabel = <p className={styles.lastAccess}>{'Last seen'} {this.#computeLastAccessDate()}</p>;
+        const { t } = this.props;
+        let lastAccessLabel = <p className={styles.lastAccess}>{t('conversationViewerHeader.lastSeen')} {this.#computeLastAccessDate()}</p>;
         if ( this.state.userTypingMessage !== null ){
             lastAccessLabel = <p className={styles.lastAccess}>{this.state.userTypingMessage}</p>;
         }else if ( this.state.isUserOnline ){
-            lastAccessLabel = <p className={styles.lastAccess}>{'Now active'}</p>;
+            lastAccessLabel = <p className={styles.lastAccess}>{t('conversationViewerHeader.nowActive')}</p>;
         }
         return lastAccessLabel;
     }
@@ -82,12 +85,13 @@ class ConversationViewerHeader extends React.Component {
     _handleUserTyping(conversation, user){
         if ( this.state.conversation instanceof Conversation && conversation instanceof Conversation ){
             const isThisConversation = conversation.getID() === this.state.conversation.getID();
+            const { t } = this.props, userTypingMessage = t('conversationViewerHeader.typing');
             const isEventReferredToMe = user.getID() === App.getAuthenticatedUser().getID();
             if ( isThisConversation && !isEventReferredToMe ){
                 if ( this.#userTypingMessageTimeoutID !== null ){
                     window.clearTimeout(this.#userTypingMessageTimeoutID);
                 }
-                this.setState((prev) => { return { ...prev, userTypingMessage: 'Typing...' } });
+                this.setState((prev) => { return { ...prev, userTypingMessage: userTypingMessage } });
                 this.#userTypingMessageTimeoutID = window.setTimeout(() => {
                     this.setState((prev) => { return { ...prev, userTypingMessage: null } });
                 }, 2000);
@@ -145,9 +149,9 @@ class ConversationViewerHeader extends React.Component {
 
     render(){
         const conversationName = this.state.conversation === null ? null : this.state.conversation.getComputedName();
-        const onlineBadge = this.state.isUserOnline ? <div className={styles.onlineBadge} /> : null;
+        const onlineBadge = this.state.isUserOnline ? <div className={styles.onlineBadge + ' bg-success'} /> : null;
         return conversationName === null ? null : (
-            <section className={styles.conversationViewerHeader}>
+            <section className={styles.conversationViewerHeader + ' border-primary text-primary'}>
                 <div>
                     <div className={styles.backIconWrapper} onClick={this._handleBackIconClick}>
                         <FontAwesomeIcon icon="fa-solid fa-chevron-left" />
@@ -167,4 +171,4 @@ class ConversationViewerHeader extends React.Component {
     }
 }
 
-export default ConversationViewerHeader;
+export default withTranslation(null, { withRef: true })(ConversationViewerHeader);

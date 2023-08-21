@@ -5,6 +5,7 @@ import ConversationList from '../ConversationList/ConversationList';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import SettingsSection from '../SettingsSection/SettingsSection';
 import SearchEngine from '../SearchEngine/SearchEngine';
+import { withTranslation } from 'react-i18next';
 import SearchBar from '../SearchBar/SearchBar';
 import Event from '../../facades/Event';
 import styles from './SideBar.scss';
@@ -45,33 +46,27 @@ class SideBar extends React.Component {
         this.setState((prev) => ({ ...prev, activeTab: 'search-results' }));
     }
 
-    _handleMessageSyncStart(){
-        this.#searchEngineRef.current.setDisabled(true);
-        this.#searchBarRef.current.setDisabled(true);
-    }
-
-    _handleMessageSyncEnd(){
-        this.#searchEngineRef.current.setDisabled(false);
-        this.#searchBarRef.current.setDisabled(false);
-    }
-
     constructor(props){
         super(props);
 
         this._handleConversationSelect = this._handleConversationSelect.bind(this);
-        this._handleMessageSyncStart = this._handleMessageSyncStart.bind(this);
         this._handleSearchResultPick = this._handleSearchResultPick.bind(this);
         this._handleTabControlClick = this._handleTabControlClick.bind(this);
         this._handleSearchBarSearch = this._handleSearchBarSearch.bind(this);
         this._handleSearchBarClear = this._handleSearchBarClear.bind(this);
-        this._handleMessageSyncEnd = this._handleMessageSyncEnd.bind(this);
         this._handleSearch = this._handleSearch.bind(this);
         this.state = { activeTab: 'conversation-list' };
     }
 
     componentDidMount(){
-        Event.getBroker().on('messageSyncStart', this._handleMessageSyncStart);
-        Event.getBroker().on('messageSyncEnd', this._handleMessageSyncEnd);
+        Event.getBroker().on('messageSyncStart', () => {
+            this.#searchEngineRef.current.setDisabled(true);
+            this.#searchBarRef.current.setDisabled(true);
+        });
+        Event.getBroker().on('messageSyncEnd', () => {
+            this.#searchEngineRef.current.setDisabled(false);
+            this.#searchBarRef.current.setDisabled(false);
+        });
     }
 
     setSelectedConversationID(conversationID, message = null){
@@ -97,41 +92,42 @@ class SideBar extends React.Component {
     }
 
     render(){
+        const { t } = this.props, activeTab = this.state.activeTab;
         return (
             <aside className={styles.sideBar}>
-                <div className={styles.searchBarWrapper}>
+                <div className={styles.searchBarWrapper + ' bg-primary'}>
                     <SearchBar ref={this.#searchBarRef} onSearch={this._handleSearchBarSearch} onClear={this._handleSearchBarClear} />
                 </div>
                 <div className={styles.tabsWrapper}>
-                    <div className={styles.tab} data-active={this.state.activeTab === 'conversation-list'}>
+                    <div className={styles.tab} data-active={activeTab === 'conversation-list'}>
                         <ConversationList ref={this.#conversationListRef} onConversationSelect={this._handleConversationSelect} />
                     </div>
-                    <div className={styles.tab} data-active={this.state.activeTab === 'search-results'}>
+                    <div className={styles.tab} data-active={activeTab === 'search-results'}>
                         <SearchEngine ref={this.#searchEngineRef} onSearchResultPick={this._handleSearchResultPick} onSearch={this._handleSearch} />
                     </div>
-                    <div className={styles.tab} data-active={this.state.activeTab === 'settings'}>
+                    <div className={styles.tab} data-active={activeTab === 'settings'}>
                         <SettingsSection />
                     </div>
-                    <div className={styles.tab} data-active={this.state.activeTab === 'active-sessions'}>
+                    <div className={styles.tab} data-active={activeTab === 'active-sessions'}>
                         <UserSessionsSection />
                     </div>
                 </div>
-                <ul className={styles.tabsControllerWrapper}>
-                    <li onClick={this._handleTabControlClick} data-target={'conversation-list'} data-active={this.state.activeTab === 'conversation-list'}>
+                <ul className={styles.tabsControllerWrapper + ' border-secondary bg-primary'}>
+                    <li onClick={this._handleTabControlClick} data-target={'conversation-list'} className={activeTab === 'conversation-list' ? 'text-accent' : 'text-primary'}>
                         <FontAwesomeIcon icon='fa-solid fa-comments' />
-                        <p>Chats</p>
+                        <p>{t('sideBar.tabs.chats')}</p>
                     </li>
-                    <li onClick={this._handleTabControlClick} data-target={'search-results'} data-active={this.state.activeTab === 'search-results'}>
+                    <li onClick={this._handleTabControlClick} data-target={'search-results'} className={activeTab === 'search-results' ? 'text-accent' : 'text-primary'}>
                         <FontAwesomeIcon icon='fa-solid fa-magnifying-glass' />
-                        <p>Search</p>
+                        <p>{t('sideBar.tabs.search')}</p>
                     </li>
-                    <li onClick={this._handleTabControlClick} data-target={'settings'} data-active={this.state.activeTab === 'settings'}>
+                    <li onClick={this._handleTabControlClick} data-target={'settings'} className={activeTab === 'settings' ? 'text-accent' : 'text-primary'}>
                         <FontAwesomeIcon icon='fa-solid fa-gear' />
-                        <p>Settings</p>
+                        <p>{t('sideBar.tabs.settings')}</p>
                     </li>
-                    <li onClick={this._handleTabControlClick} data-target={'active-sessions'} data-active={this.state.activeTab === 'active-sessions'}>
+                    <li onClick={this._handleTabControlClick} data-target={'active-sessions'} className={activeTab === 'active-sessions' ? 'text-accent' : 'text-primary'}>
                         <FontAwesomeIcon icon='fa-solid fa-lock' />
-                        <p>Accesses</p>
+                        <p>{t('sideBar.tabs.accesses')}</p>
                     </li>
                 </ul>
             </aside>
@@ -139,4 +135,4 @@ class SideBar extends React.Component {
     }
 }
 
-export default SideBar;
+export default withTranslation(null, { withRef: true })(SideBar);

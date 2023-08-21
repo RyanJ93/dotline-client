@@ -1,5 +1,6 @@
 'use strict';
 
+import { withTranslation } from 'react-i18next';
 import TextField from '../TextField/TextField';
 import styles from './SearchBar.scss';
 import React from 'react';
@@ -45,12 +46,13 @@ class SearchBar extends React.Component {
     }
 
     render(){
+        const { t } = this.props;
         return (
             <div className={styles.searchbar}>
-                <TextField type={'text'} name={'search'} label={'Search for users, messages...'} ref={this.#textFieldRef} onChange={this._handleChange} onClear={this._handleClear} withClearButton={true} />
+                <TextField type={'text'} name={'search'} label={t('searchBar.label')} ref={this.#textFieldRef} onChange={this._handleChange} onClear={this._handleClear} withClearButton={true} />
             </div>
         );
     }
 }
 
-export default SearchBar;
+export default withTranslation(null, { withRef: true })(SearchBar);

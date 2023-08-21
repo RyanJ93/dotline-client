@@ -5,20 +5,41 @@ div.conversationList {
         margin: 0;
 
         li {
-            padding: 9px;
             box-sizing: border-box;
+            padding: 9px;
 
-            &[data-selected="true"]{
+            &[data-selected="false"] div.conversationCardContainer {
+                background-color: transparent !important;
+            }
+
+            @media (max-width: 480px) {
+                & {
+                    border-bottom: 1px solid;
+                    border-bottom-color: inherit;
+
+                    &:last-child {
+                        border-bottom: none !important;
+                    }
+                }
+
                 div.conversationCardContainer {
-                    background-color: #1e608a;
+                    background-color: transparent !important;
+                }
+            }
+
+            @media (min-width: 480px) {
+                &[data-selected="true"] div.conversationCardContainer {
+                    color: #FFFFFF !important;
                 }
             }
 
             div.conversationCardContainer {
-                padding: 9px;
+                transition: background-color .25s ease-in-out;
+                will-change: background-color;
                 box-sizing: border-box;
                 border-radius: 3px;
                 cursor: pointer;
+                padding: 9px;
             }
         }
     }

@@ -11,8 +11,8 @@ class ConversationList extends React.Component {
         for ( const [ id, conversation ] of this.state.conversationList ){
             const isSelected = this.state.selectedConversationID === id;
             renderedConversationList.push(
-                <li key={id} data-conversation-id={id} onClick={this._handleConversationSelect} data-selected={isSelected}>
-                    <div className={styles.conversationCardContainer}>
+                <li className={'border-secondary'} key={id} data-conversation-id={id} onClick={this._handleConversationSelect} data-selected={isSelected}>
+                    <div className={styles.conversationCardContainer + ' bg-secondary text-primary'}>
                         <ConversationCard conversation={conversation} />
                     </div>
                 </li>
@@ -26,28 +26,22 @@ class ConversationList extends React.Component {
         this.setSelectedConversationID(conversationID);
     }
 
-    _handleConversationDelete(conversationID){
-        this.state.conversationList.delete(conversationID);
-        this.forceUpdate();
-    }
-
-    _handleConversationAdded(conversation){
-        this.state.conversationList.set(conversation.getID(), conversation);
-        this.forceUpdate();
-    }
-
     constructor(props){
         super(props);
 
         this.state = { conversationList: new Map(), selectedConversationID: null };
         this._handleConversationSelect = this._handleConversationSelect.bind(this);
-        this._handleConversationDelete = this._handleConversationDelete.bind(this);
-        this._handleConversationAdded = this._handleConversationAdded.bind(this);
     }
 
     componentDidMount(){
-        Event.getBroker().on('conversationDelete', this._handleConversationDelete);
-        Event.getBroker().on('conversationAdded', this._handleConversationAdded);
+        Event.getBroker().on('conversationDelete', (conversationID) => {
+            this.state.conversationList.delete(conversationID);
+            this.forceUpdate();
+        });
+        Event.getBroker().on('conversationAdded', (conversation) => {
+            this.state.conversationList.set(conversation.getID(), conversation);
+            this.forceUpdate();
+        });
     }
 
     setSelectedConversationID(selectedConversationID, message = null){

@@ -2,7 +2,9 @@
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import AttachmentService from '../../services/AttachmentService';
+import ServerInfoService from '../../services/ServerInfoService';
 import StringUtils from '../../utils/StringUtils';
+import { withTranslation } from 'react-i18next';
 import FileUtils from '../../utils/FileUtils';
 import styles from './AttachmentList.scss';
 import React from 'react';
@@ -35,7 +37,10 @@ class AttachmentList extends React.Component {
     }
 
     #renderAttachmentList(){
-        let renderedAttachmentList = [];
+        const serverParams = new ServerInfoService().getServerParams();
+        const maxFileCount = serverParams?.getMaxFileCount() ?? 0;
+        const maxFileSize = serverParams?.getMaxFileSize() ?? 0;
+        const renderedAttachmentList = [], { t } = this.props;
         for ( const [name, props] of this.state.attachmentList ){
             props.ref = React.createRef();
             renderedAttachmentList.push(
@@ -49,10 +54,15 @@ class AttachmentList extends React.Component {
                 </li>
             );
         }
+        const humanReadableMaxFileSize = StringUtils.sizeToHumanReadableString(maxFileSize);
+        const counterText = '(' + this.state.attachmentList.size + '/' + maxFileCount + ')';
+        const counterLabel = t('attachmentList.title').replace('[counter]', counterText);
+        let instructions = t('attachmentList.instructions').replace('[count]', maxFileCount);
+        instructions = instructions.replace('[size]', humanReadableMaxFileSize);
         return this.state.attachmentList.size === 0 ? null : (
             <div className={styles.listWrapper}>
-                <p className={styles.title}>Attached files ({this.state.attachmentList.size}/{AttachmentService.MAX_FILE_COUNT}):</p>
-                <p className={styles.instructions}>20 file can be selected at most, maximum 50mb each.</p>
+                <p className={styles.title}>{counterLabel}</p>
+                <p className={styles.instructions}>{instructions}</p>
                 <ul className={styles.list}>{renderedAttachmentList}</ul>
             </div>
         );
@@ -72,8 +82,9 @@ class AttachmentList extends React.Component {
     }
 
     addAttachments(fileList){
+        const maxFileCount = new ServerInfoService().getServerParams()?.getMaxFileCount() ?? 0;
         Array.from(fileList).forEach((file) => {
-            if ( this.state.attachmentList.size < AttachmentService.MAX_FILE_COUNT && AttachmentService.fileCanBeAttached(file) ){
+            if ( this.state.attachmentList.size < maxFileCount && AttachmentService.fileCanBeAttached(file) ){
                 this.state.attachmentList.set(file.name, { file: file, ref: null });
             }
         });
@@ -102,4 +113,4 @@ class AttachmentList extends React.Component {
     }
 }
 
-export default AttachmentList;
+export default withTranslation(null, { withRef: true })(AttachmentList);

@@ -3,6 +3,7 @@
 import UserSessionViewer from '../UserSessionViewer/UserSessionViewer';
 import AccessTokenService from '../../services/AccessTokenService';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { withTranslation } from 'react-i18next';
 import styles from './UserSessionsSection.scss';
 import Event from '../../facades/Event';
 import App from '../../facades/App';
@@ -21,19 +22,20 @@ class UserSessionsSection extends React.Component {
     }
 
     #renderCurrentSessionDetails(currentUserSession){
+        const { t } = this.props;
         return currentUserSession === null ? null : (
             <div className={styles.currentSession}>
                 <div className={styles.header}>
                     <div className={styles.currentSessionTitleWrapper}>
-                        <p className={styles.currentSessionTitle}>Current session</p>
+                        <p className={styles.currentSessionTitle + ' text-primary'}>{t('userSessionSection.currentSessionTitle')}</p>
                     </div>
-                    <div className={styles.currentSessionControlsWrapper} onClick={this._handleUserSessionsRefresh}>
+                    <div className={styles.currentSessionControlsWrapper + ' text-primary'} onClick={this._handleUserSessionsRefresh}>
                         <FontAwesomeIcon icon='fa-solid fa-rotate-right' />
                     </div>
                 </div>
                 <UserSessionViewer userSession={currentUserSession} />
                 <div className={styles.closeAllWrapper}>
-                    <button onClick={this._handleDeleteAll} className={'danger'}>Close all other sessions</button>
+                    <button onClick={this._handleDeleteAll} className={'danger'} title={t('userSessionSection.controls.closeAllTitle')}>{t('userSessionSection.controls.closeAll')}</button>
                 </div>
             </div>
         );
@@ -73,10 +75,6 @@ class UserSessionsSection extends React.Component {
         this.loadUserSessions();
     }
 
-    _handleUserAuthenticated(){
-        this.loadUserSessions();
-    }
-
     _handleDelete(accessToken){
         this.#deleteAccessToken(accessToken);
     }
@@ -89,14 +87,13 @@ class UserSessionsSection extends React.Component {
         super(props);
 
         this._handleUserSessionsRefresh = this._handleUserSessionsRefresh.bind(this);
-        this._handleUserAuthenticated = this._handleUserAuthenticated.bind(this);
         this._handleDeleteAll = this._handleDeleteAll.bind(this);
         this._handleDelete = this._handleDelete.bind(this);
         this.state = { userSessionList: [] };
     }
 
     componentDidMount(){
-        Event.getBroker().on('userAuthenticated', this._handleUserAuthenticated);
+        Event.getBroker().on('userAuthenticated', () => this.loadUserSessions());
     }
 
     async loadUserSessions(){
@@ -115,4 +112,4 @@ class UserSessionsSection extends React.Component {
     }
 }
 
-export default UserSessionsSection;
+export default withTranslation(null, { withRef: true })(UserSessionsSection);

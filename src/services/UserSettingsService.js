@@ -23,6 +23,17 @@ class UserSettingsService extends Service {
     }
 
     /**
+     * Applies stored user settings.
+     */
+    applyLocalSettings(){
+        const userSettings = this.#userSettingsRepository.getUserSettings();
+        if ( userSettings !== null ){
+            document.querySelector('html').setAttribute('data-theme', userSettings.getTheme());
+            window.changeLanguage(userSettings.getLocale());
+        }
+    }
+
+    /**
      * Fetches and stores user settings.
      *
      * @param {boolean} isSession
@@ -33,6 +44,7 @@ class UserSettingsService extends Service {
         const response = await Request.get(APIEndpoints.USER_SETTINGS_GET);
         const userSettings = new UserSettings(response.userSettings);
         this.#userSettingsRepository.storeUserSettings(userSettings, isSession);
+        this._eventBroker.emit('userSettingsLoaded', userSettings);
         return userSettings;
     }
 

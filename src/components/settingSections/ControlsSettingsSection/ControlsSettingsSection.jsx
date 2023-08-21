@@ -4,23 +4,22 @@ import LocalDataService from '../../../services/LocalDataService';
 import UserService from '../../../services/UserService';
 import MessageBox from '../../../facades/MessageBox';
 import styles from './ControlsSettingsSection.scss';
+import { withTranslation } from 'react-i18next';
 import React from 'react';
 
 class ControlsSettingsSection extends React.Component {
     async #clearLocalData(){
-        const text = 'Do you really want to re-import all your local data?';
-        const title = 'Action confirmation';
-        const isConfirmed = await MessageBox.confirm(text, title);
-        if ( isConfirmed ){
+        const { t } = this.props, title = t('controlsSettingsSection.clearLocalData.confirmTitle');
+        const text = t('controlsSettingsSection.clearLocalData.confirmText');
+        if ( ( await MessageBox.confirm(text, title) ) ){
             await new LocalDataService().refreshLocalData(true);
         }
     }
 
     async #logOut(){
-        const text = 'Do you really want to log out?';
-        const title = 'Action confirmation';
-        const isConfirmed = await MessageBox.confirm(text, title);
-        if ( isConfirmed ){
+        const { t } = this.props, title = t('controlsSettingsSection.logOut.confirmTitle');
+        const text = t('controlsSettingsSection.logOut.confirmText');
+        if ( ( await MessageBox.confirm(text, title) ) ){
             await new UserService().logout();
         }
     }
@@ -41,15 +40,16 @@ class ControlsSettingsSection extends React.Component {
     }
 
     render(){
+        const { t } = this.props;
         return (
             <div className={styles.section}>
                 <div className={styles.content}>
-                    <p className={styles.sectionTitle}>Operations</p>
+                    <p className={styles.sectionTitle + ' text-primary'}>{t('controlsSettingsSection.title')}</p>
                     <div className={styles.operation}>
-                        <button onClick={this._handleClearLocalData}>Clear local data</button>
+                        <button onClick={this._handleClearLocalData}>{t('controlsSettingsSection.clearLocalData.label')}</button>
                     </div>
                     <div className={styles.operation}>
-                        <button className={'danger'} onClick={this._handleLogOut}>Log out</button>
+                        <button className={'danger'} onClick={this._handleLogOut}>{t('controlsSettingsSection.logOut.label')}</button>
                     </div>
                 </div>
             </div>
@@ -57,4 +57,4 @@ class ControlsSettingsSection extends React.Component {
     }
 }
 
-export default ControlsSettingsSection;
+export default withTranslation(null, { withRef: true })(ControlsSettingsSection);

@@ -7,10 +7,10 @@ class HTMLLogo extends React.Component {
     render(){
         return (
             <div className={styles.logo}>
-                <div className={styles.dot}></div>
-                <div className={styles.verticalLine}></div>
-                <div className={styles.horizontalLine}></div>
-                <p className={styles.text}>INE</p>
+                <div className={styles.dot + ' bg-accent'}></div>
+                <div className={styles.verticalLine + ' bg-accent'}></div>
+                <div className={styles.horizontalLine + ' bg-accent'}></div>
+                <p className={styles.text + ' text-primary'}>INE</p>
             </div>
         );
     }

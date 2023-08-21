@@ -11,9 +11,7 @@ class EntityIcon extends React.Component {
     }
 
     setText(text){
-        this.setState((prev) => {
-            return { ...prev, text: text };
-        });
+        this.setState((prev) => ({ ...prev, text: text }));
         return this;
     }
 
@@ -23,7 +21,7 @@ class EntityIcon extends React.Component {
 
     render(){
         return (
-            <div className={styles.entityIcon}>
+            <div className={styles.entityIcon + ' bg-accent text-white'}>
                 <p className={styles.content}>{this.state.text.charAt(0)}</p>
             </div>
         );

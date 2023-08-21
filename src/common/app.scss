@@ -2,15 +2,19 @@
 
 :global {
     html, body {
-        margin: 0;
         font-family: 'Source Sans Pro', sans-serif;
-        background-color: #34495e;
-        color: #ddd;
+        -webkit-text-size-adjust: 100%;
+        margin: 0;
     }
 
-    @media(display-mode: standalone){
-        html, body {
-            margin-top: 54px;
+    .full-viewport {
+        padding-top: env(safe-area-inset-top, 0px) !important;
+        box-sizing: border-box;
+
+        .full-viewport-container {
+            position: relative;
+            height: 100%;
+            width: 100%;
         }
     }
 }

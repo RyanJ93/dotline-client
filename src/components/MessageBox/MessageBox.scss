@@ -1,6 +1,8 @@
 div.messageBox {
     transition: opacity .25s ease-in-out;
     will-change: opacity;
+    border: 3px solid;
+    border-color: inherit;
 
     div.overlay {
         position: fixed;
@@ -18,7 +20,6 @@ div.messageBox {
         bottom: 0;
         width: 90%;
         max-width: 400px;
-        background-color: #34495e;
         margin: auto;
         max-height: 140px;
         padding: 12px;
@@ -51,36 +52,6 @@ div.messageBox {
             flex-direction: row-reverse;
             margin-top: 32px;
             display: flex;
-        }
-    }
-
-    &[data-message-box-type="error"] {
-        div.dialog {
-            border: 3px solid #e74c3c;
-
-            p.title {
-                color: #e74c3c;
-            }
-        }
-    }
-
-    &[data-message-box-type="warn"] {
-        div.dialog {
-            border: 3px solid #f1c40f;
-
-            p.title {
-                color: #f1c40f;
-            }
-        }
-    }
-
-    &[data-message-box-type="success"] {
-        div.dialog {
-            border: 3px solid #27ae60;
-
-            p.title {
-                color: #27ae60;
-            }
         }
     }
 

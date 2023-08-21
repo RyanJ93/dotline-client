@@ -1,6 +1,7 @@
 'use strict';
 
 import IllegalArgumentException from '../exceptions/IllegalArgumentException';
+import i18n from 'i18next';
 
 class DateUtils {
     static getPassedTime(date){
@@ -8,29 +9,25 @@ class DateUtils {
         if ( difference < 60 ){
 
         }
-
-
-
-        // TODO
-        return date.toLocaleDateString(undefined, {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
+        return date.toLocaleDateString(i18n.language, {
+            year: 'numeric',
+            day: 'numeric',
+            month: 'long'
         });
     }
 
     static getPassedDate(date){
         const difference = ( (+new Date()) - date.getTime() ) / 1000;
         if ( difference < 86400 ){
-            return 'Today';
+            return i18n.t('dateUtils.today');
         }
         if ( difference < 172800 ){
-            return 'Yesterday';
+            return i18n.t('dateUtils.yesterday');
         }
-        return date.toLocaleDateString(undefined, {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
+        return date.toLocaleDateString(i18n.language, {
+            year: 'numeric',
+            day: 'numeric',
+            month: 'long'
         });
     }
 

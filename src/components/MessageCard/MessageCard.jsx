@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import MessageContent from '../MessageContent/MessageContent';
 import StringUtils from '../../utils/StringUtils';
 import MessageType from '../../enum/MessageType';
+import { withTranslation } from 'react-i18next';
 import Event from '../../facades/Event';
 import styles from './MessageCard.scss';
 import App from '../../facades/App';
@@ -37,6 +38,7 @@ class MessageCard extends React.Component {
     }
 
     #renderContextMenu(){
+        const { t } = this.props;
         return (
             <React.Fragment>
                 <div className={styles.contextMenuOpener} onClick={this._handleContextMenuOpenerClick}>
@@ -44,10 +46,10 @@ class MessageCard extends React.Component {
                 </div>
                 <div className={styles.contextMenuWrapper} data-context-menu-enabled={this.state.contextmenuEnabled}>
                     <div className={styles.contextMenuOverlay} onClick={this._handleContextMenuOverlayClick}></div>
-                    <ul className={styles.contextMenu}>
-                        <li data-action-name={'edit'} onClick={this._handleContextMenuActionClick}><FontAwesomeIcon icon="fa-solid fa-pen" /> Edit</li>
-                        <li data-action-name={'delete-local'} onClick={this._handleContextMenuActionClick} className={styles.dangerousAction}><FontAwesomeIcon icon="fa-solid fa-trash" /> Delete (for me)</li>
-                        <li data-action-name={'delete-global'} onClick={this._handleContextMenuActionClick} className={styles.dangerousAction}><FontAwesomeIcon icon="fa-solid fa-trash" /> Delete (for everyone)</li>
+                    <ul className={styles.contextMenu + ' bg-black border-black text-white'}>
+                        <li data-action-name={'edit'} onClick={this._handleContextMenuActionClick}><FontAwesomeIcon icon="fa-solid fa-pen" />{t('messageCard.contextMenu.edit')}</li>
+                        <li data-action-name={'delete-local'} onClick={this._handleContextMenuActionClick} className={'text-danger'}><FontAwesomeIcon icon="fa-solid fa-trash" />{t('messageCard.contextMenu.deleteLocal')}</li>
+                        <li data-action-name={'delete-global'} onClick={this._handleContextMenuActionClick} className={'text-danger'}><FontAwesomeIcon icon="fa-solid fa-trash" />{t('messageCard.contextMenu.deleteGlobal')}</li>
                     </ul>
                 </div>
             </React.Fragment>
@@ -56,7 +58,7 @@ class MessageCard extends React.Component {
 
     #renderEditedLabel(){
         return this.state.message.getIsEdited() ? (
-            <span className={styles.editedLabel}>edited</span>
+            <span className={styles.editedLabel}>{this.props.t('messageCard.edited')}</span>
         ) : null;
     }
 
@@ -76,12 +78,6 @@ class MessageCard extends React.Component {
         this.setState((prev) => ({ ...prev, contextmenuEnabled: ( !prev.contextmenuEnabled ) }));
     }
 
-    _handleMessageEdit(message){
-        if ( message.getID() === this.state.message.getID() ){
-            this.setState((prev) => ({ ...prev, message: message }));
-        }
-    }
-
     _handleAttachmentClick(attachmentID, downloadedAttachmentList){
         if ( typeof this.props.onAttachmentClick === 'function' ){
             this.props.onAttachmentClick(attachmentID, downloadedAttachmentList);
@@ -96,11 +92,14 @@ class MessageCard extends React.Component {
         this._handleContextMenuOpenerClick = this._handleContextMenuOpenerClick.bind(this);
         this._handleContextMenuActionClick = this._handleContextMenuActionClick.bind(this);
         this._handleAttachmentClick = this._handleAttachmentClick.bind(this);
-        this._handleMessageEdit = this._handleMessageEdit.bind(this);
     }
 
     componentDidMount(){
-        Event.getBroker().on('messageEdit', this._handleMessageEdit);
+        Event.getBroker().on('messageEdit', (message) => {
+            if ( message.getID() === this.state.message.getID() ){
+                this.setState((prev) => ({ ...prev, message: message }));
+            }
+        });
         this.#setupParentMutationObserver();
     }
 
@@ -116,17 +115,18 @@ class MessageCard extends React.Component {
         const authenticatedUserID = App.getAuthenticatedUser().getID();
         const messageUserID = this.state.message.getUser()?.getID();
         const direction = messageUserID === authenticatedUserID ? 'sent' : 'received';
+        const className = direction === 'sent' ? ' message-bubble-sent' : ' message-bubble-received';
         return (
             <div className={styles.messageCard} data-direction={direction} data-message-id={this.state.message.getID()} ref={this.#messageCardRef}>
-                <div className={styles.wrapper} data-without-background={this.#isWithoutBackground()}>
+                <div className={styles.wrapper + className} data-without-background={this.#isWithoutBackground()}>
                     <MessageContent message={this.state.message} />
                     <div className={styles.date}>{this.#renderEditedLabel()}{this.#getMessageTime()}</div>
                     <AttachmentViewer ref={this.#attachmentViewerRef} message={this.state.message} onAttachmentClick={this._handleAttachmentClick} />
-                    {direction === 'sent' ? this.#renderContextMenu() : null}
+                    { direction === 'sent' && this.#renderContextMenu() }
                 </div>
             </div>
         );
     }
 }
 
-export default MessageCard;
+export default withTranslation(null, { withRef: true })(MessageCard);

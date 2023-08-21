@@ -2,14 +2,15 @@
 
 import EntityIcon from '../EntityIcon/EntityIcon';
 import styles from './UserSearchResultEntry.scss';
+import { withTranslation } from 'react-i18next';
 import DateUtils from '../../utils/DateUtils';
 import React from 'react';
 
 class UserSearchResultEntry extends React.Component {
     #computeLastAccessDate(){
-        let lastAccessDate = '', lastAccess = this.props.user.getLastAccess();
+        let lastAccessDate = '', lastAccess = this.props.user.getLastAccess(), { t } = this.props;
         if ( lastAccess !== null ){
-            lastAccessDate = 'Last access: ' + DateUtils.getPassedTime(lastAccess);
+            lastAccessDate = t('userSearchResultEntry.lastAccess') + DateUtils.getPassedTime(lastAccess);
         }
         return lastAccessDate;
     }
@@ -18,7 +19,7 @@ class UserSearchResultEntry extends React.Component {
         return (
             <div className={styles.userSearchResultEntry}>
                 <EntityIcon text={this.props.user.getUsername()} />
-                <div className={styles.info}>
+                <div className={styles.info + ' text-primary'}>
                     <p className={styles.username}>{this.props.user.getUsername()}</p>
                     <p className={styles.lastAccess}>{this.#computeLastAccessDate()}</p>
                 </div>
@@ -27,4 +28,4 @@ class UserSearchResultEntry extends React.Component {
     }
 }
 
-export default UserSearchResultEntry;
+export default withTranslation(null, { withRef: true })(UserSearchResultEntry);

@@ -36,7 +36,7 @@ class AttachmentLightBox extends React.Component {
                 </li>
             );
         });
-        return <ul className={styles.previewList}>{renderedPreviewList}</ul>;
+        return <ul className={styles.previewList + ' border-white'}>{renderedPreviewList}</ul>;
     }
 
     _handleRightArrowClick(){
@@ -96,19 +96,20 @@ class AttachmentLightBox extends React.Component {
     }
 
     render(){
+        const count = this.state.downloadedAttachmentList.length;
         return (
             <div className={styles.attachmentLightBox} data-show={this.state.show}>
-                <div className={styles.header}>
+                <div className={styles.header + ' text-white'}>
                     <FontAwesomeIcon icon='fa-solid fa-xmark' onClick={this._handleCloseButtonClick} />
                 </div>
                 <div className={styles.container}>
                     <div className={styles.innerContainer}>
-                        <div className={styles.leftControls}>
-                            <FontAwesomeIcon icon='fa-solid fa-chevron-circle-left' onClick={this._handleLeftArrowClick} />
+                        <div className={styles.leftControls + ' text-white'}>
+                            { count > 1 && <FontAwesomeIcon icon='fa-solid fa-chevron-circle-left' onClick={this._handleLeftArrowClick} /> }
                         </div>
                         <div className={styles.mainContent}>{this.#renderMainContent()}</div>
-                        <div className={styles.rightControls}>
-                            <FontAwesomeIcon icon='fa-solid fa-chevron-circle-right' onClick={this._handleRightArrowClick} />
+                        <div className={styles.rightControls + ' text-white'}>
+                            { count > 1 && <FontAwesomeIcon icon='fa-solid fa-chevron-circle-right' onClick={this._handleRightArrowClick} /> }
                         </div>
                     </div>
                 </div>

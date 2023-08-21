@@ -22,6 +22,21 @@ class MessageBox extends React.Component {
         );
     }
 
+    #getClassesByType(){
+        switch ( this.props.type ){
+            case 'success': {
+                return 'border-success text-success';
+            }
+            case 'error': {
+                return 'border-danger text-danger';
+            }
+            case 'warn': {
+                return 'border-warn text-warn';
+            }
+        }
+        return '';
+    }
+
     _handleConfirm(){
         this.hide(true);
     }
@@ -53,11 +68,11 @@ class MessageBox extends React.Component {
 
     render(){
         return (
-            <div className={styles.messageBox} data-message-box-type={this.props.type} data-active={this.state.active}>
+            <div className={styles.messageBox + ' ' + this.#getClassesByType()} data-message-box-type={this.props.type} data-active={this.state.active}>
                 <div className={styles.overlay} onClick={this._handleClose} />
-                <div className={styles.dialog}>
-                    <p className={styles.title}>{this.props.title}</p>
-                    <p className={styles.text}>{this.props.text}</p>
+                <div className={styles.dialog + ' bg-primary'}>
+                    <p className={styles.title + ' text-primary'}>{this.props.title}</p>
+                    <p className={styles.text + ' text-primary'}>{this.props.text}</p>
                     {this.#renderControls()}
                 </div>
             </div>

@@ -9,19 +9,16 @@ import Event from '../../facades/Event';
 import React from 'react';
 
 class SettingsSection extends React.Component {
-    _handleUserAuthenticated(user){
-        this.setState((prev) => ({ ...prev, user: user }));
-    }
-
     constructor(props){
         super(props);
 
-        this._handleUserAuthenticated = this._handleUserAuthenticated.bind(this);
         this.state = { user: null };
     }
 
     componentDidMount(){
-        Event.getBroker().on('userAuthenticated', this._handleUserAuthenticated);
+        Event.getBroker().on('userAuthenticated', (user) => {
+            this.setState((prev) => ({ ...prev, user: user }));
+        });
     }
 
     render(){

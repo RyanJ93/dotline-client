@@ -1,6 +1,7 @@
 'use strict';
 
 import MessageBox from '../MessageBox/MessageBox';
+import styles from './MessageBoxManager.scss';
 import React from 'react';
 
 class MessageBoxManager extends React.Component {
@@ -45,7 +46,7 @@ class MessageBoxManager extends React.Component {
 
     render(){
         return (
-            <div>
+            <div className={styles.messageBoxManager}>
                 {this.#renderMessageBoxes()}
             </div>
         );

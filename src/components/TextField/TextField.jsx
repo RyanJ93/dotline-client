@@ -10,7 +10,7 @@ class TextField extends React.Component {
     #renderErrorMessage(){
         let renderedErrorMessage = null;
         if ( typeof this.state.errorMessage === 'string' && this.state.errorMessage !== '' ){
-            renderedErrorMessage = <p className={styles.errorMessage}>{this.state.errorMessage}</p>;
+            renderedErrorMessage = <p className={styles.errorMessage + ' text-danger'}>{this.state.errorMessage}</p>;
         }
         return renderedErrorMessage;
     }
@@ -104,9 +104,9 @@ class TextField extends React.Component {
     render(){
         return (
             <div className={styles.field} data-disabled={this.state.disabled}>
-                <div className={styles.fieldWrapper}>
-                    <label className={styles.label} form={this.props.id}>{this.props.label}</label>
-                    <input className={styles.input} type={this.props.type} id={this.props.id} name={this.props.name} onFocus={this._handleFocus} onBlur={this._handleBlur} onInput={this._handleInput} onChange={this._handleChange} ref={this.#inputRef} disabled={this.state.disabled} />
+                <div className={styles.fieldWrapper + ' border-secondary'} data-focus={false}>
+                    <label className={styles.label + ' bg-primary text-primary'} form={this.props.id}>{this.props.label}</label>
+                    <input className={styles.input + ' text-primary'} type={this.props.type} id={this.props.id} name={this.props.name} onFocus={this._handleFocus} onBlur={this._handleBlur} onInput={this._handleInput} onChange={this._handleChange} ref={this.#inputRef} disabled={this.state.disabled} />
                     {this.#renderClearButton()}
                 </div>
                 {this.#renderErrorMessage()}

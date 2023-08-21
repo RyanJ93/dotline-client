@@ -9,9 +9,9 @@ class LoadingView extends React.Component {
     render(){
         const { t } = this.props;
         return (
-            <div className={styles.view}>
+            <div className={styles.view + ' bg-primary text-primary'}>
                 <div className={styles.container}>
-                    <div className={styles.loader} />
+                    <div className={styles.loader + ' loader-img'} />
                     <p>{t('loadingView.label')}</p>
                 </div>
                 <Footer />

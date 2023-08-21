@@ -3,6 +3,8 @@
 import UserSettingsService from '../../../services/UserSettingsService';
 import SubmitButton from '../../SubmitButton/SubmitButton';
 import styles from './UserSettingsSection.scss';
+import { withTranslation } from 'react-i18next';
+import Event from '../../../facades/Event';
 import React from 'react';
 
 class UserSettingsSection extends React.Component {
@@ -11,14 +13,18 @@ class UserSettingsSection extends React.Component {
     #themeSelectRef = React.createRef();
 
     async #submit(){
+        const locale = this.#localeSelectRef.current.value, { t } = this.props;
+        const successMessage = t('userSettingsSection.label.settingsSaved');
+        const saveLabel = t('userSettingsSection.label.save');
+        const theme = this.#themeSelectRef.current.value;
+        this.#submitButtonRef.current.setStatus('loading');
         try{
-            this.#submitButtonRef.current.setStatus('loading');
-            const locale = this.#localeSelectRef.current.value;
-            const theme = this.#themeSelectRef.current.value;
-            await new UserSettingsService().update(locale, theme);
-            this.#submitButtonRef.current.setTemporaryStatus('completed', 'Settings saved', 'Save');
+            const userSettingsService = new UserSettingsService();
+            await userSettingsService.update(locale, theme);
+            userSettingsService.applyLocalSettings();
+            this.#submitButtonRef.current.setTemporaryStatus('completed', successMessage, saveLabel);
         }catch(ex){
-            this.#submitButtonRef.current.setTemporaryStatus('error', 'Save', 'Save');
+            this.#submitButtonRef.current.setTemporaryStatus('error', saveLabel, saveLabel);
             throw ex;
         }
     }
@@ -35,11 +41,19 @@ class UserSettingsSection extends React.Component {
         this._handleSubmit = this._handleSubmit.bind(this);
     }
 
+    componentDidMount(){
+        Event.getBroker().on('userSettingsLoaded', (userSettings) => {
+            this.#localeSelectRef.current.value = userSettings.getLocale();
+            this.#themeSelectRef.current.value = userSettings.getTheme();
+        });
+    }
+
     render(){
+        const { t } = this.props;
         return (
             <div className={styles.section}>
                 <form className={styles.content} onSubmit={this._handleSubmit}>
-                    <p className={styles.sectionTitle}>User settings</p>
+                    <p className={styles.sectionTitle + ' text-primary'}>{t('userSettingsSection.title')}</p>
                     <div className={styles.field}>
                         <select ref={this.#localeSelectRef}>
                             <option value={'en'}>English</option>
@@ -48,13 +62,13 @@ class UserSettingsSection extends React.Component {
                     </div>
                     <div className={styles.field}>
                         <select ref={this.#themeSelectRef}>
-                            <option value={'auto'}>Theme: auto</option>
-                            <option value={'dark'}>Theme: dark</option>
-                            <option value={'light'}>Theme: light</option>
+                            <option value={'auto'}>{t('userSettingsSection.theme.auto')}</option>
+                            <option value={'dark'}>{t('userSettingsSection.theme.dark')}</option>
+                            <option value={'light'}>{t('userSettingsSection.theme.light')}</option>
                         </select>
                     </div>
                     <div className={styles.submit}>
-                        <SubmitButton value={'Save'} ref={this.#submitButtonRef} />
+                        <SubmitButton value={t('userSettingsSection.label.save')} ref={this.#submitButtonRef} />
                     </div>
                 </form>
             </div>
@@ -62,4 +76,4 @@ class UserSettingsSection extends React.Component {
     }
 }
 
-export default UserSettingsSection;
+export default withTranslation(null, { withRef: true })(UserSettingsSection);

@@ -11,7 +11,6 @@ import CommonUtils from '../../utils/CommonUtils';
 import SignupForm from '../SignupForm/SignupForm';
 import { withTranslation } from 'react-i18next';
 import LoginForm from '../LoginForm/LoginForm';
-import HTMLLogo from '../HTMLLogo/HTMLLogo';
 import Footer from '../Footer/Footer';
 import styles from './AuthView.scss';
 import React from 'react';
@@ -103,15 +102,15 @@ class AuthView extends React.Component {
         const { t } = this.props;
         return (
             <div className={styles.container} data-active={this.state.container === 'form'}>
-                <HTMLLogo />
+                <div className={styles.logo + ' logo-img'} />
                 <p className={styles.catchPhrase}>{t('authView.catchPhrase')}</p>
                 <div className={styles.formWrapper} data-active={this.state.action === 'login'}>
                     <LoginForm onSubmit={this._handleLoginSubmit} ref={this.#loginForm} />
-                    <p>{t('authView.noAccountQuestion')} <a href={'#'} onClick={this._handleSignupClick}>{t('authView.noAccountAnswer')}</a></p>
+                    <p>{t('authView.noAccountQuestion')} <a className={'link-primary'} href={'#'} onClick={this._handleSignupClick}>{t('authView.noAccountAnswer')}</a></p>
                 </div>
                 <div className={styles.formWrapper} data-active={this.state.action === 'signup'}>
                     <SignupForm onSubmit={this._handleSignupSubmit} ref={this.#signupForm} />
-                    <p>{t('authView.accountQuestion')} <a href={'#'} onClick={this._handleLoginClick}>{t('authView.accountAnswer')}</a></p>
+                    <p>{t('authView.accountQuestion')} <a className={'link-primary'} href={'#'} onClick={this._handleLoginClick}>{t('authView.accountAnswer')}</a></p>
                 </div>
             </div>
         );
@@ -145,10 +144,14 @@ class AuthView extends React.Component {
 
     render(){
         return (
-            <div className={styles.view}>
-                { this.#renderLoginProgressBar() }
-                { this.#renderFormContainer() }
-                <Footer />
+            <div className={styles.view + ' bg-primary text-primary full-viewport'}>
+                <div className={'full-viewport-container'}>
+                    <div className={styles.contentWrapper}>
+                        { this.#renderLoginProgressBar() }
+                        { this.#renderFormContainer() }
+                    </div>
+                    <Footer />
+                </div>
             </div>
         );
     }

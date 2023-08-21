@@ -3,12 +3,13 @@
 import StickerPlaceholder from '../../DTOs/StickerPlaceholder';
 import StickerService from '../../services/StickerService';
 import styles from './StickerMessageContent.scss';
+import { withTranslation } from 'react-i18next';
 import Sticker from '../../DTOs/Sticker';
 import React from 'react';
 
 class StickerMessageContent extends React.Component {
     #renderSticker(){
-        let renderedSticker, emoji = this.state.stickerPlaceholder.getEmoji();
+        let renderedSticker, emoji = this.state.stickerPlaceholder.getEmoji(), { t } = this.props;
         if ( this.state.sticker instanceof Sticker ){
             const contentURL = this.state.sticker.getContentURL();
             if ( this.state.sticker.getAnimated() ){
@@ -17,7 +18,7 @@ class StickerMessageContent extends React.Component {
                 renderedSticker = <div className={styles.stickerContent} style={{ backgroundImage: 'url(' + contentURL + ')' }} title={emoji} />
             }
         }else{
-            const label = this.state.loading ? 'Loading sticker..' : 'Fallback emoji';
+            const label = this.state.loading ? t('stickerMessageContent.loading') : t('stickerMessageContent.fallback');
             renderedSticker = (
                 <React.Fragment>
                     <p className={styles.emoji}>{emoji}</p>
@@ -48,4 +49,4 @@ class StickerMessageContent extends React.Component {
     }
 }
 
-export default StickerMessageContent;
+export default withTranslation(null, { withRef: true })(StickerMessageContent);

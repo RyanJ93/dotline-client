@@ -1,30 +1,30 @@
 'use strict';
 
 import styles from './AuthenticationForm.scss';
+import i18n from 'i18next';
 import React from 'react';
 
 class AuthenticationForm extends React.Component {
-    _username = React.createRef();
-    _password = React.createRef();
+    _usernameRef = React.createRef();
+    _passwordRef = React.createRef();
 
     _isUsernameValid(){
-        this._username.current.setErrorMessage(null);
-        if ( this._username.current.getValue() === '' ){
-            this._username.current.setErrorMessage('You must provide a valid username!');
+        this._usernameRef.current.setErrorMessage(null);
+        if ( this._usernameRef.current.getValue() === '' ){
+            this._usernameRef.current.setErrorMessage(i18n.t('authenticationForm.error.invalidUsername'));
             return false;
         }
-        if ( !( /[a-zA-Z0-9.-_]{4,16}/.test(this._username.current.getValue()) ) ){
-            // TODO: set a better message
-            this._username.current.setErrorMessage('You must provide a valid username!');
+        if ( !( /[a-zA-Z0-9.-_]{4,16}/.test(this._usernameRef.current.getValue()) ) ){
+            this._usernameRef.current.setErrorMessage(i18n.t('authenticationForm.error.invalidUsernameFormat'));
             return false;
         }
         return true;
     }
 
     _isPasswordValid(){
-        this._password.current.setErrorMessage(null);
-        if ( this._password.current.getValue() === '' ){
-            this._password.current.setErrorMessage('You must provide a valid password!');
+        this._passwordRef.current.setErrorMessage(null);
+        if ( this._passwordRef.current.getValue() === '' ){
+            this._passwordRef.current.setErrorMessage(i18n.t('authenticationForm.error.invalidPassword'));
             return false;
         }
         return true;
@@ -39,7 +39,7 @@ class AuthenticationForm extends React.Component {
         let renderedGenericErrorMessages = null;
         if ( this.state.genericErrorMessageList.length > 0 ){
             const errorMessageText = this.state.genericErrorMessageList.join(', ');
-            renderedGenericErrorMessages = <p className={styles.errorMessage}>{errorMessageText}</p>;
+            renderedGenericErrorMessages = <p className={styles.errorMessage + ' text-danger'}>{errorMessageText}</p>;
         }
         return renderedGenericErrorMessages;
     }
@@ -70,9 +70,9 @@ class AuthenticationForm extends React.Component {
     }
 
     resetErrorMessages(){
-        this.setState((prev) => { return { ...prev, genericErrorMessageList: [] } });
-        this._username.current.setErrorMessage(null);
-        this._password.current.setErrorMessage(null);
+        this.setState((prev) => ({ ...prev, genericErrorMessageList: [] }));
+        this._usernameRef.current.setErrorMessage(null);
+        this._passwordRef.current.setErrorMessage(null);
         return this;
     }
 
@@ -82,33 +82,29 @@ class AuthenticationForm extends React.Component {
         for ( const fieldName in errorMessages ){
             const errorMessage = errorMessages[fieldName].join(', ');
             if ( fieldName === 'username' ){
-                this._username.current.setErrorMessage(errorMessage);
+                this._usernameRef.current.setErrorMessage(errorMessage);
             }else if ( fieldName === 'password' ){
-                this._password.current.setErrorMessage(errorMessage);
+                this._passwordRef.current.setErrorMessage(errorMessage);
             }else{
                 genericErrorMessageList.push(errorMessage);
             }
         }
-        this.setState((prev) => {
-            return { ...prev, genericErrorMessageList: genericErrorMessageList };
-        });
+        this.setState((prev) => ({ ...prev, genericErrorMessageList: genericErrorMessageList }));
         return this;
     }
 
     displayErrorMessageText(errorMessageText){
         this.resetErrorMessages();
-        this.setState((prev) => {
-            return { ...prev, genericErrorMessageList: [errorMessageText] };
-        });
+        this.setState((prev) => ({ ...prev, genericErrorMessageList: [errorMessageText] }));
         return this;
     }
 
     async submit(event){
         const isValid = await this._isValid();
-        if ( isValid ){
+        if ( isValid && typeof this.props.onSubmit === 'function' ){
             this.props.onSubmit({
-                password: this._password.current.getValue(),
-                username: this._username.current.getValue()
+                password: this._passwordRef.current.getValue(),
+                username: this._usernameRef.current.getValue()
             }, event);
         }
     }

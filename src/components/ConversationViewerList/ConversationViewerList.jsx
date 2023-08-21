@@ -2,6 +2,7 @@
 
 import ConversationViewer from '../ConversationViewer/ConversationViewer';
 import styles from './ConversationViewerList.scss';
+import { withTranslation } from 'react-i18next';
 import Event from '../../facades/Event';
 import React from 'react';
 
@@ -22,14 +23,14 @@ class ConversationViewerList extends React.Component {
             const bind = (node) => { this.#conversationViewerRefIndex[id].current = node };
             const isSelected = id === this.state.selectedConversationID;
             renderedConversationViewerList.push(
-                <div className={styles.conversationViewer} key={id} data-selected={isSelected}>
+                <div className={styles.conversationViewer + ' bg-primary'} key={id} data-selected={isSelected}>
                     <ConversationViewer ref={bind} goto={goto} selected={isSelected} conversation={conversation} onMessageSend={this._handleMessageSend} onMessageDelete={this._handleMessageDelete} onConversationClose={this._handleConversationClose} onConversationDelete={this._handleConversationDeleteAction} />
                 </div>
             );
         }
         if ( this.state.conversationDraft !== null ){
             renderedConversationViewerList.push(
-                <div className={styles.conversationViewer} key={'draft'} data-selected={true}>
+                <div className={styles.conversationViewer + ' bg-primary'} key={'draft'} data-selected={true}>
                     <ConversationViewer conversation={this.state.conversationDraft} onMessageSend={this._handleMessageSend} onMessageDelete={this._handleMessageDelete} onConversationClose={this._handleConversationClose} onConversationDelete={this._handleConversationDeleteAction} />
                 </div>
             );
@@ -41,16 +42,6 @@ class ConversationViewerList extends React.Component {
         if ( typeof this.props.onConversationClose === 'function' ){
             this.props.onConversationClose();
         }
-    }
-
-    _handleConversationDelete(conversationID){
-        this.state.conversationList.delete(conversationID);
-        this.forceUpdate();
-    }
-
-    _handleConversationAdded(conversation){
-        this.state.conversationList.set(conversation.getID(), conversation);
-        this.forceUpdate();
     }
 
     _handleConversationDeleteAction(conversation, deleteForEveryone){
@@ -76,16 +67,20 @@ class ConversationViewerList extends React.Component {
 
         this.state = { conversationList: new Map(), selectedConversationID: null, conversationDraft: null, goto: null };
         this._handleConversationDeleteAction = this._handleConversationDeleteAction.bind(this);
-        this._handleConversationDelete = this._handleConversationDelete.bind(this);
-        this._handleConversationAdded = this._handleConversationAdded.bind(this);
         this._handleConversationClose = this._handleConversationClose.bind(this);
         this._handleMessageDelete = this._handleMessageDelete.bind(this);
         this._handleMessageSend = this._handleMessageSend.bind(this);
     }
 
     componentDidMount(){
-        Event.getBroker().on('conversationDelete', this._handleConversationDelete);
-        Event.getBroker().on('conversationAdded', this._handleConversationAdded);
+        Event.getBroker().on('conversationDelete', (conversationID) => {
+            this.state.conversationList.delete(conversationID);
+            this.forceUpdate();
+        });
+        Event.getBroker().on('conversationAdded', (conversation) => {
+            this.state.conversationList.set(conversation.getID(), conversation);
+            this.forceUpdate();
+        });
     }
 
     componentDidUpdate(){
@@ -124,13 +119,14 @@ class ConversationViewerList extends React.Component {
     }
 
     render(){
+        const { t } = this.props;
         return (
             <div className={styles.conversationViewerList}>
-                <p className={styles.startingMessage}>{'Select a conversation to start'}</p>
+                <p className={styles.startingMessage + ' text-primary'}>{t('conversationViewerList.startingLabel')}</p>
                 {this.#renderConversationViewerList()}
             </div>
         );
     }
 }
 
-export default ConversationViewerList;
+export default withTranslation(null, { withRef: true })(ConversationViewerList);

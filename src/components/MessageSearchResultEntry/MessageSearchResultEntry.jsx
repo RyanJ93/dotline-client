@@ -12,11 +12,11 @@ class MessageSearchResultEntry extends React.Component {
         return (
             <div className={styles.messageSearchResultEntry}>
                 <EntityIcon text={conversationName} />
-                <div className={styles.lastMessage}>
+                <div className={styles.lastMessage + ' text-primary'}>
                     <p className={styles.name}>{conversationName}</p>
                     <p className={styles.messagePreview}>{this.props.message.getContent()}</p>
                 </div>
-                <div className={styles.dateWrapper}>
+                <div className={styles.dateWrapper + ' text-primary'}>
                     <p className={styles.date}>{date}</p>
                 </div>
             </div>

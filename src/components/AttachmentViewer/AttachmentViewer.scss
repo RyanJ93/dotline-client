@@ -51,6 +51,16 @@ div.attachmentViewer {
                 cursor: pointer;
             }
 
+            @media (max-width: 480px) {
+                p.remainingAttachmentCounter {
+                    border-radius: 18px;
+                    line-height: 1.9;
+                    font-size: 18px;
+                    height: 36px;
+                    width: 36px;
+                }
+            }
+
             div.genericFilePreview {
                 display: flex;
                 align-content: center;
