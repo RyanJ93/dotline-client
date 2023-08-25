@@ -28,7 +28,7 @@ class App extends React.Component {
     #currentView = 'loading';
     #initialized = false;
 
-    async #handleUserInfoException(ex){console.log('err1', ex.stack, ex.code, ex.message, ex.constructor.name);
+    async #handleUserInfoException(ex){
         if ( ex instanceof UnauthorizedException || ex instanceof NotFoundException ){
             await new LocalDataService().dropLocalData();
             return this.setView('auth');
@@ -94,8 +94,8 @@ class App extends React.Component {
     }
 
     async _handleError(event){
-        const error = event.error ?? event.reason;console.log('err0');
-        if ( typeof error !== 'undefined' ){console.log('err2', error.stack, error.code, error.message, error.constructor.name);
+        const error = event.error ?? event.reason;
+        if ( typeof error !== 'undefined' ){
             if ( error instanceof UnauthorizedException ){
                 await new LocalDataService().dropLocalData();
                 return this.setView('auth');
