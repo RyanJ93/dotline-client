@@ -131,12 +131,13 @@ $logo-image-path: '/public/assets/logo-light-mode.svg';
     .message-bubble-received {
         background-color: $message-bubble-received;
         border-color: $message-bubble-received;
-        color: #333333;
+        color: $text-primary-color;
     }
 
     .message-bubble-sent {
         background-color: $message-bubble-sent;
         border-color: $message-bubble-sent;
+        color: $text-primary-color;
     }
 
     button, input[type="reset"], input[type="submit"] {
