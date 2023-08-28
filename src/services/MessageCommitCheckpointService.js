@@ -84,8 +84,8 @@ class MessageCommitCheckpointService extends Service {
      * @throws {IllegalArgumentException} If an invalid date is given.
      * @throws {IllegalArgumentException} If an invalid type is given.
      */
-    async removeCheckpoint(date, type){
-        await this.#messageCommitCheckpointRepository.removeCheckpoint(this.#conversation, date, type);
+    async removeCheckpointByDate(date, type){
+        await this.#messageCommitCheckpointRepository.removeCheckpointByDate(this.#conversation, date, type);
     }
 
     /**
@@ -102,31 +102,61 @@ class MessageCommitCheckpointService extends Service {
     }
 
     /**
+     * Removes a given message commit checkpoint instance.
+     *
+     * @param {MessageCommitCheckpoint} messageCommitCheckpoint
+     *
+     * @returns {Promise<void>}
+     *
+     * @throws {IllegalArgumentException} If an invalid message commit checkpoint is given.
+     */
+    async removeCheckpoint(messageCommitCheckpoint){
+        await this.#messageCommitCheckpointRepository.removeCheckpoint(messageCommitCheckpoint);
+    }
+
+    /**
      * Returns the first message commit checkpoint matching the given type.
      *
      * @param {string} type
+     * @param {?Date} [date]
+     * @param {boolean} [lower=true]
      *
      * @returns {Promise<?MessageCommitCheckpoint>}
      *
      * @throws {IllegalArgumentException} If an invalid type is given.
+     * @throws {IllegalArgumentException} If an invalid date is given.
      */
-    async getFirstByType(type){
-        return await this.#messageCommitCheckpointRepository.getFirstByType(this.#conversation, type);
+    async getFirstByType(type, date = null, lower = true){
+        return await this.#messageCommitCheckpointRepository.getFirstByType(this.#conversation, type, date, lower);
     }
 
     /**
-     * Returns all the message commit checkpoints greater than a given date and matching the given type.
+     * Returns the first message commit checkpoint based on a given date.
      *
      * @param {Date} date
-     * @param {string} type
+     * @param {boolean} [lower=true]
+     *
+     * @returns {Promise<?MessageCommitCheckpoint>}
+     *
+     * @throws {IllegalArgumentException} If an invalid date is given.
+     */
+    async getFirstByDate(date, lower = true){
+        return await this.#messageCommitCheckpointRepository.getFirstByDate(this.#conversation, date, lower);
+    }
+
+    /**
+     * Returns all the checkpoints for the defined conversation in descending order.
+     *
+     * @param {?Date} [startingDate]
+     * @param {?Date} [endingDate]
      *
      * @returns {Promise<MessageCommitCheckpoint[]>}
      *
-     * @throws {IllegalArgumentException} If an invalid type is given.
-     * @throws {IllegalArgumentException} If an invalid date is given.
+     * @throws {IllegalArgumentException} If an invalid starting date is given.
+     * @throws {IllegalArgumentException} If an invalid ending date is given.
      */
-    async getGreaterByType(date, type){
-        return await this.#messageCommitCheckpointRepository.getGreaterByType(this.#conversation, date, type);
+    async getCheckpointList(startingDate = null, endingDate = null){
+        return await this.#messageCommitCheckpointRepository.getCheckpointList(this.#conversation, startingDate, endingDate);
     }
 }
 

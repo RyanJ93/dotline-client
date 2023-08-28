@@ -27,25 +27,25 @@ class MessageCommitService extends Service {
     /**
      * Processes a single message commit.
      *
-     * @param {MessageCommitProperties} properties
+     * @param {MessageCommitEntry} messageCommitEntry
      *
      * @returns {Promise<?Message>}
      */
-    async #processMessageCommit(properties){
-        switch ( properties.action ){
+    async #processMessageCommit(messageCommitEntry){
+        switch ( messageCommitEntry.getAction() ){
             case MessageCommitAction.DELETE: {
-                await new MessageService().deleteMessageByID(properties.messageID, this.#conversation.getID());
+                await new MessageService().deleteMessageByID(messageCommitEntry.getMessageID(), this.#conversation.getID());
                 return null;
             }
             case MessageCommitAction.CREATE: {
-                return await new MessageService(this.#conversation).storeMessage(properties.message);
+                return await new MessageService(this.#conversation).storeMessage(messageCommitEntry.getMessageProperties());
             }
             case MessageCommitAction.EDIT: {
-                return await new MessageService(this.#conversation).replaceMessage(properties.message);
+                return await new MessageService(this.#conversation).replaceMessage(messageCommitEntry.getMessageProperties());
             }
             case MessageCommitAction.READ: {
                 // NOTE: consider updating "read" property only.
-                return await new MessageService(this.#conversation).replaceMessage(properties.message);
+                return await new MessageService(this.#conversation).replaceMessage(messageCommitEntry.getMessageProperties());
             }
         }
     }
@@ -103,16 +103,43 @@ class MessageCommitService extends Service {
      * @throws {IllegalArgumentException} If an invalid limit is given.
      */
     async listMessageCommits(limit = 250, endingID = null, startingID = null){
+        if ( startingID !== null && ( startingID === '' || typeof startingID !== 'string' ) ){
+            throw new IllegalArgumentException('Invalid starting ID.');
+        }
+        if ( endingID !== null && ( endingID === '' || typeof endingID !== 'string' ) ){
+            throw new IllegalArgumentException('Invalid ending ID.');
+        }
+        if ( limit === null || isNaN(limit) || limit <= 0 ){
+            throw new IllegalArgumentException('Invalid limit.');
+        }
         let url = APIEndpoints.MESSAGE_LIST_COMMITS.replace(':conversationID', this.#conversation.getID()), messageCommitList = [];
         const response = await Request.get(url, { startingID: startingID, endingID: endingID, limit: limit });
         if ( Array.isArray(response.messageCommitList) && response.messageCommitList.length > 0 ){
             messageCommitList = await Promise.all(response.messageCommitList.map(async (messageCommit) => {
-                messageCommit.message = await this.#processMessageCommit(messageCommit);
+                messageCommit.messageProperties = messageCommit.message;
                 messageCommit.date = new Date(messageCommit.date);
                 return new MessageCommitEntry(messageCommit);
             }));
         }
         return messageCommitList;
+    }
+
+    /**
+     * Persists all the changes contained in a given message commit list.
+     *
+     * @param {MessageCommitEntry[]} messageCommitEntryList
+     *
+     * @returns {Promise<void>}
+     *
+     * @throws {IllegalArgumentException} If an invalid message commit entry list is given.
+     */
+    async storeMessageCommitList(messageCommitEntryList){
+        if ( !Array.isArray(messageCommitEntryList) ){
+            throw new IllegalArgumentException('Invalid message commit entry list.');
+        }
+        await Promise.all(messageCommitEntryList.map(async (messageCommitEntry) => {
+            return this.#processMessageCommit(messageCommitEntry);
+        }));
     }
 }
 

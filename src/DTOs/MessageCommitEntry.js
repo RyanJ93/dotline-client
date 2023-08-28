@@ -3,8 +3,8 @@
 /**
  * @typedef MessageCommitEntryProperties
  *
+ * @property {?MessageProperties} messageProperties
  * @property {string} messageID
- * @property {?Message} message
  * @property {string} action
  * @property {Date} date
  * @property {string} id
@@ -17,9 +17,9 @@ class MessageCommitEntry {
     #messageID;
 
     /**
-     * @type {?Message} message
+     * @type {?MessageProperties} messageProperties
      */
-    #message;
+    #messageProperties;
 
     /**
      * @type {string} action
@@ -42,11 +42,20 @@ class MessageCommitEntry {
      * @param {MessageCommitEntryProperties} properties
      */
     constructor(properties){
+        this.#messageProperties = properties.messageProperties;
         this.#messageID = properties.messageID;
-        this.#message = properties.message;
         this.#action = properties.action;
         this.#date = properties.date;
         this.#id = properties.id;
+    }
+
+    /**
+     * Returns message properties.
+     *
+     * @returns {?MessageProperties}
+     */
+    getMessageProperties(){
+        return this.#messageProperties;
     }
 
     /**
@@ -56,15 +65,6 @@ class MessageCommitEntry {
      */
     getMessageID(){
         return this.#messageID;
-    }
-
-    /**
-     * Returns the message.
-     *
-     * @returns {?Message}
-     */
-    getMessage(){
-        return this.#message;
     }
 
     /**

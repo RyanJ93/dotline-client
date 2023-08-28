@@ -60,62 +60,51 @@ class MessageSyncService extends Service {
      * @returns {Promise<void>}
      */
     async #syncConversation(conversation){
-        let previousEOLDate = null, previousEOLMessageCommitID = null, createdSOLMessageCommitID;
+        let startingMessageCommitID = null, messageCommitList = null, firstSOLMessageCommitID = null;
         const messageCommitCheckpointService = new MessageCommitCheckpointService(conversation);
-        let startingMessageCommitID = null, messageCommitList = null, index = 0;
         const messageCommitService = new MessageCommitService(conversation);
         while ( messageCommitList === null || messageCommitList.length > 0 ){
-            // Fetch and process message commit list.
-            messageCommitList = await messageCommitService.listMessageCommits(250, null, startingMessageCommitID);
-            this.#updateMessageSyncStats(conversation.getID(), messageCommitList.length);
-            let isFirstChunk = ( index === 0 ), removedSOLCount = 0;
-            index++;
-            if ( messageCommitList.length === 0 ){
-                // No message commit left or no message commit available at all.
-                if ( previousEOLDate !== null && previousEOLMessageCommitID !== null ){
-                    // No message commit left, EOL has been reached then remove all previous EOLs and add a new one.
-                    await messageCommitCheckpointService.removeCheckpointsByType(MessageCommitCheckpointType.EOL);
-                    await messageCommitCheckpointService.addCheckpoint(previousEOLMessageCommitID, previousEOLDate, MessageCommitCheckpointType.EOL);
+            // Fetch message commit list starting defined message commit ID.
+            messageCommitList = await messageCommitService.listMessageCommits(MessageSyncService.MESSAGE_COMMIT_LIST_PAGE_SIZE, null, startingMessageCommitID);
+            if ( messageCommitList.length > 0 ){
+                const firstEntry = messageCommitList[0], lastEntry = messageCommitList[messageCommitList.length - 1];
+                const currentSOLDate = firstEntry.getDate(), currentSOLMessageCommitID = firstEntry.getID();
+                const currentEOLDate = lastEntry.getDate(), currentEOLMessageCommitID = lastEntry.getID();
+                this.#updateMessageSyncStats(conversation.getID(), messageCommitList.length);
+                // Get the first checkpoint right after this chunk's EOL checkpoint date.
+                const checkpoint = await messageCommitCheckpointService.getFirstByDate(currentEOLDate);
+                if ( checkpoint === null || checkpoint.getType() !== MessageCommitCheckpointType.EOL ){
+                    // First checkpoint found is not an EOL or was not found at all, then push this chunk's EOL into the index.
+                    await messageCommitCheckpointService.addCheckpoint(currentEOLMessageCommitID, currentEOLDate, MessageCommitCheckpointType.EOL);
+                    // After this iteration load the next chunk.
+                    startingMessageCommitID = currentEOLMessageCommitID;
+                }else{
+                    // Schedule a jump to the EOL found.
+                    startingMessageCommitID = checkpoint.getMessageCommitID();
                 }
-                continue;
-            }
-            const currentEOLMessageCommitID = startingMessageCommitID = messageCommitList[messageCommitList.length - 1].getID();
-            const currentSOLDate = messageCommitList[0].getDate(), currentSOLMessageCommitID = messageCommitList[0].getID();
-            const SOL = await messageCommitCheckpointService.getFirstByType(MessageCommitCheckpointType.SOL);
-            previousEOLMessageCommitID = messageCommitList[messageCommitList.length - 1].getID();
-            const currentEOLDate = messageCommitList[messageCommitList.length - 1].getDate();
-            previousEOLDate = messageCommitList[messageCommitList.length - 1].getDate();
-            if ( SOL !== null && currentSOLDate.getTime() === SOL.getDate().getTime() ){
-                // Current segment intersected an older one, continue starting from that segment's end.
-                const EOL = await messageCommitCheckpointService.getFirstByType(MessageCommitCheckpointType.EOL);
-                startingMessageCommitID = EOL.getMessageCommitID();
-                continue;
-            }
-            if ( isFirstChunk ){
-                // It's the first message commit list chunk, add a SOL checkpoint and, since conversation head has bene loaded, trigger proper event.
-                await messageCommitCheckpointService.addCheckpoint(currentSOLMessageCommitID, currentSOLDate, MessageCommitCheckpointType.SOL);
-                this._eventBroker.emit('conversationHeadReady', conversation.getID());
-                createdSOLMessageCommitID = currentSOLMessageCommitID;
-            }
-            // Get and remove all the SOL checkpoints having a date greater than current one and different from current one.
-            const messageCommitCheckpointList = await messageCommitCheckpointService.getGreaterByType(currentSOLDate, MessageCommitCheckpointType.SOL);
-            for ( let i = 0 ; i < messageCommitCheckpointList.length ; i++ ){
-                if ( messageCommitCheckpointList[i].getMessageCommitID() !== createdSOLMessageCommitID ){
-                    await messageCommitCheckpointService.removeCheckpoint(messageCommitCheckpointList[i].getDate(), MessageCommitCheckpointType.SOL);
-                    removedSOLCount++;
+                // Store the received message commit list.
+                await messageCommitService.storeMessageCommitList(messageCommitList);
+                if ( firstSOLMessageCommitID === null ){
+                    // This is the first chunk, then add a SOL breakpoint to indicate the beginning of the segment.
+                    await messageCommitCheckpointService.addCheckpoint(currentSOLMessageCommitID, currentSOLDate, MessageCommitCheckpointType.SOL);
+                    this._eventBroker.emit('conversationHeadReady', conversation.getID());
+                    firstSOLMessageCommitID = currentSOLMessageCommitID;
+                }
+                // Get all the checkpoints available in the index.
+                const checkpointList = await messageCommitCheckpointService.getCheckpointList(null, currentEOLDate);
+                for ( let i = 0 ; i < checkpointList.length ; i++ ){
+                    const type = checkpointList[i].getType(), messageCommitID = checkpointList[i].getMessageCommitID();
+                    const isCurrentEOL = type === MessageCommitCheckpointType.EOL && messageCommitID === startingMessageCommitID;
+                    const isFirstSOL = type === MessageCommitCheckpointType.SOL && messageCommitID === firstSOLMessageCommitID;
+                    if ( !isFirstSOL && !isCurrentEOL ){
+                        // This is not the SOL checkpoint added at the beginning then it should be removed.
+                        await messageCommitCheckpointService.removeCheckpoint(checkpointList[i]);
+                    }
                 }
             }
-            const EOL = await messageCommitCheckpointService.getFirstByType(MessageCommitCheckpointType.EOL);
-            if ( removedSOLCount > 0 && EOL !== null ){
-                // Move to the closest EOL checkpoint.
-                startingMessageCommitID = EOL.getMessageCommitID();
-                continue;
-            }
-            // Remove the closest EOL checkpoint and add a new one.
-            await messageCommitCheckpointService.addCheckpoint(currentEOLMessageCommitID, currentEOLDate, MessageCommitCheckpointType.EOL);
-            if ( EOL !== null ){
-                await messageCommitCheckpointService.removeCheckpoint(EOL.getDate(), MessageCommitCheckpointType.EOL);
-            }
+        }
+        if ( firstSOLMessageCommitID === null ){
+            this._eventBroker.emit('conversationHeadReady', conversation.getID());
         }
     }
 
@@ -136,5 +125,10 @@ class MessageSyncService extends Service {
         return this;
     }
 }
+
+/**
+ * @constant {number}
+ */
+Object.defineProperty(MessageSyncService, 'MESSAGE_COMMIT_LIST_PAGE_SIZE', { value: 250, writable: false });
 
 export default MessageSyncService;
