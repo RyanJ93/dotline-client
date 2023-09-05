@@ -21,6 +21,7 @@ class LocaleProvider extends Provider {
 
     async run(){
         await this.#setupI18n();
+        await i18n.changeLanguage(i18n.language);
         window.changeLanguage = (language) => i18n.changeLanguage(language);
     }
 }

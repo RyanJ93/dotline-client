@@ -1,0 +1,106 @@
+div.accountRecoveryInitStep {
+    div.container {
+        display: none;
+
+        &[data-active="true"] {
+            display: block;
+        }
+
+        div.fieldSet {
+            margin-top: 36px;
+
+            div.field {
+                margin-top: 12px;
+
+                div.recoveryKeyInput {
+                    margin-bottom: 12px;
+
+                    div.dropZone {
+                        box-sizing: border-box;
+                        position: relative;
+                        z-index: 15;
+
+                        &[data-active="true"] {
+                            border: 3px dashed;
+
+                            div.inputWrapper {
+                                opacity: 0;
+                            }
+
+                            div.target {
+                                opacity: 1;
+                            }
+                        }
+
+                        div.inputWrapper {
+                            transition: opacity .25s ease-in-out;
+                            will-change: opacity;
+                            position: relative;
+                            z-index: 10;
+
+                            input[type=file] {
+                                display: none;
+                                height: 0;
+                                width: 0;
+                            }
+                        }
+
+                        div.target {
+                            transition: opacity .25s ease-in-out;
+                            justify-content: center;
+                            align-content: center;
+                            will-change: opacity;
+                            position: absolute;
+                            display: flex;
+                            height: 100%;
+                            width: 100%;
+                            z-index: 5;
+                            opacity: 0;
+                            left: 0;
+                            top: 0;
+
+                            p {
+                                align-self: center;
+                                font-style: italic;
+                                font-size: 14px;
+                                margin: 0;
+                            }
+                        }
+                    }
+
+                    textarea {
+                        height: 80px;
+                    }
+
+                    p.instructions {
+                        cursor: pointer;
+                        font-size: 14px;
+                        margin: 0;
+                    }
+                }
+            }
+
+            div.submit {
+                margin-top: 36px;
+                text-align: center;
+            }
+        }
+
+        div.loaderWrapper {
+            div.loader {
+                margin: 50px auto auto auto;
+                background-position: center;
+                background-size: contain;
+                height: 48px;
+                width: 48px;
+            }
+
+            p.label {
+                text-align: center;
+                font-style: italic;
+                margin: 3px 0 0 0;
+                font-size: 14px;
+            }
+        }
+    }
+}

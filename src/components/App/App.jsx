@@ -1,5 +1,6 @@
 'use strict';
 
+import UserRecoveryParamsViewer from '../UserRecoveryParamsViewer/UserRecoveryParamsViewer';
 import ServiceNotAvailableException from '../../exceptions/ServiceNotAvailableException';
 import RequirementsErrorView from '../RequirementsErrorView/RequirementsErrorView';
 import UnauthorizedException from '../../exceptions/UnauthorizedException';
@@ -9,6 +10,7 @@ import StickerPackService from '../../services/StickerPackService';
 import NotFoundException from '../../exceptions/NotFoundException';
 import ServerInfoService from '../../services/ServerInfoService';
 import LocalDataService from '../../services/LocalDataService';
+import UserRecoveryParams from '../../DTOs/UserRecoveryParams';
 import { default as AppFacade } from '../../facades/App';
 import LoadingView from '../LoadingView/LoadingView';
 import UserService from '../../services/UserService';
@@ -20,6 +22,7 @@ import styles from './App.scss';
 import React from 'react';
 
 class App extends React.Component {
+    #userRecoveryParamsViewerRef = React.createRef();
     #requirementsErrorViewRef = React.createRef();
     #messageBoxManagerRef = React.createRef();
     #loadingViewRef = React.createRef();
@@ -87,9 +90,12 @@ class App extends React.Component {
         }
     }
 
-    async _handleAuthenticationSuccessful(){
+    async _handleAuthenticationSuccessful(mechanism, params){
         await new LocalDataService().ensureLocalData();
         this.#mainViewRef.current.resetView();
+        if ( params?.userRecoveryParams instanceof UserRecoveryParams ){
+            this.#userRecoveryParamsViewerRef.current.setUserRecoveryParams(params?.userRecoveryParams);
+        }
         this.setView('main');
     }
 
@@ -156,6 +162,7 @@ class App extends React.Component {
                     <AuthView ref={this.#authViewRef} onAuthenticationSuccessful={this._handleAuthenticationSuccessful} />
                 </div>
                 <div className={styles.view} data-active={this.state.view === 'main'}>
+                    <UserRecoveryParamsViewer ref={this.#userRecoveryParamsViewerRef} />
                     <MainView ref={this.#mainViewRef} />
                 </div>
                 <MessageBoxManager ref={this.#messageBoxManagerRef} />

@@ -14,11 +14,16 @@ import LoginForm from '../LoginForm/LoginForm';
 import Footer from '../Footer/Footer';
 import styles from './AuthView.scss';
 import React from 'react';
+import AccountRecoverForm from '../AccountRecoverForm/AccountRecoverForm';
 
 class AuthView extends React.Component {
     #illustratedProgressBar = React.createRef();
     #signupForm = React.createRef();
     #loginForm = React.createRef();
+
+    _handleRecoverClick(){
+        this.setState(() => { return { action: 'recover' } });
+    }
 
     _handleSignupClick(){
         this.setState(() => { return { action: 'signup' } });
@@ -36,6 +41,10 @@ class AuthView extends React.Component {
     _handleSignupSubmit(fields){
         const { username, password } = fields;
         this.#signup(username, password);
+    }
+
+    _handleAccountRecovered(){
+        this.#finalizeAuthentication('account-recovery');
     }
 
     #handleFormException(exception, formRef){
@@ -60,32 +69,38 @@ class AuthView extends React.Component {
             const userService = new UserService(), { t } = this.props;
             this.#setProgressBarStatus(40, t('authView.signup.generatingKeys'), 'key');
             const authenticatedUserExportedRSAKeys = await userService.generateUserKeys(password);
+            const userRecoveryParams = await userService.generateRecoveryKey(authenticatedUserExportedRSAKeys);
             await CommonUtils.delay(1000);
             this.#setProgressBarStatus(80, t('authView.signup.creatingAccount'), 'users');
-            await userService.signup(username, password, authenticatedUserExportedRSAKeys);
+            await userService.signup(username, password, authenticatedUserExportedRSAKeys, userRecoveryParams);
             await new ConversationService().fetchConversations();
             this.#setProgressBarStatus(100, t('authView.signup.completed'), 'check');
             if ( typeof this.props.onAuthenticationSuccessful === 'function' ){
-                this.props.onAuthenticationSuccessful();
+                this.props.onAuthenticationSuccessful('signup', {
+                    userRecoveryParams: userRecoveryParams
+                });
             }
         }catch(ex){
             this.#handleFormException(ex, this.#signupForm);
         }
     }
 
+    async #finalizeAuthentication(mechanism){
+        this.#setProgressBarStatus(60, this.props.t('authView.login.fetchingKeys'), 'lock');
+        await CommonUtils.delay(1000);
+        this.#setProgressBarStatus(75, this.props.t('authView.login.loadingConversations'), 'comments');
+        await new ConversationService().fetchConversations();
+        this.#setProgressBarStatus(100, this.props.t('authView.login.completed'), 'check');
+        if ( typeof this.props.onAuthenticationSuccessful === 'function' ){
+            this.props.onAuthenticationSuccessful(mechanism);
+        }
+    }
+
     async #login(username, password, isSession = false){
         try{
-            const userService = new UserService(), conversationService = new ConversationService(), { t } = this.props;
-            this.#setProgressBarStatus(30, t('authView.login.authenticating'), 'key');
-            await userService.login(username, password, isSession);
-            this.#setProgressBarStatus(60, t('authView.login.fetchingKeys'), 'lock');
-            await CommonUtils.delay(1000);
-            this.#setProgressBarStatus(75, t('authView.login.loadingConversations'), 'comments');
-            await conversationService.fetchConversations();
-            this.#setProgressBarStatus(100, t('authView.login.completed'), 'check');
-            if ( typeof this.props.onAuthenticationSuccessful === 'function' ){
-                this.props.onAuthenticationSuccessful();
-            }
+            this.#setProgressBarStatus(30, this.props.t('authView.login.authenticating'), 'key');
+            await new UserService().login(username, password, isSession);
+            await this.#finalizeAuthentication('login');
         }catch(ex){
             this.#handleFormException(ex, this.#loginForm);
         }
@@ -101,16 +116,24 @@ class AuthView extends React.Component {
     #renderFormContainer(){
         const { t } = this.props;
         return (
-            <div className={styles.container} data-active={this.state.container === 'form'}>
+            <div className={styles.container + ' text-primary'} data-active={this.state.container === 'form'}>
                 <div className={styles.logo + ' logo-img'} />
                 <p className={styles.catchPhrase}>{t('authView.catchPhrase')}</p>
                 <div className={styles.formWrapper} data-active={this.state.action === 'login'}>
                     <LoginForm onSubmit={this._handleLoginSubmit} ref={this.#loginForm} />
-                    <p>{t('authView.noAccountQuestion')} <a className={'link-primary'} href={'#'} onClick={this._handleSignupClick}>{t('authView.noAccountAnswer')}</a></p>
+                    <div className={styles.bottomText}>
+                        <p>{t('authView.noAccountQuestion')} <a className={'link-primary'} href={'#'} onClick={this._handleSignupClick}>{t('authView.noAccountAnswer')}</a></p>
+                        <p>Did you forget your password? <a className={'link-primary'} href={'#'} onClick={this._handleRecoverClick}>Recover your account!</a></p>
+                    </div>
+                </div>
+                <div className={styles.formWrapper} data-active={this.state.action === 'recover'}>
+                    <AccountRecoverForm onAccountRecovered={this._handleAccountRecovered} />
                 </div>
                 <div className={styles.formWrapper} data-active={this.state.action === 'signup'}>
                     <SignupForm onSubmit={this._handleSignupSubmit} ref={this.#signupForm} />
-                    <p>{t('authView.accountQuestion')} <a className={'link-primary'} href={'#'} onClick={this._handleLoginClick}>{t('authView.accountAnswer')}</a></p>
+                    <div className={styles.bottomText}>
+                        <p className={styles.question}>{t('authView.accountQuestion')} <a className={'link-primary'} href={'#'} onClick={this._handleLoginClick}>{t('authView.accountAnswer')}</a></p>
+                    </div>
                 </div>
             </div>
         );
@@ -127,6 +150,8 @@ class AuthView extends React.Component {
     constructor(props){
         super(props);
 
+        this._handleAccountRecovered = this._handleAccountRecovered.bind(this);
+        this._handleRecoverClick = this._handleRecoverClick.bind(this);
         this._handleSignupSubmit = this._handleSignupSubmit.bind(this);
         this._handleLoginSubmit = this._handleLoginSubmit.bind(this);
         this._handleSignupClick = this._handleSignupClick.bind(this);

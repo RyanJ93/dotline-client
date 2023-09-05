@@ -1,10 +1,9 @@
 'use strict';
 
 import RemoteServiceException from '../exceptions/RemoteServiceException';
-import InvalidInputException from '../exceptions/InvalidInputException';
 import Serializable from '../support/traits/Serializable';
 import ExceptionMapper from '../support/ExceptionMapper';
-import ErrorMessageBag from '../DTOs/ErrorMessageBag';
+import Exception from '../exceptions/Exception';
 import Facade from './Facade';
 import App from './App';
 
@@ -24,9 +23,8 @@ class Request extends Facade {
             }
             const exceptionMessage = 'Remote service returned error: ' + request.response?.status;
             exception = new exceptionClass(exceptionMessage);
-            if ( exception instanceof InvalidInputException ){
-                const errorMessageBag = ErrorMessageBag.makeFromHTTPResponse(request.response);
-                exception.setErrorMessageBag(errorMessageBag);
+            if ( exception instanceof Exception ){
+                exception.extractHTTPResponseProperties(request.response);
             }
         }
         return exception;

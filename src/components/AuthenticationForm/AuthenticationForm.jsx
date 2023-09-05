@@ -1,5 +1,6 @@
 'use strict';
 
+import StringUtils from '../../utils/StringUtils';
 import styles from './AuthenticationForm.scss';
 import i18n from 'i18next';
 import React from 'react';
@@ -14,7 +15,7 @@ class AuthenticationForm extends React.Component {
             this._usernameRef.current.setErrorMessage(i18n.t('authenticationForm.error.invalidUsername'));
             return false;
         }
-        if ( !( /[a-zA-Z0-9.-_]{4,16}/.test(this._usernameRef.current.getValue()) ) ){
+        if ( !StringUtils.isValidUsername(this._usernameRef.current.getValue()) ){
             this._usernameRef.current.setErrorMessage(i18n.t('authenticationForm.error.invalidUsernameFormat'));
             return false;
         }

@@ -1,0 +1,9 @@
+div.accountRecoverForm {
+    div.recoveryStep {
+        display: none;
+
+        &[data-active="true"] {
+            display: block;
+        }
+    }
+}

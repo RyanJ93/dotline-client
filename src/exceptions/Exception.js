@@ -14,6 +14,8 @@ class Exception extends Error {
         }
     }
 
+    extractHTTPResponseProperties(response){}
+
     getDefaultLocalizedMessage(){
         return i18n.t('exception.message');
     }

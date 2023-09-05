@@ -16,13 +16,20 @@ class TextField extends React.Component {
     }
 
     #renderClearButton(){
-        if ( this.props.withClearButton === true ){
+        if ( this.props.withClearButton === true && this.props.useTextarea !== true ){
             return (
                 <div className={styles.clearButton}>
                     <FontAwesomeIcon icon='fa-solid fa-xmark' onClick={this._handleClear} />
                 </div>
             );
         }
+    }
+
+    #renderInputField(){
+        if ( this.props.useTextarea === true ){
+            return <textarea className={styles.textarea + ' text-primary'} id={this.props.id} name={this.props.name} onFocus={this._handleFocus} onBlur={this._handleBlur} onInput={this._handleInput} onChange={this._handleChange} ref={this.#inputRef} disabled={this.state.disabled} />;
+        }
+        return <input className={styles.input + ' text-primary'} type={this.props.type} id={this.props.id} name={this.props.name} onFocus={this._handleFocus} onBlur={this._handleBlur} onInput={this._handleInput} onChange={this._handleChange} ref={this.#inputRef} disabled={this.state.disabled} />;
     }
 
     #checkInputContent(){
@@ -106,7 +113,7 @@ class TextField extends React.Component {
             <div className={styles.field} data-disabled={this.state.disabled}>
                 <div className={styles.fieldWrapper + ' border-secondary'} data-focus={false}>
                     <label className={styles.label + ' bg-primary text-primary'} form={this.props.id}>{this.props.label}</label>
-                    <input className={styles.input + ' text-primary'} type={this.props.type} id={this.props.id} name={this.props.name} onFocus={this._handleFocus} onBlur={this._handleBlur} onInput={this._handleInput} onChange={this._handleChange} ref={this.#inputRef} disabled={this.state.disabled} />
+                    {this.#renderInputField()}
                     {this.#renderClearButton()}
                 </div>
                 {this.#renderErrorMessage()}

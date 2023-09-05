@@ -1,0 +1,39 @@
+div.accountRecoveryFinalizationStep {
+    div.container {
+        display: none;
+
+        &[data-active="true"] {
+            display: block;
+        }
+
+        div.fieldSet {
+            margin-top: 36px;
+
+            div.field {
+                margin-top: 12px;
+            }
+
+            div.submit {
+                margin-top: 36px;
+                text-align: center;
+            }
+        }
+
+        div.loaderWrapper {
+            div.loader {
+                margin: 50px auto auto auto;
+                background-position: center;
+                background-size: contain;
+                height: 48px;
+                width: 48px;
+            }
+
+            p.label {
+                text-align: center;
+                font-style: italic;
+                margin: 3px 0 0 0;
+                font-size: 14px;
+            }
+        }
+    }
+}

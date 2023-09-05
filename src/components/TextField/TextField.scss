@@ -37,7 +37,7 @@ div.field {
             z-index: -1;
         }
 
-        input.input {
+        input.input, textarea.textarea {
             background-color: transparent;
             border: 0;
             width: 100%;
@@ -46,6 +46,7 @@ div.field {
             box-sizing: border-box;
             outline: none;
             flex-grow: 1;
+            resize: none;
 
             &:autofill, &:-webkit-autofill {
                 background-color: transparent !important;

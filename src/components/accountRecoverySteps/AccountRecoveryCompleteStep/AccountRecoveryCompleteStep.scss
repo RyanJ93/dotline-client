@@ -1,0 +1,17 @@
+div.accountRecoveryCompleteStep {
+    box-sizing: border-box;
+    text-align: center;
+    padding-top: 32px;
+
+    p {
+        margin: 0;
+
+        &.title {
+            font-size: 24px;
+        }
+
+        &.subtitle {
+            font-style: italic;
+        }
+    }
+}

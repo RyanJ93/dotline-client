@@ -1,15 +1,14 @@
 'use strict';
 
 /**
- * @typedef AuthenticatedUserExportedRSAKeysProperties
+ * @typedef UserRecoveryParamsProperties
  *
  * @property {AESEncryptionParameters} AESEncryptionParameters
  * @property {string} encryptedRSAPrivateKey
- * @property {string} RSAPrivateKey
- * @property {string} RSAPublicKey
+ * @property {string} recoveryKey
  */
 
-class AuthenticatedUserExportedRSAKeys {
+class UserRecoveryParams {
     /**
      * @type {AESEncryptionParameters}
      */
@@ -23,23 +22,17 @@ class AuthenticatedUserExportedRSAKeys {
     /**
      * @type {string}
      */
-    #RSAPrivateKey;
-
-    /**
-     * @type {string}
-     */
-    #RSAPublicKey;
+    #recoveryKey;
 
     /**
      * The class constructor.
      *
-     * @param {AuthenticatedUserExportedRSAKeysProperties} properties
+     * @param {UserRecoveryParamsProperties} properties
      */
     constructor(properties){
         this.#AESEncryptionParameters = properties.AESEncryptionParameters;
         this.#encryptedRSAPrivateKey = properties.encryptedRSAPrivateKey;
-        this.#RSAPrivateKey = properties.RSAPrivateKey;
-        this.#RSAPublicKey = properties.RSAPublicKey;
+        this.#recoveryKey = properties.recoveryKey;
     }
 
     /**
@@ -61,22 +54,13 @@ class AuthenticatedUserExportedRSAKeys {
     }
 
     /**
-     * Returns the RSA private key.
+     * Returns the recovery AES key.
      *
      * @returns {string}
      */
-    getRSAPrivateKey(){
-        return this.#RSAPrivateKey;
-    }
-
-    /**
-     * Returns the RSA public key.
-     *
-     * @returns {string}
-     */
-    getRSAPublicKey(){
-        return this.#RSAPublicKey;
+    getRecoveryKey(){
+        return this.#recoveryKey;
     }
 }
 
-export default AuthenticatedUserExportedRSAKeys;
+export default UserRecoveryParams;

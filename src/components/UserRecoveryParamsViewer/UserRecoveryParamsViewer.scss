@@ -1,0 +1,84 @@
+div.userRecoveryParamsViewer {
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    display: flex;
+    height: 100%;
+    width: 100%;
+    z-index: 20;
+    left: 0;
+    top: 0;
+
+    &[data-active="false"] {
+        display: none !important;
+    }
+
+    div.overlay {
+        background-color: rgba(0, 0, 0, 0.5);
+        position: fixed;
+        height: 100%;
+        width: 100%;
+        z-index: 20;
+        left: 0;
+        top: 0;
+    }
+
+    div.dialog {
+        box-sizing: border-box;
+        border-radius: 3px;
+        max-width: 90%;
+        padding: 12px;
+        width: 600px;
+        z-index: 20;
+
+        p {
+            margin: 0;
+
+            &.title {
+                text-align: center;
+                font-size: 24px;
+            }
+
+            &.warning {
+                font-style: italic;
+                font-size: 14px;
+            }
+        }
+
+        textarea.recoveryKey {
+            border-radius: 3px;
+            margin-top: 24px;
+            outline: none;
+            height: 100px;
+            resize: none;
+            width: 100%;
+            border: 0;
+        }
+
+        div.controls {
+            text-align: center;
+            margin-top: 24px;
+
+            div.storingControls {
+                button {
+                    margin-left: 6px;
+
+                    &:first-child {
+                        margin: 0 !important;
+                    }
+                }
+            }
+
+            div.closingControls {
+                margin-top: 6px;
+            }
+
+            @media (max-width: 480px){
+                button {
+                    margin: 6px 0 0 0 !important;
+                    width: 100%;
+                }
+            }
+        }
+    }
+}

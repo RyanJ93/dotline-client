@@ -327,6 +327,14 @@ class CryptoUtils {
         return { privateKey: privateKey, publicKey: publicKey };
     }
 
+    static async importRSAPrivateKey(privateKeyData){console.log(privateKeyData, atob(privateKeyData));
+        privateKeyData = JSON.parse(atob(privateKeyData));
+        return await crypto.subtle.importKey('jwk', privateKeyData, {
+            name: 'RSA-OAEP',
+            hash: 'SHA-512',
+        }, true, ['decrypt']);
+    }
+
     static async importRSAPublicKey(publicKeyData){
         publicKeyData = JSON.parse(atob(publicKeyData));
         return await crypto.subtle.importKey('jwk', publicKeyData, {
@@ -335,7 +343,8 @@ class CryptoUtils {
         }, true, ['encrypt']);
     }
 
-    static async importAESKey(key, aesEncryptionParameters){key = key.replaceAll('"', '');
+    static async importAESKey(key, aesEncryptionParameters){
+        key = key.replaceAll('"', '');
         const keyData = JSON.parse(atob(key));
         const iv = Uint8Array.from(atob(aesEncryptionParameters.getIV()), c => c.charCodeAt(0));
         return await crypto.subtle.importKey('jwk', keyData, {

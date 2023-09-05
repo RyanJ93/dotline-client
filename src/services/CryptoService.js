@@ -2,6 +2,7 @@
 
 import AuthenticatedUserExportedRSAKeys from '../DTOs/AuthenticatedUserExportedRSAKeys';
 import IllegalArgumentException from '../exceptions/IllegalArgumentException';
+import UserRecoveryParams from '../DTOs/UserRecoveryParams';
 import AuthenticatedUser from '../DTOs/AuthenticatedUser';
 import CryptoUtils from '../utils/CryptoUtils';
 import Injector from '../facades/Injector';
@@ -12,6 +13,25 @@ class CryptoService extends Service {
      * @type {AuthenticatedUserRSAKeysRepository}
      */
     #authenticatedUserRSAKeysRepository;
+
+    /**
+     * Generates a recovery key for the given exported RSA private key.
+     *
+     * @param {string} exportedPrivateKey
+     *
+     * @returns {Promise<UserRecoveryParams>}
+     */
+    async #generateRecoveryKeyFromExportedPrivateKey(exportedPrivateKey){
+        const aesEncryptionParameters = CryptoUtils.generateAESEncryptionParameters();
+        const recoveryKey = await CryptoUtils.generateAESKey(aesEncryptionParameters);
+        const encryptedRSAPrivateKey = await CryptoUtils.AESEncryptText(exportedPrivateKey, recoveryKey, aesEncryptionParameters);
+        const exportedRecoveryKey = await CryptoUtils.exportKey(recoveryKey);
+        return new UserRecoveryParams({
+            AESEncryptionParameters: aesEncryptionParameters,
+            encryptedRSAPrivateKey: encryptedRSAPrivateKey,
+            recoveryKey: exportedRecoveryKey
+        });
+    }
 
     /**
      * The class constructor.
@@ -105,6 +125,28 @@ class CryptoService extends Service {
             RSAPrivateKey: exportedPrivateKey,
             RSAPublicKey: exportedPublicKey
         });
+    }
+
+    /**
+     * Generates a recovery key for the given RSA keys.
+     *
+     * @param {?AuthenticatedUserExportedRSAKeys} authenticatedUserExportedRSAKeys
+     *
+     * @returns {Promise<UserRecoveryParams>}
+     *
+     * @throws {IllegalArgumentException} If some invalid exported RSA keys are given.
+     */
+    async generateRecoveryKey(authenticatedUserExportedRSAKeys = null){
+        if ( authenticatedUserExportedRSAKeys !== null && !( authenticatedUserExportedRSAKeys instanceof AuthenticatedUserExportedRSAKeys ) ){
+            throw new IllegalArgumentException('Invalid exported RSA keys.');
+        }
+        let exportedPrivateKey;
+        if ( authenticatedUserExportedRSAKeys === null ){
+            exportedPrivateKey = await CryptoUtils.exportKey(this.getAuthenticatedUserRSAKeys().privateKey);
+        }else{
+            exportedPrivateKey = authenticatedUserExportedRSAKeys.getRSAPrivateKey();
+        }
+        return await this.#generateRecoveryKeyFromExportedPrivateKey(exportedPrivateKey);
     }
 
     /**

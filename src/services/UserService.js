@@ -4,6 +4,8 @@ import AuthenticatedUserExportedRSAKeys from '../DTOs/AuthenticatedUserExportedR
 import IllegalArgumentException from '../exceptions/IllegalArgumentException';
 import UnauthorizedException from '../exceptions/UnauthorizedException';
 import NotFoundException from '../exceptions/NotFoundException';
+import UserRecoverySession from '../DTOs/UserRecoverySession';
+import UserRecoveryParams from '../DTOs/UserRecoveryParams'
 import AuthenticatedUser from '../DTOs/AuthenticatedUser';
 import AccessTokenService from './AccessTokenService';
 import LocalDataService from './LocalDataService';
@@ -87,6 +89,19 @@ class UserService extends Service {
     }
 
     /**
+     * Generates a recovery key for the given RSA keys.
+     *
+     * @param {AuthenticatedUserExportedRSAKeys} authenticatedUserExportedRSAKeys
+     *
+     * @returns {Promise<UserRecoveryParams>}
+     *
+     * @throws {IllegalArgumentException} If some invalid exported RSA keys are given.
+     */
+    async generateRecoveryKey(authenticatedUserExportedRSAKeys){
+        return await new CryptoService().generateRecoveryKey(authenticatedUserExportedRSAKeys);
+    }
+
+    /**
      * Checks if the given username has been already taken or not.
      *
      * @param {string} username
@@ -109,16 +124,21 @@ class UserService extends Service {
      * @param {string} username
      * @param {string} password
      * @param {AuthenticatedUserExportedRSAKeys} authenticatedUserExportedRSAKeys
+     * @param {UserRecoveryParams} userRecoveryParams
      *
      * @returns {Promise<User>}
      *
+     * @throws {IllegalArgumentException} If some user recovery parameters are given.
      * @throws {IllegalArgumentException} If some invalid user keys are given.
      * @throws {IllegalArgumentException} If an invalid username is given.
      * @throws {IllegalArgumentException} If an invalid password is given.
      */
-    async signup(username, password, authenticatedUserExportedRSAKeys){
+    async signup(username, password, authenticatedUserExportedRSAKeys, userRecoveryParams){
         if ( !( authenticatedUserExportedRSAKeys instanceof AuthenticatedUserExportedRSAKeys ) ){
             throw new IllegalArgumentException('Invalid user keys.');
+        }
+        if ( !( userRecoveryParams instanceof UserRecoveryParams ) ){
+            throw new IllegalArgumentException('Invalid user recovery parameters.');
         }
         if ( username === '' || typeof username !== 'string' ){
             throw new IllegalArgumentException('Invalid username.');
@@ -128,10 +148,15 @@ class UserService extends Service {
         }
         const RSAPrivateKeyEncryptionParameters = authenticatedUserExportedRSAKeys.getAESEncryptionParameters();
         const response = await Request.post(APIEndpoints.USER_SIGNUP, {
+            recoveryRSAPrivateKeyEncryptionParametersKeyLength: userRecoveryParams.getAESEncryptionParameters().getKeyLength(),
+            recoveryRSAPrivateKeyEncryptionParametersMode: userRecoveryParams.getAESEncryptionParameters().getMode(),
+            recoveryRSAPrivateKeyEncryptionParametersIV: userRecoveryParams.getAESEncryptionParameters().getIV(),
+            recoveryKey: ( await CryptoUtils.stringHash(userRecoveryParams.getRecoveryKey(), 'SHA-512') ),
             RSAPrivateKeyEncryptionParametersKeyLength: RSAPrivateKeyEncryptionParameters.getKeyLength(),
             RSAPrivateKeyEncryptionParametersMode: RSAPrivateKeyEncryptionParameters.getMode(),
             RSAPrivateKeyEncryptionParametersIV: RSAPrivateKeyEncryptionParameters.getIV(),
             RSAPrivateKey: authenticatedUserExportedRSAKeys.getEncryptedRSAPrivateKey(),
+            recoveryRSAPrivateKey: userRecoveryParams.getEncryptedRSAPrivateKey(),
             RSAPublicKey: authenticatedUserExportedRSAKeys.getRSAPublicKey(),
             password: ( await CryptoUtils.stringHash(password, 'SHA-512') ),
             username: username
@@ -393,6 +418,86 @@ class UserService extends Service {
             currentPassword: ( await CryptoUtils.stringHash(currentPassword, 'SHA-512') ),
             newPassword: ( await CryptoUtils.stringHash(newPassword, 'SHA-512') )
         });
+    }
+
+    /**
+     * Updates the user's recovery key.
+     *
+     * @returns {Promise<UserRecoveryParams>}
+     */
+    async regenerateRecoveryKey(){
+        const userRecoveryParams = await new CryptoService().generateRecoveryKey(null);
+        await Request.patch(APIEndpoints.USER_REGENERATE_RECOVERY_KEY, {
+            recoveryRSAPrivateKeyEncryptionParametersKeyLength: userRecoveryParams.getAESEncryptionParameters().getKeyLength(),
+            recoveryRSAPrivateKeyEncryptionParametersMode: userRecoveryParams.getAESEncryptionParameters().getMode(),
+            recoveryRSAPrivateKeyEncryptionParametersIV: userRecoveryParams.getAESEncryptionParameters().getIV(),
+            recoveryKey: ( await CryptoUtils.stringHash(userRecoveryParams.getRecoveryKey(), 'SHA-512') ),
+            recoveryRSAPrivateKey: userRecoveryParams.getEncryptedRSAPrivateKey()
+        });
+        this._eventBroker.emit('recoveryKeyRegenerated', userRecoveryParams);
+        return userRecoveryParams;
+    }
+
+    /**
+     * Initializes the account recovery process.
+     *
+     * @param {string} username
+     * @param {string} recoveryKey
+     *
+     * @returns {Promise<UserRecoverySession>}
+     *
+     * @throws {IllegalArgumentException} If an invalid recovery key is given.
+     * @throws {IllegalArgumentException} If an invalid username is given.
+     */
+    async initAccountRecovery(username, recoveryKey){
+        if ( recoveryKey === '' || typeof recoveryKey !== 'string' ){
+            throw new IllegalArgumentException('Invalid recovery key.');
+        }
+        if ( username === '' || typeof username !== 'string' ){
+            throw new IllegalArgumentException('Invalid username.');
+        }
+        const recoveryKeyHash = await CryptoUtils.stringHash(recoveryKey, 'SHA-512');
+        const response = await Request.post(APIEndpoints.USER_INIT_ACCOUNT_RECOVERY, {
+            recoveryKey: recoveryKeyHash,
+            username: username
+        }, false);
+        return UserRecoverySession.makeFromHTTPResponse(response, recoveryKey);
+    }
+
+    /**
+     * Recovers a user account by setting a new password then authenticates the user.
+     *
+     * @param {string} password
+     * @param {UserRecoverySession} userRecoverySession
+     * @param {boolean} [isSession=false]
+     *
+     * @returns {Promise<AuthenticatedUser>}
+     *
+     * @throws {IllegalArgumentException} If an invalid user recovery session is given.
+     * @throws {IllegalArgumentException} If an invalid password is given.
+     */
+    async recoverAccount(password, userRecoverySession, isSession = false){
+        if ( !( userRecoverySession instanceof UserRecoverySession ) ){
+            throw new IllegalArgumentException('Invalid user recovery session.');
+        }
+        if ( password === '' || typeof password !== 'string' ){
+            throw new IllegalArgumentException('Invalid password.');
+        }
+        const aesEncryptionParameters = userRecoverySession.getRecoveryRSAPrivateKeyEncryptionParameters();
+        const aesKey = await CryptoUtils.importAESKey(userRecoverySession.getRecoveryKey(), aesEncryptionParameters);
+        const privateKey = await CryptoUtils.AESDecryptText(userRecoverySession.getRecoveryRSAPrivateKey(), aesKey, aesEncryptionParameters);
+        const passwordAESEncryptionParameters = CryptoUtils.generateAESEncryptionParameters();
+        const key = await CryptoUtils.deriveAESKey(password, passwordAESEncryptionParameters);
+        const encryptedRSAPrivateKey = await CryptoUtils.AESEncryptText(privateKey, key, passwordAESEncryptionParameters);
+        const response = await Request.patch(APIEndpoints.USER_RECOVER_ACCOUNT, {
+            RSAPrivateKeyEncryptionParametersKeyLength: passwordAESEncryptionParameters.getKeyLength(),
+            RSAPrivateKeyEncryptionParametersMode: passwordAESEncryptionParameters.getMode(),
+            RSAPrivateKeyEncryptionParametersIV: passwordAESEncryptionParameters.getIV(),
+            password: ( await CryptoUtils.stringHash(password, 'SHA-512') ),
+            sessionToken: userRecoverySession.getSessionToken(),
+            RSAPrivateKey: encryptedRSAPrivateKey
+        }, false);
+        return this.#finalizeUserAuthenticationRequest(response, password, isSession);
     }
 }
 

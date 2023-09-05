@@ -36,6 +36,22 @@ class StringUtils {
     static isSingleEmoji(string){
         return typeof string === 'string' && string.length === 2 && /\p{Emoji}/u.test(string);
     }
+
+    /**
+     * Checks if the given username is a valid one.
+     *
+     * @param {string} username
+     *
+     * @returns {boolean}
+     *
+     * @throws {IllegalArgumentException} If an invalid username string is given.
+     */
+    static isValidUsername(username){
+        if ( typeof username !== 'string' ){
+            throw new IllegalArgumentException('Invalid username.');
+        }
+        return username !== '' && /[a-z0-9.-_]{3,16}/i.test(username);
+    }
 }
 
 /**

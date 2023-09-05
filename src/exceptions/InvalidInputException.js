@@ -11,6 +11,10 @@ class InvalidInputException extends Exception {
         super(message, code, exception);
     }
 
+    extractHTTPResponseProperties(response){
+        this.setErrorMessageBag(ErrorMessageBag.makeFromHTTPResponse(response));
+    }
+
     setErrorMessageBag(errorMessageBag){
         if ( !( errorMessageBag instanceof ErrorMessageBag ) ){
             throw new IllegalArgumentException('Invalid error message bag instance.');

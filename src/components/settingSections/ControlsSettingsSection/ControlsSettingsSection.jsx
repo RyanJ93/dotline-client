@@ -8,6 +8,14 @@ import { withTranslation } from 'react-i18next';
 import React from 'react';
 
 class ControlsSettingsSection extends React.Component {
+    async #regenerateRecoveryKey(){
+        const { t } = this.props, title = t('controlsSettingsSection.regenerateRecoveryKey.confirmText');
+        const text = t('controlsSettingsSection.regenerateRecoveryKey.confirmText');
+        if ( ( await MessageBox.confirm(text, title) ) ){
+            await new UserService().regenerateRecoveryKey();
+        }
+    }
+
     async #clearLocalData(){
         const { t } = this.props, title = t('controlsSettingsSection.clearLocalData.confirmTitle');
         const text = t('controlsSettingsSection.clearLocalData.confirmText');
@@ -24,19 +32,12 @@ class ControlsSettingsSection extends React.Component {
         }
     }
 
-    _handleClearLocalData(){
-        this.#clearLocalData();
-    }
-
-    _handleLogOut(){
-        this.#logOut();
-    }
-
     constructor(props){
         super(props);
 
-        this._handleClearLocalData = this._handleClearLocalData.bind(this);
-        this._handleLogOut = this._handleLogOut.bind(this);
+        this._handleRecoveryKeyRegeneration = () => this.#regenerateRecoveryKey();
+        this._handleClearLocalData = () => this.#clearLocalData();
+        this._handleLogOut = () => this.#logOut();
     }
 
     render(){
@@ -45,6 +46,9 @@ class ControlsSettingsSection extends React.Component {
             <div className={styles.section}>
                 <div className={styles.content}>
                     <p className={styles.sectionTitle + ' text-primary'}>{t('controlsSettingsSection.title')}</p>
+                    <div className={styles.operation}>
+                        <button onClick={this._handleRecoveryKeyRegeneration}>{t('controlsSettingsSection.regenerateRecoveryKey.label')}</button>
+                    </div>
                     <div className={styles.operation}>
                         <button onClick={this._handleClearLocalData}>{t('controlsSettingsSection.clearLocalData.label')}</button>
                     </div>
