@@ -123,7 +123,7 @@ class AuthView extends React.Component {
                     <LoginForm onSubmit={this._handleLoginSubmit} ref={this.#loginForm} />
                     <div className={styles.bottomText}>
                         <p>{t('authView.noAccountQuestion')} <a className={'link-primary'} href={'#'} onClick={this._handleSignupClick}>{t('authView.noAccountAnswer')}</a></p>
-                        <p>Did you forget your password? <a className={'link-primary'} href={'#'} onClick={this._handleRecoverClick}>Recover your account!</a></p>
+                        <p>{t('authView.accountRecoverQuestion')} <a className={'link-primary'} href={'#'} onClick={this._handleRecoverClick}>{t('authView.accountRecoverAnswer')}</a></p>
                     </div>
                 </div>
                 <div className={styles.formWrapper} data-active={this.state.action === 'recover'}>
