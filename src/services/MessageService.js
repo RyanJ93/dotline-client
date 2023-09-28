@@ -4,6 +4,7 @@ import InvalidOperationException from '../exceptions/InvalidOperationException';
 import IllegalArgumentException from '../exceptions/IllegalArgumentException';
 import AESEncryptionParameters from '../DTOs/AESEncryptionParameters';
 import HMACSigningParameters from '../DTOs/HMACSigningParameters';
+import MessageAttachmentList from '../DTOs/MessageAttachmentList';
 import ConversationService from './ConversationService';
 import NotificationService from './NotificationService';
 import AttachmentService from './AttachmentService';
@@ -167,6 +168,7 @@ class MessageService extends Service {
      *
      *
      * @param {Message[]} messageList
+     * @param {boolean} [setConversation=true]
      */
     #convertMessageEntities(messageList, setConversation = true){
         messageList.forEach((message) => {
@@ -336,7 +338,7 @@ class MessageService extends Service {
      *
      * @param {string} content
      * @param {string} type
-     * @param {File[]} attachmentList
+     * @param {?MessageAttachmentList} [messageAttachmentList]
      *
      * @returns {Promise<?Message>}
      *
@@ -345,17 +347,17 @@ class MessageService extends Service {
      * @throws {IllegalArgumentException} If an invalid type is given.
      * @throws {InvalidOperationException} If the message is empty.
      */
-    async send(content, type, attachmentList = []){
+    async send(content, type, messageAttachmentList = null){
+        if ( messageAttachmentList !== null && !( messageAttachmentList instanceof MessageAttachmentList ) ){
+            throw new IllegalArgumentException('Invalid attachment list.');
+        }
         if ( type === '' || typeof type !== 'string' ){
             throw new IllegalArgumentException('Invalid type.');
-        }
-        if ( !Array.isArray(attachmentList) ){
-            throw new IllegalArgumentException('Invalid attachment list.');
         }
         if ( typeof content !== 'string' ){
             throw new IllegalArgumentException('Invalid content.');
         }
-        if ( content === '' && attachmentList.length === 0 ){
+        if ( content === '' && ( messageAttachmentList?.getCombinedSize() ?? 0 ) === 0 ){
             throw new InvalidOperationException('Empty messages are not allowed.');
         }
         const url = APIEndpoints.MESSAGE_SEND.replace(':conversationID', this.#conversation.getID());
@@ -370,14 +372,14 @@ class MessageService extends Service {
             params.signature = await CryptoUtils.HMACSign(content, importedSigningKey, hmacSigningParameters);
             params.encryptionIV = aesEncryptionParameters.getIV();
         }
-        if ( attachmentList.length > 0 ){
+        if ( ( messageAttachmentList?.getCombinedSize() ?? 0 ) > 0 ){
             attachmentService.setEncryptionParameters(importedEncryptionKey, this.#conversation.getEncryptionParameters());
             attachmentService.setSigningParameters(importedSigningKey, hmacSigningParameters);
-            for ( let i = 0 ; i < attachmentList.length ; i++ ){
-                const processedAttachment = await attachmentService.processAttachmentFile(attachmentList[i]);
+            const processedAttachmentList = await attachmentService.processMessageAttachmentList(messageAttachmentList);
+            processedAttachmentList.forEach((processedAttachment) => {
                 params.attachmentMetadataList.push(processedAttachment.attachmentMetadata);
                 params.files.push(processedAttachment.encryptedFile);
-            }
+            });
         }
         const response = await Request.post(url, params);
         return this.#message = await this.storeMessage(response.message);

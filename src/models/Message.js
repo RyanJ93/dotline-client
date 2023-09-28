@@ -4,6 +4,7 @@ import StickerPlaceholder from '../DTOs/StickerPlaceholder';
 import MessageType from '../enum/MessageType';
 import Conversation from './Conversation';
 import Model from './Model';
+import i18n from 'i18next';
 import User from './User';
 
 class Message extends Model {
@@ -33,18 +34,21 @@ class Message extends Model {
         let previewContent = this.getContent();
         if ( this.getType() !== MessageType.TEXT ){
             switch ( this.getType() ){
+                case MessageType.VOICE_MESSAGE: {
+                    previewContent = i18n.t('message.preview.voiceMessage');
+                }break;
                 case MessageType.LOCATION: {
-                    previewContent = 'Location';
+                    previewContent = i18n.t('message.preview.location');
                 }break;
                 case MessageType.STICKER: {
                     const stickerPlaceholder = StickerPlaceholder.makeFromSerializedSticker(previewContent);
-                    previewContent = 'Sticker: ' + stickerPlaceholder.getEmoji();
+                    previewContent = i18n.t('message.preview.sticker').replace('[emoji]', stickerPlaceholder.getEmoji());
                 }break;
             }
         }else if ( previewContent === '' ){
             const count = this.getAttachments().length;
             if ( count > 0 ){
-                previewContent = count + ' files';
+                previewContent = i18n.t('message.preview.attachments').replace('[count]', count);
             }
         }
         return previewContent;

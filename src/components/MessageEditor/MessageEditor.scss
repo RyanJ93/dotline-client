@@ -5,7 +5,7 @@ div.messageEditor {
     border-radius: 3px;
     box-sizing: border-box;
 
-    div.stickerPickerWrapper {
+    div.stickerPickerWrapper, div.voiceMessageRecorderWrapper {
         display: none;
 
         &[data-active="true"] {
@@ -53,6 +53,10 @@ div.messageEditor {
 
     div.messageEditorWrapper {
         display: flex;
+
+        &[data-active="false"] {
+            display: none;
+        }
 
         div.inputWrapper {
             flex-grow: 1;

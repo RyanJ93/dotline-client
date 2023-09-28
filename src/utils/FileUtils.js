@@ -6,7 +6,7 @@ class FileUtils {
     /**
      * Reads an uploaded file and returns its contents as an ArrayBuffer.
      *
-     * @param {File} file
+     * @param {File|Blob} file
      *
      * @returns {Promise<ArrayBuffer>}
      *
@@ -14,7 +14,7 @@ class FileUtils {
      */
     static readUploadedFile(file){
         return new Promise((resolve, reject) => {
-            if ( !( file instanceof File ) ){
+            if ( !( file instanceof File ) && !( file instanceof Blob ) ){
                 return reject(new IllegalArgumentException('Invalid file.'));
             }
             const fileReader = new FileReader();

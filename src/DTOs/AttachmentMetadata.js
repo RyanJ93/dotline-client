@@ -3,6 +3,7 @@
 import IllegalArgumentException from '../exceptions/IllegalArgumentException';
 import Serializable from '../support/traits/Serializable';
 import StringUtils from '../utils/StringUtils';
+import BlobContainer from './BlobContainer';
 
 /**
  * @typedef AttachmentMetadataProperties
@@ -44,6 +45,38 @@ class AttachmentMetadata extends Serializable {
             mimetype: file.type,
             filename: file.name,
             size: file.size
+        });
+    }
+
+    /**
+     * Creates an instance of this class extracting properties from a given blob container.
+     *
+     * @param {BlobContainer} blobContainer
+     * @param {string} encryptionIV
+     * @param {string} signature
+     *
+     * @returns {AttachmentMetadata}
+     *
+     * @throws {IllegalArgumentException} If an invalid blob container is given.
+     * @throws {IllegalArgumentException} If an invalid encryption IV is given.
+     * @throws {IllegalArgumentException} If an invalid signature is given.
+     */
+    static makeFromBlobContainer(blobContainer, encryptionIV, signature){
+        if ( encryptionIV === '' || typeof encryptionIV !== 'string' ){
+            throw new IllegalArgumentException('Invalid encryption IV.');
+        }
+        if ( signature === '' || typeof signature !== 'string' ){
+            throw new IllegalArgumentException('Invalid signature.');
+        }
+        if ( !( blobContainer instanceof BlobContainer ) ){
+            throw new IllegalArgumentException('Invalid blob container.');
+        }
+        return new AttachmentMetadata({
+            mimetype: blobContainer.getBlob().type,
+            size: blobContainer.getBlob().size,
+            filename: blobContainer.getName(),
+            encryptionIV: encryptionIV,
+            signature: signature
         });
     }
 

@@ -1,0 +1,40 @@
+div.voiceMessageContent {
+    box-sizing: border-box;
+    padding: 6px;
+
+    div.loadingView {
+        display: flex;
+
+        div.icon {
+            box-sizing: border-box;
+            border-radius: 32px;
+            align-self: center;
+            margin-right: 12px;
+            padding: 6px 9px;
+            font-size: 24px;
+            flex-shrink: 0;
+
+            svg {
+                cursor: pointer;
+            }
+        }
+
+        div.info {
+            align-self: center;
+            text-align: left;
+            flex-grow: 1;
+
+            p.loadingLabel, p.errorLabel {
+                font-style: italic;
+                font-size: 14px;
+                margin: 0;
+            }
+
+            p.size {
+                font-style: italic;
+                font-size: 14px;
+                margin: 0;
+            }
+        }
+    }
+}

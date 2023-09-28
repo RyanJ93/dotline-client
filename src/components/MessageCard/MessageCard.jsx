@@ -1,8 +1,8 @@
 'use strict';
 
+import MessageContentWrapper from '../MessageContentWrapper/MessageContentWrapper';
 import AttachmentViewer from '../AttachmentViewer/AttachmentViewer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import MessageContent from '../MessageContent/MessageContent';
 import StringUtils from '../../utils/StringUtils';
 import MessageType from '../../enum/MessageType';
 import { withTranslation } from 'react-i18next';
@@ -12,6 +12,7 @@ import App from '../../facades/App';
 import React from 'react';
 
 class MessageCard extends React.Component {
+    #messageContentWrapperRef = React.createRef();
     #attachmentViewerRef = React.createRef();
     #messageCardRef = React.createRef();
     #parentMutationObserver;
@@ -108,7 +109,10 @@ class MessageCard extends React.Component {
     }
 
     async loadAttachments(){
-        await this.#attachmentViewerRef.current.fetchAttachments();
+        await Promise.all([
+            this.#messageContentWrapperRef.current?.fetchAttachments(),
+            this.#attachmentViewerRef.current?.fetchAttachments()
+        ]);
     }
 
     render(){
@@ -116,12 +120,13 @@ class MessageCard extends React.Component {
         const messageUserID = this.state.message.getUser()?.getID();
         const direction = messageUserID === authenticatedUserID ? 'sent' : 'received';
         const className = direction === 'sent' ? ' message-bubble-sent' : ' message-bubble-received';
+        const showAttachmentViewer = this.state.message.getType() !== MessageType.VOICE_MESSAGE;
         return (
             <div className={styles.messageCard} data-direction={direction} data-message-id={this.state.message.getID()} ref={this.#messageCardRef}>
                 <div className={styles.wrapper + className} data-without-background={this.#isWithoutBackground()}>
-                    <MessageContent message={this.state.message} />
+                    <MessageContentWrapper message={this.state.message} ref={this.#messageContentWrapperRef} />
                     <div className={styles.date}>{this.#renderEditedLabel()}{this.#getMessageTime()}</div>
-                    <AttachmentViewer ref={this.#attachmentViewerRef} message={this.state.message} onAttachmentClick={this._handleAttachmentClick} />
+                    { showAttachmentViewer && <AttachmentViewer ref={this.#attachmentViewerRef} message={this.state.message} onAttachmentClick={this._handleAttachmentClick} /> }
                     { direction === 'sent' && this.#renderContextMenu() }
                 </div>
             </div>

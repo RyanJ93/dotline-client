@@ -1,5 +1,7 @@
 'use strict';
 
+import VoiceMessageRecorder from '../VoiceMessageRecorder/VoiceMessageRecorder';
+import MessageAttachmentList from '../../DTOs/MessageAttachmentList';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ServerInfoService from '../../services/ServerInfoService';
 import AttachmentList from '../AttachmentList/AttachmentList';
@@ -12,6 +14,7 @@ import styles from './MessageEditor.scss';
 import React from 'react';
 
 class MessageEditor extends React.Component {
+    #voiceMessageRecorderRef = React.createRef();
     #attachmentListRef = React.createRef();
     #stickerPickerRef = React.createRef();
     #inputFileRef = React.createRef();
@@ -139,7 +142,7 @@ class MessageEditor extends React.Component {
     }
 
     _handleStickerSelect(sticker){
-        this.props.onMessageSend(sticker.toSerializedSticker(), MessageType.STICKER, [], null);
+        this.props.onMessageSend(sticker.toSerializedSticker(), MessageType.STICKER, null, null);
     }
 
     _handleStickerPickerToggle(){
@@ -150,10 +153,32 @@ class MessageEditor extends React.Component {
         this.setState((prev) => ({ ...prev, stickerPickerActive: stickerPickerActive }));
     }
 
+    _handleVoiceMessageRecorderOpen(){
+        this.setState((prev) => ({ ...prev, voiceMessageRecorderActive: true }));
+        this.#voiceMessageRecorderRef.current.start();
+    }
+
+    _handleVoiceMessageRecorderCancel(){
+        this.setState((prev) => ({ ...prev, voiceMessageRecorderActive: false }));
+    }
+
+    _handleVoiceMessageRecorderSend(recording){
+        this.setState((prev) => ({ ...prev, voiceMessageRecorderActive: false }));
+        if ( typeof this.props.onMessageSend === 'function' ){
+            this.props.onMessageSend('', MessageType.VOICE_MESSAGE, new MessageAttachmentList({
+                attachmentBlobContainerList: [recording]
+            }), null);
+            this.setMessage(null).clear();
+        }
+    }
+
     constructor(props){
         super(props);
 
+        this._handleVoiceMessageRecorderCancel = this._handleVoiceMessageRecorderCancel.bind(this);
         this._handleAttachmentMenuOverlayClick = this._handleAttachmentMenuOverlayClick.bind(this);
+        this._handleVoiceMessageRecorderOpen = this._handleVoiceMessageRecorderOpen.bind(this);
+        this._handleVoiceMessageRecorderSend = this._handleVoiceMessageRecorderSend.bind(this);
         this._handleAttachmentMenuEntryClick = this._handleAttachmentMenuEntryClick.bind(this);
         this._handleAttachmentAddButtonClick = this._handleAttachmentAddButtonClick.bind(this);
         this._handleEditMessageDiscardClick = this._handleEditMessageDiscardClick.bind(this);
@@ -162,7 +187,13 @@ class MessageEditor extends React.Component {
         this._handleInputFileChange = this._handleInputFileChange.bind(this);
         this._handleStickerSelect = this._handleStickerSelect.bind(this);
         this._handleKeyPress = this._handleKeyPress.bind(this);
-        this.state = { message: null, attachmentMenuActive: false, stickerPickerActive: false, isMessageTooLong: false };
+        this.state = {
+            voiceMessageRecorderActive: false,
+            attachmentMenuActive: false,
+            stickerPickerActive: false,
+            isMessageTooLong: false,
+            message: null
+        };
     }
 
     setMessage(message){
@@ -190,9 +221,9 @@ class MessageEditor extends React.Component {
             return this;
         }
         if ( !this.isMessageEmpty() && typeof this.props.onMessageSend === 'function' ){
-            const attachmentList = this.#attachmentListRef.current.getAttachmentList();
+            const messageAttachmentList = this.#attachmentListRef.current.getMessageAttachmentList();
             const content = this.#inputRef.current.value.trim();
-            this.props.onMessageSend(content, MessageType.TEXT, attachmentList, this.state.message);
+            this.props.onMessageSend(content, MessageType.TEXT, messageAttachmentList, this.state.message);
             this.setMessage(null).clear();
         }
         return this;
@@ -211,6 +242,7 @@ class MessageEditor extends React.Component {
 
     render(){
         const serverParams = new ServerInfoService().getServerParams(), { t } = this.props;
+        const messageEditorWrapperActive = !this.state.voiceMessageRecorderActive;
         const maxMessageLength = serverParams?.getMaxMessageLength() ?? 0;
         const maxFileCount = serverParams?.getMaxFileCount() ?? 0;
         const messageTooLongLabel = t('messageEditor.error.messageTooLong').replace('[amount]', maxMessageLength);
@@ -218,10 +250,13 @@ class MessageEditor extends React.Component {
             <div className={styles.messageEditor + ' bg-secondary'}>
                 {this.#renderEditMessageReview()}
                 <AttachmentList ref={this.#attachmentListRef} />
+                <div className={styles.voiceMessageRecorderWrapper} data-active={this.state.voiceMessageRecorderActive}>
+                    <VoiceMessageRecorder ref={this.#voiceMessageRecorderRef} onCancel={this._handleVoiceMessageRecorderCancel} onSend={this._handleVoiceMessageRecorderSend} />
+                </div>
                 <div className={styles.stickerPickerWrapper} data-active={this.state.stickerPickerActive}>
                     <StickerPicker ref={this.#stickerPickerRef} onStickerSelect={this._handleStickerSelect} />
                 </div>
-                <div className={styles.messageEditorWrapper + ' text-white'}>
+                <div className={styles.messageEditorWrapper + ' text-white'} data-active={messageEditorWrapperActive}>
                     <div className={styles.leftControlsWrapper}>
                         <FontAwesomeIcon icon='fa-solid fa-paperclip' onClick={this._handleAttachmentAddButtonClick} />
                     </div>
@@ -233,7 +268,7 @@ class MessageEditor extends React.Component {
                     <div className={styles.rightControlsWrapper}>
                         <FontAwesomeIcon icon='fa-solid fa-paper-plane' onClick={this._handleSendButtonClick} title={t('messageEditor.title.send')} />
                         <FontAwesomeIcon icon='fa-solid fa-icons' onClick={this._handleStickerPickerToggle} title={t('messageEditor.title.stickers')} />
-                        { maxFileCount > 0 && <FontAwesomeIcon icon='fa-solid fa-microphone' title={t('messageEditor.title.voice')} /> }
+                        { maxFileCount > 0 && <FontAwesomeIcon icon='fa-solid fa-microphone' title={t('messageEditor.title.voice')} onClick={this._handleVoiceMessageRecorderOpen} /> }
                     </div>
                 </div>
                 {this.#renderAttachmentMenu()}

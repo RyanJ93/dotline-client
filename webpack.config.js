@@ -1,6 +1,7 @@
 'use strict';
 
 const WebpackNotifierPlugin = require('webpack-notifier');
+const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack');
 const path = require('path');
 const fs = require('fs');
@@ -24,25 +25,41 @@ module.exports = {
         rules: [{
             test: /\.(js|jsx)$/,
             exclude: /node_modules/,
-            use: {
-                loader: 'babel-loader'
-            }
+            use: [
+                { loader: 'babel-loader' },
+                { loader: 'thread-loader' }
+            ]
         }, {
             test: /\.(scss|css)$/,
-            use: [{
-                loader: "style-loader"
-            }, {
-                loader: "css-loader",
-                options: {
-                    modules: true
-                }
-            }, {
-                loader: "sass-loader"
-            }]
+            use: [
+                { loader: 'style-loader' },
+                {
+                    loader: 'css-loader',
+                    options: {
+                        modules: true
+                    }
+                },
+                { loader: 'sass-loader' },
+                { loader: 'thread-loader' }
+            ]
         }]
     },
-    plugins: [new WebpackNotifierPlugin(), new webpack.DefinePlugin({
-        YANDEX_MAPS_KEY: JSON.stringify(config.yandexMapsKey),
-        VERSION: JSON.stringify(version)
-    })]
+    optimization: {
+        minimize: true,
+        minimizer: [new TerserPlugin({
+            terserOptions: { output: { ascii_only: true } },
+            parallel: true
+        })]
+    },
+    plugins: [
+        new WebpackNotifierPlugin(),
+        new webpack.DefinePlugin({
+            YANDEX_MAPS_KEY: JSON.stringify(config.yandexMapsKey),
+            VERSION: JSON.stringify(version)
+        }),
+        new webpack.HotModuleReplacementPlugin()
+    ],
+    devServer: {
+        hot: true
+    }
 };

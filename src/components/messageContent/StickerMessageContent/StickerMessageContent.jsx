@@ -1,13 +1,14 @@
 'use strict';
 
-import StickerPlaceholder from '../../DTOs/StickerPlaceholder';
-import StickerService from '../../services/StickerService';
+import StickerPlaceholder from '../../../DTOs/StickerPlaceholder';
+import StickerService from '../../../services/StickerService';
 import styles from './StickerMessageContent.scss';
 import { withTranslation } from 'react-i18next';
-import Sticker from '../../DTOs/Sticker';
+import MessageContent from '../MessageContent';
+import Sticker from '../../../DTOs/Sticker';
 import React from 'react';
 
-class StickerMessageContent extends React.Component {
+class StickerMessageContent extends MessageContent {
     #renderSticker(){
         let renderedSticker, emoji = this.state.stickerPlaceholder.getEmoji(), { t } = this.props;
         if ( this.state.sticker instanceof Sticker ){
@@ -36,10 +37,9 @@ class StickerMessageContent extends React.Component {
         this.state = { sticker: null, stickerPlaceholder: stickerPlaceholder, loading: true };
     }
 
-    componentDidMount(){
-        new StickerService().assertStickerFromPlaceholder(this.state.stickerPlaceholder).then((sticker) => {
-            this.setState((prev) => ({ ...prev, sticker: sticker, loading: false }));
-        });
+    async fetchAttachments(){
+        const sticker = await new StickerService().assertStickerFromPlaceholder(this.state.stickerPlaceholder);
+        this.setState((prev) => ({ ...prev, sticker: sticker, loading: false }));
     }
 
     render(){

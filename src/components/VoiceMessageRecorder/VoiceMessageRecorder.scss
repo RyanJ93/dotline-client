@@ -1,0 +1,59 @@
+div.voiceMessageRecorder {
+    display: flex;
+
+    div.leftControls {
+        align-self: center;
+        padding-left: 12px;
+        flex-shrink: 0;
+
+        svg {
+            cursor: pointer;
+            font-size: 24px;
+        }
+
+        div.elapsedTimeDisplayWrapper {
+            display: inline-block;
+            vertical-align: top;
+            margin: 0 0 0 12px;
+            font-size: 18px;
+        }
+    }
+
+    div.analyzerWrapper {
+        box-sizing: border-box;
+        align-self: center;
+        padding: 0 12px;
+        flex-grow: 1;
+        height: 37px;
+        width: 100%;
+
+        div.analyzerContainer {
+            box-sizing: border-box;
+            border-radius: 24px;
+            padding: 6px;
+            height: 100%;
+            width: 100%;
+        }
+    }
+
+    div.rightControls {
+        align-self: center;
+        flex-shrink: 0;
+
+        div.playbackControls, div.sendControls {
+            display: inline-block;
+            margin-right: 12px;
+            font-size: 24px;
+            cursor: pointer;
+            width: 24px;
+
+            div.playbackControlButton {
+                display: none;
+
+                &[data-active="true"] {
+                    display: block;
+                }
+            }
+        }
+    }
+}

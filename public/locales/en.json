@@ -146,6 +146,7 @@
     "attachmentList.instructions": "[count] files can be selected at most, maximum [size] each.",
     "dateUtils.today": "Today",
     "dateUtils.yesterday": "Yesterday",
+    "dateUtils.now": "Now",
     "signupForm.error.passwordMismatch": "Passwords don't match!",
     "signupForm.error.usernameTaken": "This username has been taken already.",
     "signupForm.label.username": "Username",
@@ -185,5 +186,18 @@
     "accountRecoveryInitStep.loader.label": "Preparing for account recovery...",
     "accountRecoverForm.error.generic": "An error occurred during the account recovery process, please retry later.",
     "accountRecoveryCompleteStep.title": "Account successfully recovered!",
-    "accountRecoveryCompleteStep.subtitle": "You will be authenticated shortly..."
+    "accountRecoveryCompleteStep.subtitle": "You will be authenticated shortly...",
+    "voiceMessageRecorder.title.cancelMessageRecording": "Cancel voice message recording.",
+    "voiceMessageRecorder.title.pauseMessageRecording": "Pause voice message recording.",
+    "voiceMessageRecorder.title.continueMessageRecording": "Continue voice message recording.",
+    "voiceMessageRecorder.title.sendMessage": "Send voice message.",
+    "voiceMessageRecorder.error.permissionDenied": "You must grant microphone access to send voice messages!",
+    "voiceMessageRecorder.error.genericError": "Unable to initialize audio recorder, please retry later.",
+    "audioFileAnalyzer.processingLabel": "Processing audio...",
+    "voiceMessageContent.downloadingLabel": "Downloading voice message...",
+    "voiceMessageContent.errorLabel": "Download failed, please retry",
+    "message.preview.voiceMessage": "Voice message",
+    "message.preview.location": "Location",
+    "message.preview.sticker": "Sticker: [emoji]",
+    "message.preview.attachments": "[count] files"
 }

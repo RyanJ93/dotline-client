@@ -7,7 +7,7 @@ class DateUtils {
     static getPassedTime(date){
         const difference = ( (+new Date()) - date.getTime() ) / 1000;
         if ( difference < 60 ){
-
+            return i18n.t('dateUtils.now');
         }
         return date.toLocaleDateString(i18n.language, {
             year: 'numeric',
@@ -82,6 +82,29 @@ class DateUtils {
      */
     static isDate(date){
         return date instanceof Date && !isNaN(date.getTime());
+    }
+
+    /**
+     * Converts a given amounts of seconds into a time string representation.
+     *
+     * @param {number} time
+     *
+     * @returns {string}
+     *
+     * @throws {IllegalArgumentException} If an invalid time amount is given.
+     */
+    static timeToHumanRepresentation(time){
+        if ( time === null || isNaN(time) ){
+            throw new IllegalArgumentException('Invalid time amount.');
+        }
+        const absTime = Math.ceil(Math.abs(time)), hours = Math.floor(absTime / 3600);
+        const minutes = Math.floor(( absTime - ( hours * 3600 ) ) / 60);
+        const seconds = absTime - ( hours * 3600 ) - ( minutes * 60 );
+        let humanRepresentation = ( '0' + minutes ).slice(-2) + ':' + ( '0' + seconds ).slice(-2);
+        if ( hours > 0 ){
+            humanRepresentation = ( '0' + hours ).slice(-2) + ':' + absTime;
+        }
+        return ( time < 0 ? '-' : '' ) + humanRepresentation;
     }
 }
 

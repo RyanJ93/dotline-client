@@ -8,6 +8,7 @@ import { withTranslation } from 'react-i18next';
 import FileUtils from '../../utils/FileUtils';
 import styles from './AttachmentList.scss';
 import React from 'react';
+import MessageAttachmentList from '../../DTOs/MessageAttachmentList';
 
 class AttachmentList extends React.Component {
     #renderAttachmentPreview(file){
@@ -94,6 +95,10 @@ class AttachmentList extends React.Component {
 
     getAttachmentList(){
         return Array.from(this.state.attachmentList.values()).map((attachment) => attachment.file);
+    }
+
+    getMessageAttachmentList(){
+        return new MessageAttachmentList({ attachmentFileList: this.getAttachmentList() });
     }
 
     hasAttachments(){

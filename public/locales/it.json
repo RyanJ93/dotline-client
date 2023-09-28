@@ -146,6 +146,7 @@
     "attachmentList.instructions": "[count] file possono essere selezionati al massimo, massimo [size] ciascuno.",
     "dateUtils.today": "Oggi",
     "dateUtils.yesterday": "Ieri",
+    "dateUtils.now": "Ora",
     "signupForm.error.passwordMismatch": "Le password non corrispondono",
     "signupForm.error.usernameTaken": "Questo username è già stato preso",
     "signupForm.label.username": "Username",
@@ -185,5 +186,18 @@
     "accountRecoveryInitStep.loader.label": "Preparazione al recupero dell'account...",
     "accountRecoverForm.error.generic": "Si è verificato un errore durante il processo di recupero dell'account, per favore riprova più tardi.",
     "accountRecoveryCompleteStep.title": "Account recuperato con successo!",
-    "accountRecoveryCompleteStep.subtitle": "Sarai autenticato a breve..."
+    "accountRecoveryCompleteStep.subtitle": "Sarai autenticato a breve...",
+    "voiceMessageRecorder.title.cancelMessageRecording": "Annulla la registrazione del messaggio vocale.",
+    "voiceMessageRecorder.title.pauseMessageRecording": "Sospendi la registrazione del messaggio vocale.",
+    "voiceMessageRecorder.title.continueMessageRecording": "Continua la registrazione del messaggio vocale.",
+    "voiceMessageRecorder.title.sendMessage": "Invia il messaggio vocale.",
+    "voiceMessageRecorder.error.permissionDenied": "Devi concedere il permesso di accesso al microfono per poter inviare messaggi vocali!",
+    "voiceMessageRecorder.error.genericError": "Impossibile inizializzare il registratore audio, per favore riprova più tardi.",
+    "audioFileAnalyzer.processingLabel": "Elaborazione audio...",
+    "voiceMessageContent.downloadingLabel": "Download del messaggio vocale...",
+    "voiceMessageContent.errorLabel": "Download fallito, per favore riprova",
+    "message.preview.voiceMessage": "Messaggio vocale",
+    "message.preview.location": "Posizione",
+    "message.preview.sticker": "Sticker: [emoji]",
+    "message.preview.attachments": "[count] files"
 }

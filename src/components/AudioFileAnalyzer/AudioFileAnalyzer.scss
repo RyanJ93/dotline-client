@@ -1,0 +1,30 @@
+div.audioFileAnalyzer {
+    position: relative;
+    height: 100%;
+    width: 100%;
+
+    div.view {
+        transition: opacity .25s ease-in-out;
+        will-change: opacity;
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        opacity: 0;
+        z-index: 1;
+        left: 0;
+        top: 0;
+
+        &[data-show="true"] {
+            z-index: 10;
+            opacity: 1;
+        }
+
+        p.processingLabel {
+            text-align: center;
+            font-style: italic;
+            line-height: 3.4;
+            font-size: 14px;
+            margin: 0;
+        }
+    }
+}

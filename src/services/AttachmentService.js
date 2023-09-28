@@ -2,6 +2,7 @@
 
 import IllegalArgumentException from '../exceptions/IllegalArgumentException';
 import AESEncryptionParameters from '../DTOs/AESEncryptionParameters';
+import MessageAttachmentList from '../DTOs/MessageAttachmentList';
 import HMACSigningParameters from '../DTOs/HMACSigningParameters';
 import DownloadedAttachment from '../DTOs/DownloadedAttachment';
 import AESStaticParameters from '../DTOs/AESStaticParameters';
@@ -166,24 +167,39 @@ class AttachmentService extends Service {
     }
 
     /**
-     * Encrypts and computes attachment signature.
+     * Encrypts and computes attachment signature for a given attachment list.
      *
-     * @param {File} file
+     * @param {MessageAttachmentList} messageAttachmentList
      *
-     * @returns {Promise<ProcessedAttachment>}
+     * @returns {Promise<ProcessedAttachment[]>}
      *
-     * @throws {IllegalArgumentException} If an invalid file is given.
+     * @throws {IllegalArgumentException} If an invalid message attachment list is given.
      */
-    async processAttachmentFile(file){
-        if ( !( file instanceof File ) ){
-            throw new IllegalArgumentException('Invalid file.');
+    async processMessageAttachmentList(messageAttachmentList){
+        if ( !( messageAttachmentList instanceof MessageAttachmentList ) ){
+            throw new IllegalArgumentException('Invalid message attachment list.');
         }
-        const aesEncryptionParameters = this.#generateAESEncryptionParameters(), fileContent = await FileUtils.readUploadedFile(file);
-        const signature = await CryptoUtils.HMACFileSign(fileContent, this.#signingKey, this.#hmacSigningParameters);
-        const attachmentMetadata = AttachmentMetadata.makeFromFile(file, aesEncryptionParameters.getIV(), signature);
-        const encryptedFileContent = await CryptoUtils.AESEncryptFile(fileContent, this.#encryptionKey, aesEncryptionParameters);
-        const encryptedFile = new Blob([encryptedFileContent], { type: attachmentMetadata.getMimetype() });
-        return { encryptedFile: encryptedFile, attachmentMetadata: attachmentMetadata };
+        const attachmentBlobContainerList = messageAttachmentList.getAttachmentBlobContainerList();
+        const aesEncryptionParameters = this.#generateAESEncryptionParameters();
+        const processedMessageAttachmentList = [], iv = aesEncryptionParameters.getIV();
+        const attachmentFileList = messageAttachmentList.getAttachmentFileList();
+        for ( let i = 0 ; i < attachmentBlobContainerList.length ; i++ ){
+            const fileContent = await FileUtils.readUploadedFile(attachmentBlobContainerList[i].getBlob());
+            const signature = await CryptoUtils.HMACFileSign(fileContent, this.#signingKey, this.#hmacSigningParameters);
+            const attachmentMetadata = AttachmentMetadata.makeFromBlobContainer(attachmentBlobContainerList[i], iv, signature);
+            const encryptedFileContent = await CryptoUtils.AESEncryptFile(fileContent, this.#encryptionKey, aesEncryptionParameters);
+            const encryptedFile = new Blob([encryptedFileContent], { type: attachmentMetadata.getMimetype() });
+            processedMessageAttachmentList.push({ encryptedFile: encryptedFile, attachmentMetadata: attachmentMetadata });
+        }
+        for ( let i = 0 ; i < attachmentFileList.length ; i++ ){
+            const fileContent = await FileUtils.readUploadedFile(attachmentFileList[i]);
+            const signature = await CryptoUtils.HMACFileSign(fileContent, this.#signingKey, this.#hmacSigningParameters);
+            const attachmentMetadata = AttachmentMetadata.makeFromFile(attachmentFileList[i], iv, signature);
+            const encryptedFileContent = await CryptoUtils.AESEncryptFile(fileContent, this.#encryptionKey, aesEncryptionParameters);
+            const encryptedFile = new Blob([encryptedFileContent], { type: attachmentMetadata.getMimetype() });
+            processedMessageAttachmentList.push({ encryptedFile: encryptedFile, attachmentMetadata: attachmentMetadata });
+        }
+        return processedMessageAttachmentList;
     }
 
     /**
@@ -207,7 +223,8 @@ class AttachmentService extends Service {
             const encryptionParameters = new AESEncryptionParameters(Object.assign({ iv: iv }, staticParameters));
             const importedEncryptionKey = await CryptoUtils.importAESKey(conversationKeys.getEncryptionKey(), encryptionParameters);
             const decryptedContent = await CryptoUtils.AESDecryptFile(arrayBufferContent, importedEncryptionKey, encryptionParameters);
-            objectURL = this.#loadedAttachmentRepository.storeLoadedAttachment(attachment.getURL(), new Blob([decryptedContent]));
+            const blob = new Blob([decryptedContent], { type: attachment.getMimetype() }), url = attachment.getURL();
+            objectURL = this.#loadedAttachmentRepository.storeLoadedAttachment(url, blob);
         }
         return DownloadedAttachment.makeFromAttachment(attachment, objectURL);
     }
