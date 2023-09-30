@@ -4,6 +4,7 @@ import IllegalArgumentException from '../../exceptions/IllegalArgumentException'
 import UserRecoveryParams from '../../DTOs/UserRecoveryParams';
 import styles from './UserRecoveryParamsViewer.scss';
 import { withTranslation } from 'react-i18next';
+import FileUtils from '../../utils/FileUtils';
 import Event from '../../facades/Event';
 import React from 'react';
 
@@ -12,14 +13,9 @@ class UserRecoveryParamsViewer extends React.Component {
     #textareaRef = React.createRef();
 
     _handleDownloadRecoveryKey(){
-        const content = this.#textareaRef.current.value, element = document.createElement('a');
-        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
-        element.setAttribute('download', 'Recovery key.txt');
+        const url = 'data:text/plain;charset=utf-8,' + encodeURIComponent(this.#textareaRef.current.value);
+        FileUtils.downloadFile(url, 'Recovery key.txt');
         this.#closeButtonRef.current.disabled = false;
-        element.style.display = 'none';
-        document.body.appendChild(element);
-        element.click();
-        document.body.removeChild(element);
     }
 
     _handleCopyRecoveryKey(){

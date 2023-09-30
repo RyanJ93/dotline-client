@@ -1,10 +1,14 @@
 'use strict';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { withTranslation } from 'react-i18next';
 import styles from './AttachmentLightBox.scss';
+import FileUtils from '../../utils/FileUtils';
 import React from 'react';
 
 class AttachmentLightBox extends React.Component {
+    #previewListWrapperRef = React.createRef();
+
     #findAttachmentByID(attachmentID){
         let downloadedAttachmentIndex = null, i = 0;
         while ( downloadedAttachmentIndex === null && i < this.state.downloadedAttachmentList.length ){
@@ -39,6 +43,30 @@ class AttachmentLightBox extends React.Component {
         return <ul className={styles.previewList + ' border-white'}>{renderedPreviewList}</ul>;
     }
 
+    #renderRightControl(){
+        let renderedRightControl = null;
+        if ( this.state.downloadedAttachmentList.length > 1 ){
+            renderedRightControl = (
+                <div className={styles.controlWrapper} onClick={this._handleRightArrowClick}>
+                    <FontAwesomeIcon icon='fa-solid fa-chevron-circle-right' />
+                </div>
+            );
+        }
+        return renderedRightControl;
+    }
+
+    #renderLeftControl(){
+        let renderedLeftControl = null;
+        if ( this.state.downloadedAttachmentList.length > 1 ){
+            renderedLeftControl = (
+                <div className={styles.controlWrapper} onClick={this._handleLeftArrowClick}>
+                    <FontAwesomeIcon icon='fa-solid fa-chevron-circle-left' />
+                </div>
+            );
+        }
+        return renderedLeftControl;
+    }
+
     _handleRightArrowClick(){
         let nextIndex = this.state.currentIndex + 1;
         if ( nextIndex > ( this.state.downloadedAttachmentList.length - 1 ) ){
@@ -57,6 +85,11 @@ class AttachmentLightBox extends React.Component {
         this.setState((prev) => ({ ...prev, currentIndex: nextIndex, currentID: currentID, show: true }));
     }
 
+    _handleDownloadButtonClick(){
+        const downloadedAttachment = this.state.downloadedAttachmentList[this.state.currentIndex];
+        FileUtils.downloadFile(downloadedAttachment.getObjectURL(), downloadedAttachment.getFilename());
+    }
+
     _handleCloseButtonClick(){
         this.hide();
     }
@@ -71,10 +104,16 @@ class AttachmentLightBox extends React.Component {
         super(props);
 
         this.state = { downloadedAttachmentList: [], currentIndex: 0, currentID: null, show: false };
+        this._handleDownloadButtonClick = this._handleDownloadButtonClick.bind(this);
         this._handleCloseButtonClick = this._handleCloseButtonClick.bind(this);
         this._handleRightArrowClick = this._handleRightArrowClick.bind(this);
         this._handleLeftArrowClick = this._handleLeftArrowClick.bind(this);
         this._handlePreviewClick = this._handlePreviewClick.bind(this);
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot){
+        const element = this.#previewListWrapperRef.current.querySelector('ul li[data-selected="true"]');
+        element?.scrollIntoView();
     }
 
     setDownloadedAttachmentList(downloadedAttachmentList){
@@ -96,27 +135,28 @@ class AttachmentLightBox extends React.Component {
     }
 
     render(){
-        const count = this.state.downloadedAttachmentList.length;
+        const { t } = this.props;
         return (
             <div className={styles.attachmentLightBox} data-show={this.state.show}>
                 <div className={styles.header + ' text-white'}>
-                    <FontAwesomeIcon icon='fa-solid fa-xmark' onClick={this._handleCloseButtonClick} />
+                    <div className={styles.downloadIcon}>
+                        <FontAwesomeIcon icon='fa-solid fa-download' onClick={this._handleDownloadButtonClick} title={t('attachmentLightBox.title.download')} />
+                    </div>
+                    <div className={styles.closeIcon}>
+                        <FontAwesomeIcon icon='fa-solid fa-xmark' onClick={this._handleCloseButtonClick} title={t('attachmentLightBox.title.close')} />
+                    </div>
                 </div>
                 <div className={styles.container}>
                     <div className={styles.innerContainer}>
-                        <div className={styles.leftControls + ' text-white'}>
-                            { count > 1 && <FontAwesomeIcon icon='fa-solid fa-chevron-circle-left' onClick={this._handleLeftArrowClick} /> }
-                        </div>
+                        <div className={styles.leftControls + ' text-white'}>{this.#renderLeftControl()}</div>
                         <div className={styles.mainContent}>{this.#renderMainContent()}</div>
-                        <div className={styles.rightControls + ' text-white'}>
-                            { count > 1 && <FontAwesomeIcon icon='fa-solid fa-chevron-circle-right' onClick={this._handleRightArrowClick} /> }
-                        </div>
+                        <div className={styles.rightControls + ' text-white'}>{this.#renderRightControl()}</div>
                     </div>
                 </div>
-                <div className={styles.previewListContainer}>{this.#renderPreviewList()}</div>
+                <div className={styles.previewListContainer} ref={this.#previewListWrapperRef}>{this.#renderPreviewList()}</div>
             </div>
         );
     }
 }
 
-export default AttachmentLightBox;
+export default withTranslation(null, { withRef: true })(AttachmentLightBox);

@@ -199,5 +199,8 @@
     "message.preview.voiceMessage": "Messaggio vocale",
     "message.preview.location": "Posizione",
     "message.preview.sticker": "Sticker: [emoji]",
-    "message.preview.attachments": "[count] files"
+    "message.preview.attachments": "[count] files",
+    "attachmentLightBox.title.download": "Download",
+    "attachmentLightBox.title.close": "Chiudi",
+    "voiceMessagePlayer.downloadTitle": "Scarica il messaggio vocale"
 }

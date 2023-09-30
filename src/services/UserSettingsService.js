@@ -14,6 +14,18 @@ class UserSettingsService extends Service {
     #userSettingsRepository;
 
     /**
+     * Triggers events in order to inform listeners user settings have changed.
+     *
+     * @param {UserSettings} userSettings
+     */
+    #triggerChangeEvents(userSettings){
+        window.setTimeout(() => {
+            this._eventBroker.emit('localeChange', userSettings.getLocale());
+            this._eventBroker.emit('themeChange', userSettings.getTheme());
+        }, 250);
+    }
+
+    /**
      * The class constructor.
      */
     constructor(){
@@ -30,6 +42,7 @@ class UserSettingsService extends Service {
         if ( userSettings !== null ){
             document.querySelector('html').setAttribute('data-theme', userSettings.getTheme());
             window.changeLanguage(userSettings.getLocale());
+            this.#triggerChangeEvents(userSettings);
         }
     }
 

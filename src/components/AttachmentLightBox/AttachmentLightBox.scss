@@ -21,9 +21,24 @@ div.attachmentLightBox {
         padding: 12px;
         box-sizing: border-box;
 
-        svg {
+        div.closeIcon, div.downloadIcon {
+            vertical-align: middle;
+            display: inline-block;
+            margin-left: 12px;
             font-size: 32px;
-            cursor: pointer;
+
+            &:first-child {
+                margin-left: 0 !important;
+            }
+
+            &.downloadIcon {
+                margin-bottom: 4px;
+                font-size: 24px;
+            }
+
+            svg {
+                cursor: pointer;
+            }
         }
     }
 
@@ -32,6 +47,7 @@ div.attachmentLightBox {
         flex-grow: 1;
 
         div.innerContainer {
+            position: relative;
             display: flex;
             height: 100%;
 
@@ -47,8 +63,40 @@ div.attachmentLightBox {
                     text-align: right;
                 }
 
-                svg {
-                    cursor: pointer;
+                div.controlWrapper {
+                    display: inline-block;
+
+                    svg {
+                        cursor: pointer;
+                    }
+                }
+            }
+
+            @media (max-width: 480px) {
+                div.leftControls, div.rightControls {
+                    position: absolute;
+                    height: 100%;
+                    z-index: 10;
+                    padding: 0;
+                    width: 50%;
+                    top: 0;
+
+                    div.controlWrapper {
+                        height: 100%;
+                        width: 100%;
+
+                        svg {
+                            display: none;
+                        }
+                    }
+
+                    &.rightControls {
+                        right: 0;
+                    }
+
+                    &.leftControls {
+                        left: 0;
+                    }
                 }
             }
 
@@ -78,6 +126,8 @@ div.attachmentLightBox {
             padding: 0;
             list-style: none;
             display: inline-block;
+            white-space: nowrap;
+            overflow-x: auto;
 
             li {
                 width: 100px;

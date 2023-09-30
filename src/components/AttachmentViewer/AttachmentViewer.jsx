@@ -2,10 +2,10 @@
 
 import AttachmentService from '../../services/AttachmentService';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { withTranslation } from 'react-i18next';
 import FileUtils from '../../utils/FileUtils';
 import styles from './AttachmentViewer.scss';
 import React from 'react';
-import {withTranslation} from 'react-i18next';
 
 class AttachmentViewer extends React.Component {
     static #getSizingMapping(imageCount){
@@ -27,23 +27,15 @@ class AttachmentViewer extends React.Component {
     #getGroupedAttachments(){
         const groupedAttachments = { images: [], videos: [], audios: [], others: [] };
         this.state.downloadedAttachmentList.forEach((downloadedAttachment) => {
-            switch ( downloadedAttachment.getMimetype() ){
-                case 'image/webp':
-                case 'image/jpeg':
-                case 'image/gif':
-                case 'image/jpg':
-                case 'image/png': {
-                    groupedAttachments.images.push(downloadedAttachment);
-                }break;
-                case 'video/mp4': {
-                    groupedAttachments.videos.push(downloadedAttachment);
-                }break;
-                case 'audio/mpeg': {
-                    groupedAttachments.audios.push(downloadedAttachment);
-                }break;
-                default: {
-                    groupedAttachments.others.push(downloadedAttachment);
-                }break;
+            const mimetype = downloadedAttachment.getMimetype();
+            if ( FileUtils.isSupportedImage(mimetype) ){
+                groupedAttachments.images.push(downloadedAttachment);
+            }else if ( mimetype.indexOf('audio') === 0 && FileUtils.isSupportedAudio(mimetype) ){
+                groupedAttachments.audios.push(downloadedAttachment);
+            }else if ( FileUtils.isSupportedVideo(mimetype) ){
+                groupedAttachments.videos.push(downloadedAttachment);
+            }else{
+                groupedAttachments.others.push(downloadedAttachment);
             }
         });
         return groupedAttachments;
@@ -76,9 +68,14 @@ class AttachmentViewer extends React.Component {
 
     #renderVideoAttachments(renderedAttachmentList, groupedAttachments){
         groupedAttachments.videos.forEach((attachment) => {
-            const id = attachment.getID();
+            const id = attachment.getID(), { t } = this.props;
             renderedAttachmentList.push(
                 <div key={id} className={styles.previewWrapper} data-aid={id} data-at={'video'}>
+                    <div className={styles.videoDownloadIconWrapper + ' bg-black'}>
+                        <a className={'text-white'} download={attachment.getFilename()} href={attachment.getObjectURL()} title={t('attachmentViewer.downloadTitle')}>
+                            <FontAwesomeIcon icon='fa-solid fa-download' />
+                        </a>
+                    </div>
                     <video controls={true} onPlaying={this._handlePlay}>
                         <source src={attachment.getObjectURL()} type={attachment.getMimetype()} />
                     </video>
@@ -89,10 +86,17 @@ class AttachmentViewer extends React.Component {
 
     #renderAudioAttachments(renderedAttachmentList, groupedAttachments){
         groupedAttachments.audios.forEach((attachment) => {
-            const id = attachment.getID();
+            const id = attachment.getID(), { t } = this.props;
             renderedAttachmentList.push(
                 <div key={id} className={styles.previewWrapper} data-aid={id} data-at={'audio'}>
-                    <audio src={attachment.getObjectURL()} controls={true} onPlaying={this._handlePlay}></audio>
+                    <div className={styles.audioPlayerWrapper}>
+                        <audio src={attachment.getObjectURL()} controls={true} onPlaying={this._handlePlay}></audio>
+                        <div className={styles.audioDownloadIconWrapper}>
+                            <a className={'text-primary'} download={attachment.getFilename()} href={attachment.getObjectURL()} title={t('attachmentViewer.downloadTitle')}>
+                                <FontAwesomeIcon icon='fa-solid fa-download' />
+                            </a>
+                        </div>
+                    </div>
                 </div>
             );
         });
@@ -112,7 +116,7 @@ class AttachmentViewer extends React.Component {
                             <p className={styles.fileSize}>{attachment.getHumanReadableSize()}</p>
                         </div>
                         <div className={styles.controls}>
-                            <a download={attachment.getFilename()} href={attachment.getObjectURL()} title={t('attachmentViewer.downloadTitle')}>
+                            <a className={'text-primary'} download={attachment.getFilename()} href={attachment.getObjectURL()} title={t('attachmentViewer.downloadTitle')}>
                                 <FontAwesomeIcon icon='fa-solid fa-download' />
                             </a>
                         </div>
@@ -166,9 +170,7 @@ class AttachmentViewer extends React.Component {
     }
 
     render(){
-        return (
-            <div className={styles.attachmentViewer}>{this.#renderAttachments()}</div>
-        );
+        return <div className={styles.attachmentViewer}>{this.#renderAttachments()}</div>;
     }
 }
 

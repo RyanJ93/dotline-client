@@ -128,7 +128,8 @@ class VoiceMessagePlayer extends React.Component {
     }
 
     render(){
-        const url = this.props.downloadedVoiceMessage?.getObjectURL() ?? null;
+        const url = this.props.downloadedVoiceMessage?.getObjectURL() ?? null, { t } = this.props;
+        const filename = this.props.downloadedVoiceMessage?.getFilename() ?? null;
         return (
             <div className={styles.voiceMessagePlayer}>
                 <div className={styles.controlsWrapper}>
@@ -150,6 +151,11 @@ class VoiceMessagePlayer extends React.Component {
                         </div>
                         <div className={styles.elapsedTimeDisplayWrapper}>
                             <ElapsedTimeDisplay ref={this.#elapsedTimeDisplayRef} />
+                        </div>
+                        <div className={styles.downloadButton}>
+                            <a className={'bg-accent text-primary'} download={filename} href={url} title={t('voiceMessagePlayer.downloadTitle')}>
+                                <FontAwesomeIcon icon='fa-solid fa-download' />
+                            </a>
                         </div>
                     </div>
                 </div>

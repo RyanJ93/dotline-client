@@ -125,8 +125,8 @@ class MessageCard extends React.Component {
             <div className={styles.messageCard} data-direction={direction} data-message-id={this.state.message.getID()} ref={this.#messageCardRef}>
                 <div className={styles.wrapper + className} data-without-background={this.#isWithoutBackground()}>
                     <MessageContentWrapper message={this.state.message} ref={this.#messageContentWrapperRef} />
-                    <div className={styles.date}>{this.#renderEditedLabel()}{this.#getMessageTime()}</div>
                     { showAttachmentViewer && <AttachmentViewer ref={this.#attachmentViewerRef} message={this.state.message} onAttachmentClick={this._handleAttachmentClick} /> }
+                    <div className={styles.date}>{this.#renderEditedLabel()}{this.#getMessageTime()}</div>
                     { direction === 'sent' && this.#renderContextMenu() }
                 </div>
             </div>

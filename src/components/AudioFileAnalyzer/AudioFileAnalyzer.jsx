@@ -3,6 +3,7 @@
 import AudioAnalyzerMonitor from '../AudioAnalyzerMonitor/AudioAnalyzerMonitor';
 import { withTranslation } from 'react-i18next';
 import styles from './AudioFileAnalyzer.scss';
+import Event from '../../facades/Event';
 import React from 'react';
 
 class AudioFileAnalyzer extends React.Component {
@@ -49,7 +50,7 @@ class AudioFileAnalyzer extends React.Component {
     }
 
     #processRenderedBuffer(){
-        if ( this.#audioAnalyzer !== null ){
+        if ( this.#audioAnalyzer !== null && this.#audioAnalyzerMonitorRef.current !== null ){
             const disableToRatio = this.#disabledToTime === null ? null : ( this.#duration / this.#disabledToTime );
             const { height, width, color } = this.#audioAnalyzerMonitorRef.current.autoResizeCanvas();
             const frequencyData = this.#getComputedFrequencyData(width);
@@ -74,6 +75,10 @@ class AudioFileAnalyzer extends React.Component {
 
         this.#reverseRendering = props.reverseRendering === true;
         this.state = { processing: false };
+    }
+
+    componentDidMount(){
+        Event.getBroker().on('themeChange', () => this.#processRenderedBuffer());
     }
 
     setDisabledToTime(disabledToTime){

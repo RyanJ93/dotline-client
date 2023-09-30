@@ -25,13 +25,46 @@ div.attachmentViewer {
                 }
             }
 
+            &:hover {
+                div.videoDownloadIconWrapper {
+                    display: block !important;
+                }
+            }
+
             img, video {
                 max-width: 100%;
                 cursor: pointer;
             }
 
-            audio {
+            div.audioPlayerWrapper {
+                display: flex;
                 width: 100%;
+
+                div.audioDownloadIconWrapper {
+                    box-sizing: border-box;
+                    align-self: center;
+                    padding-left: 9px;
+                    font-size: 18px;
+                    flex-shrink: 0;
+                }
+
+                audio {
+                    overflow: hidden;
+                    max-width: 100%;
+                    display: block;
+                    flex-grow: 1;
+                }
+            }
+
+            div.videoDownloadIconWrapper {
+                box-sizing: border-box;
+                border-radius: 3px;
+                position: absolute;
+                display: none;
+                padding: 6px;
+                z-index: 10;
+                right: 6px;
+                top: 6px;
             }
 
             p.remainingAttachmentCounter {
@@ -93,16 +126,11 @@ div.attachmentViewer {
                 div.controls {
                     align-self: center;
                     font-size: 18px;
+                }
 
-                    a, a:hover, a:active {
-                        text-decoration: none;
-                        color: #FFF;
-                        cursor: pointer;
-
-                        svg {
-                            cursor: pointer;
-                        }
-                    }
+                a, a:hover, a:active {
+                    text-decoration: none;
+                    cursor: pointer;
                 }
             }
         }
