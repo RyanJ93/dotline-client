@@ -265,7 +265,6 @@ class ConversationViewer extends React.Component {
     constructor(props){
         super(props);
 
-        this.state = { conversation: ( this.props.conversation ?? null ), userTypingMessage: null, messageList: new Map(), loading: true };
         this._handleIntersectionChange = this._handleIntersectionChange.bind(this);
         this._handleConversationAction = this._handleConversationAction.bind(this);
         this._handleConversationClose = this._handleConversationClose.bind(this);
@@ -277,6 +276,12 @@ class ConversationViewer extends React.Component {
         this._handleMessageTyping = this._handleMessageTyping.bind(this);
         this._handleMessageSend = this._handleMessageSend.bind(this);
         this._handleScroll = this._handleScroll.bind(this);
+        this.state = {
+            loading: ( this.props.initialLoadingStatus !== false ),
+            conversation: ( this.props.conversation ?? null ),
+            userTypingMessage: null,
+            messageList: new Map(),
+        };
     }
 
     componentDidMount(){
