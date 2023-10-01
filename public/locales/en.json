@@ -105,6 +105,7 @@
     "searchEngine.noResults": "No result found",
     "searchEngine.disabledTitle": "Search is disabled while indexing messages",
     "searchEngine.disabledText": "Please be patient until the message import and index process is completed",
+    "searchEngine.loadingLabel": "Searching...",
     "searchBar.label": "Search for users, messages...",
     "requirementsErrorView.serverError.title": "Outdated client",
     "requirementsErrorView.serverError.text1": "You are using a client that is not updated and then cannot connect to the server which is running a most recent version of the software.",

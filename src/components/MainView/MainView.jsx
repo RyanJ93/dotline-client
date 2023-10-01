@@ -76,7 +76,7 @@ class MainView extends React.Component {
                 this.#selectConversation(message.getConversation().getID(), message);
             }break;
             case SearchResultEntryType.USER: {
-               this.#startConversation(searchResultEntry);
+                this.#startConversation(searchResultEntry);
             }break;
         }
     }
@@ -90,7 +90,7 @@ class MainView extends React.Component {
     }
 
     _handleMessageSend(messageText, messageType, messageAttachmentList, conversation, message){
-       this.#sendMessage(messageText, messageType, messageAttachmentList, conversation, message);
+        this.#sendMessage(messageText, messageType, messageAttachmentList, conversation, message);
     }
 
     #selectConversation(conversationID, message = null){

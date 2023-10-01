@@ -82,7 +82,6 @@ class ConversationViewerList extends React.Component {
         Event.getBroker().on('conversationAdded', (conversation) => {
             if ( !this.state.conversationList.has(conversation.getID()) ){
                 this.state.conversationList.set(conversation.getID(), conversation);
-                console.log('conversationAdded', conversation);
                 this.forceUpdate();
             }
         });
