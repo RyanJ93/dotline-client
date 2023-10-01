@@ -105,6 +105,7 @@
     "searchEngine.noResults": "Nessun risultato trovato",
     "searchEngine.disabledTitle": "La ricerca è disabilitata mentre i messaggi vengono indicizzati",
     "searchEngine.disabledText": "Sii paziente fino a quando il processo di importazione e indicizzazione dei messaggi non sarà completato",
+    "searchEngine.loadingLabel": "Ricerca...",
     "searchBar.label": "Cerca utenti, messaggi...",
     "requirementsErrorView.serverError.title": "Client obsoleto",
     "requirementsErrorView.serverError.text1": "Stai usando un client che non è supportato e che quindi non può connettersi al server su cui è in esecuzione una versione più recente del software.",

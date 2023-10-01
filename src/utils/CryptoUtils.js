@@ -327,7 +327,7 @@ class CryptoUtils {
         return { privateKey: privateKey, publicKey: publicKey };
     }
 
-    static async importRSAPrivateKey(privateKeyData){console.log(privateKeyData, atob(privateKeyData));
+    static async importRSAPrivateKey(privateKeyData){
         privateKeyData = JSON.parse(atob(privateKeyData));
         return await crypto.subtle.importKey('jwk', privateKeyData, {
             name: 'RSA-OAEP',
