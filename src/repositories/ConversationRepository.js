@@ -63,7 +63,7 @@ class ConversationRepository extends Repository {
         if ( id === '' || typeof id !== 'string' ){
             throw new IllegalArgumentException('Invalid ID.');
         }
-        return await Conversation.find({ where: { id: id } });
+        return await Conversation.find({ id: id });
     }
 
     /**
