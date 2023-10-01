@@ -74,12 +74,17 @@ class ConversationViewerList extends React.Component {
 
     componentDidMount(){
         Event.getBroker().on('conversationDelete', (conversationID) => {
-            this.state.conversationList.delete(conversationID);
-            this.forceUpdate();
+            if ( this.state.conversationList.has(conversationID) ){
+                this.state.conversationList.delete(conversationID);
+                this.forceUpdate();
+            }
         });
         Event.getBroker().on('conversationAdded', (conversation) => {
-            this.state.conversationList.set(conversation.getID(), conversation);
-            this.forceUpdate();
+            if ( !this.state.conversationList.has(conversation.getID()) ){
+                this.state.conversationList.set(conversation.getID(), conversation);
+                console.log('conversationAdded', conversation);
+                this.forceUpdate();
+            }
         });
     }
 
