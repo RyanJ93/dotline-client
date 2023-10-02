@@ -23,7 +23,11 @@ class ConversationList extends React.Component {
 
     _handleConversationSelect(event){
         const conversationID = event.target.closest('li').getAttribute('data-conversation-id');
-        this.setSelectedConversationID(conversationID);
+        this.setState((prev) => ({ ...prev, selectedConversationID: conversationID }), () => {
+            if ( typeof this.props.onConversationSelect === 'function' ){
+                this.props.onConversationSelect(conversationID, null);
+            }
+        });
     }
 
     constructor(props){
@@ -44,12 +48,8 @@ class ConversationList extends React.Component {
         });
     }
 
-    setSelectedConversationID(selectedConversationID, message = null){
-        this.setState((prev) => ({ ...prev, selectedConversationID: selectedConversationID }), () => {
-           if ( typeof this.props.onConversationSelect === 'function' ){
-               this.props.onConversationSelect(selectedConversationID, message);
-           }
-        });
+    setSelectedConversationID(selectedConversationID){
+        this.setState((prev) => ({ ...prev, selectedConversationID: selectedConversationID }));
         return this;
     }
 
@@ -58,11 +58,7 @@ class ConversationList extends React.Component {
     }
 
     render(){
-        return (
-            <div className={styles.conversationList}>
-                {this.#renderConversationList()}
-            </div>
-        );
+        return <div className={styles.conversationList}>{this.#renderConversationList()}</div>;
     }
 }
 

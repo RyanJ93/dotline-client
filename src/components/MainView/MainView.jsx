@@ -95,6 +95,7 @@ class MainView extends React.Component {
 
     #selectConversation(conversationID, message = null){
         this.#conversationViewerListRef.current.setSelectedConversationID(conversationID, message);
+        this.#sideBarRef.current.setSelectedConversationID(conversationID);
         this.setState((prev) => ({ ...prev, conversationSelected: ( conversationID !== null ) }));
     }
 
