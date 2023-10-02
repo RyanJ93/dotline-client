@@ -34,7 +34,7 @@ class StringUtils {
      * @returns {boolean}
      */
     static isSingleEmoji(string){
-        return typeof string === 'string' && string.length === 2 && /\p{Emoji}/u.test(string);
+        return typeof string === 'string' && string.length === 2 && /\p{Emoji_Presentation}/gu.test(string);
     }
 
     /**
