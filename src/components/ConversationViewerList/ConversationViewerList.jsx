@@ -10,7 +10,7 @@ class ConversationViewerList extends React.Component {
     #conversationViewerRefIndex = Object.create(null);
 
     #initConversationViewerRefIndex(){
-        for ( const [id, conversation] of this.state.conversationList ){
+        for ( const [id] of this.state.conversationList ){
             this.#conversationViewerRefIndex[id] = React.createRef();
         }
     }
@@ -20,7 +20,7 @@ class ConversationViewerList extends React.Component {
         this.#initConversationViewerRefIndex();
         for ( const [id, conversation] of this.state.conversationList ){
             const goto = this.state.goto?.conversationID === id ? this.state.goto.message : null;
-            const bind = (node) => { this.#conversationViewerRefIndex[id].current = node };
+            const bind = (node) => { this.#conversationViewerRefIndex[id].current = node; };
             const isSelected = id === this.state.selectedConversationID;
             renderedConversationViewerList.push(
                 <div className={styles.conversationViewer + ' bg-primary'} key={id} data-selected={isSelected}>
@@ -31,7 +31,7 @@ class ConversationViewerList extends React.Component {
         if ( this.state.conversationDraft !== null ){
             renderedConversationViewerList.push(
                 <div className={styles.conversationViewer + ' bg-primary'} key={'draft'} data-selected={true}>
-                    <ConversationViewer conversation={this.state.conversationDraft} onMessageSend={this._handleMessageSend} onMessageDelete={this._handleMessageDelete} onConversationClose={this._handleConversationClose} onConversationDelete={this._handleConversationDeleteAction} />
+                    <ConversationViewer conversation={this.state.conversationDraft} onMessageSend={this._handleMessageSend} onMessageDelete={this._handleMessageDelete} onConversationClose={this._handleConversationClose} onConversationDelete={this._handleConversationDeleteAction} initialLoadingStatus={false} />
                 </div>
             );
         }
@@ -74,12 +74,16 @@ class ConversationViewerList extends React.Component {
 
     componentDidMount(){
         Event.getBroker().on('conversationDelete', (conversationID) => {
-            this.state.conversationList.delete(conversationID);
-            this.forceUpdate();
+            if ( this.state.conversationList.has(conversationID) ){
+                this.state.conversationList.delete(conversationID);
+                this.forceUpdate();
+            }
         });
         Event.getBroker().on('conversationAdded', (conversation) => {
-            this.state.conversationList.set(conversation.getID(), conversation);
-            this.forceUpdate();
+            if ( !this.state.conversationList.has(conversation.getID()) ){
+                this.state.conversationList.set(conversation.getID(), conversation);
+                this.forceUpdate();
+            }
         });
     }
 

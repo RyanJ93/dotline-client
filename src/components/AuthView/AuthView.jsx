@@ -22,15 +22,15 @@ class AuthView extends React.Component {
     #loginForm = React.createRef();
 
     _handleRecoverClick(){
-        this.setState(() => { return { action: 'recover' } });
+        this.setState((prev) => ({ ...prev, action: 'recover' }));
     }
 
     _handleSignupClick(){
-        this.setState(() => { return { action: 'signup' } });
+        this.setState((prev) => ({ ...prev, action: 'signup' }));
     }
 
     _handleLoginClick(){
-        this.setState(() => { return { action: 'login' } });
+        this.setState((prev) => ({ ...prev, action: 'login' }));
     }
 
     _handleLoginSubmit(fields){
@@ -48,7 +48,7 @@ class AuthView extends React.Component {
     }
 
     #handleFormException(exception, formRef){
-        this.setState((prev) => { return { ...prev, container: 'form' } });
+        this.setState((prev) => ({ ...prev, container: 'form' }));
         const { t } = this.props;
         if ( exception instanceof InvalidInputException ){
             formRef.current.displayErrorMessages(exception.getErrorMessageBag());
@@ -107,7 +107,7 @@ class AuthView extends React.Component {
     }
 
     #setProgressBarStatus(value, message = null, icon = null){
-        this.setState((prev) => { return { ...prev, container: 'progress-bar' } });
+        this.setState((prev) => ({ ...prev, container: 'progress-bar' }));
         this.#illustratedProgressBar.current.setMessage(message);
         this.#illustratedProgressBar.current.setValue(value);
         this.#illustratedProgressBar.current.setIcon(icon);
@@ -160,10 +160,8 @@ class AuthView extends React.Component {
     }
 
     resetView(){
-        this.setState((prev) => { return { ...prev, container: 'form' } });
-        this.#illustratedProgressBar.current.setMessage(null);
-        this.#illustratedProgressBar.current.setIcon(null);
-        this.#illustratedProgressBar.current.setValue(0);
+        this.#illustratedProgressBar.current.setMessage(null).setIcon(null).setValue(0);
+        this.setState((prev) => ({ ...prev, container: 'form' }));
         return this;
     }
 

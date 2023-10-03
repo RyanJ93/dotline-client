@@ -88,7 +88,7 @@ class ConversationViewer extends React.Component {
             elementList.forEach((element) => this.#intersectionObserver.observe(element));
             this.#updateScrollDownButtonVisibility();
             if ( scrollToBottom === true ){
-               window.setTimeout(() => this.#scrollListToBottom(), 250);
+                window.setTimeout(() => this.#scrollListToBottom(), 250);
             }
         });
     }
@@ -123,8 +123,8 @@ class ConversationViewer extends React.Component {
     }
 
     #loadConversationPageByMessage(message){
-        const messageService = new MessageService(this.state.conversation);
         if ( this.state.conversation instanceof Conversation ){
+            const messageService = new MessageService(this.state.conversation);
             this.state.messageList.set(message.getID(), message);
             Promise.all([
                 messageService.getMessages(24, null, message.getID()),
@@ -153,7 +153,8 @@ class ConversationViewer extends React.Component {
     }
 
     #addMessage(message){
-        if ( message.getConversation().getID() === this.props.conversation?.getID() ){
+        const { conversation } = this.state, messageConversation = message.getConversation();
+        if ( conversation instanceof Conversation && messageConversation.getID() === conversation.getID() ){
             const isMine = message.getUser().getID() === App.getAuthenticatedUser().getID();
             this.state.messageList.set(message.getID(), message);
             this.#triggerMessageListUpdate();
@@ -265,7 +266,6 @@ class ConversationViewer extends React.Component {
     constructor(props){
         super(props);
 
-        this.state = { conversation: ( this.props.conversation ?? null ), userTypingMessage: null, messageList: new Map(), loading: true };
         this._handleIntersectionChange = this._handleIntersectionChange.bind(this);
         this._handleConversationAction = this._handleConversationAction.bind(this);
         this._handleConversationClose = this._handleConversationClose.bind(this);
@@ -277,6 +277,12 @@ class ConversationViewer extends React.Component {
         this._handleMessageTyping = this._handleMessageTyping.bind(this);
         this._handleMessageSend = this._handleMessageSend.bind(this);
         this._handleScroll = this._handleScroll.bind(this);
+        this.state = {
+            loading: ( this.props.initialLoadingStatus !== false ),
+            conversation: ( this.props.conversation ?? null ),
+            userTypingMessage: null,
+            messageList: new Map(),
+        };
     }
 
     componentDidMount(){

@@ -7,35 +7,19 @@ import styles from './SearchResultEntry.scss';
 import React from 'react';
 
 class SearchResultEntry extends React.Component {
-    #resultType;
-
     #renderSearchResultEntry(){
-        switch ( this.#resultType ){
+        switch ( this.props.searchResultEntry.getResultType() ){
             case SearchResultEntryType.MESSAGE: {
-                return <MessageSearchResultEntry message={this.props.searchResultEntry.getEntity()} />
+                return <MessageSearchResultEntry message={this.props.searchResultEntry.getEntity()} />;
             }
             case SearchResultEntryType.USER: {
-                return <UserSearchResultEntry user={this.props.searchResultEntry.getEntity()} />
+                return <UserSearchResultEntry user={this.props.searchResultEntry.getEntity()} />;
             }
         }
     }
 
-    constructor(props){
-        super(props);
-
-        this.#resultType = props.searchResultEntry.getResultType();
-    }
-
-    getResultType(){
-        return this.#resultType;
-    }
-
     render(){
-        return (
-            <div className={styles.searchResultEntry}>
-                {this.#renderSearchResultEntry()}
-            </div>
-        );
+        return <div className={styles.searchResultEntry}>{this.#renderSearchResultEntry()}</div>;
     }
 }
 

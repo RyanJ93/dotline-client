@@ -19,6 +19,9 @@ class ConversationCard extends React.Component {
             if ( this.state.lastMessage === null || this.state.lastMessage.getCreatedAt() < message.getCreatedAt() ){
                 this.setState((prev) => ({ ...prev, lastMessage: message }));
                 this.#dateLabelRef.current?.setDate(message.getCreatedAt());
+                if ( typeof this.props.onLastMessageChange === 'function' ){
+                    this.props.onLastMessageChange(message);
+                }
             }
         }
     }
@@ -46,9 +49,9 @@ class ConversationCard extends React.Component {
             if ( this.#userTypingMessageTimeoutID !== null ){
                 window.clearTimeout(this.#userTypingMessageTimeoutID);
             }
-            this.setState((prev) => { return { ...prev, userTypingMessage: userTypingMessage } });
+            this.setState((prev) => ({ ...prev, userTypingMessage: userTypingMessage }));
             this.#userTypingMessageTimeoutID = window.setTimeout(() => {
-                this.setState((prev) => { return { ...prev, userTypingMessage: null } });
+                this.setState((prev) => ({ ...prev, userTypingMessage: null }));
             }, 2000);
         }
     }

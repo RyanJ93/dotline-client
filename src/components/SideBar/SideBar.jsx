@@ -23,10 +23,10 @@ class SideBar extends React.Component {
     }
 
     _handleSearchResultPick(searchResultEntry){
+        this.setState((prev) => ({ ...prev, activeTab: 'conversation-list' }));
         if ( typeof this.props.onSearchResultPick === 'function' ){
             this.props.onSearchResultPick(searchResultEntry);
         }
-        this.resetView();
     }
 
     _handleTabControlClick(event){
@@ -69,8 +69,8 @@ class SideBar extends React.Component {
         });
     }
 
-    setSelectedConversationID(conversationID, message = null){
-        this.#conversationListRef.current.setSelectedConversationID(conversationID, message);
+    setSelectedConversationID(conversationID){
+        this.#conversationListRef.current.setSelectedConversationID(conversationID);
         return this;
     }
 

@@ -9,7 +9,7 @@ import React from 'react';
 class SearchEngine extends React.Component {
     #renderResults(){
         const renderedResults = [], { t } = this.props;
-        if ( this.state.disabled !== true && Array.isArray(this.state.searchResultEntryList) ){
+        if ( Array.isArray(this.state.searchResultEntryList) && this.state.searchResultEntryList.length > 0 ){
             this.state.searchResultEntryList.forEach((searchResultEntry, index) => {
                 if ( searchResultEntry.getEntity() !== null ){
                     renderedResults.push(
@@ -27,15 +27,23 @@ class SearchEngine extends React.Component {
     }
 
     #renderSearchDisabledMessage(){
-        if ( this.state.disabled === true ){
-            const { t } = this.props;
-            return (
-                <div className={styles.searchDisabledMessage}>
-                    <p className={styles.title}>{t('searchEngine.disabledTitle')}</p>
-                    <p className={styles.subtitle}>{t('searchEngine.disabledText')}</p>
-                </div>
-            );
-        }
+        const { t } = this.props;
+        return (
+            <div className={styles.searchDisabledMessage}>
+                <p className={styles.title}>{t('searchEngine.disabledTitle')}</p>
+                <p className={styles.subtitle}>{t('searchEngine.disabledText')}</p>
+            </div>
+        );
+    }
+
+    #renderLoadingMessage(){
+        const { t } = this.props;
+        return (
+            <div className={styles.loadingMessage}>
+                <div className={styles.loader + ' loader-img'}></div>
+                <p className={styles.label}>{t('searchEngine.loadingLabel')}</p>
+            </div>
+        );
     }
 
     _handleSearchResultPick(event){
@@ -49,20 +57,23 @@ class SearchEngine extends React.Component {
     constructor(props){
         super(props);
 
+        this.state = { searchResultEntryList: null, disabled: false, loading: false };
         this._handleSearchResultPick = this._handleSearchResultPick.bind(this);
-        this.state = { searchResultEntryList: null, disabled: false };
     }
 
     async search(query){
-        const searchResultEntryList = await new SearchService().search(query);
-        this.setState((prev) => ({ ...prev, searchResultEntryList: searchResultEntryList }));
-        if ( typeof this.props.onSearch === 'function' ){
-            this.props.onSearch(searchResultEntryList);
+        if ( this.state.disabled !== true ){
+            this.setState((prev) => ({ ...prev, searchResultEntryList: null, loading: true }));
+            const searchResultEntryList = await new SearchService().search(query);
+            this.setState((prev) => ({ ...prev, searchResultEntryList: searchResultEntryList, loading: false }));
+            if ( typeof this.props.onSearch === 'function' ){
+                this.props.onSearch(searchResultEntryList);
+            }
         }
     }
 
     setDisabled(disabled){
-        this.setState((prev) => ({ ...prev, disabled: ( disabled === true ) }));
+        this.clear().setState((prev) => ({ ...prev, disabled: ( disabled === true ) }));
         return this;
     }
 
@@ -71,15 +82,16 @@ class SearchEngine extends React.Component {
     }
 
     clear(){
-        this.setState((prev) => ({ ...prev, searchResultEntryList: null }));
+        this.setState((prev) => ({ ...prev, searchResultEntryList: null, loading: false }));
         return this;
     }
 
     render(){
         return (
             <div className={styles.searchEngine}>
-                {this.#renderSearchDisabledMessage()}
-                {this.#renderResults()}
+                { this.state.disabled === false && this.state.loading === true && this.#renderLoadingMessage() }
+                { this.state.disabled === false && this.state.loading === false && this.#renderResults() }
+                { this.state.disabled === true && this.#renderSearchDisabledMessage()}
             </div>
         );
     }

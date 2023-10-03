@@ -50,4 +50,10 @@
         cursor: pointer;
         border: none;
     }
+
+    .loader-img-white, .loader-img, .logo-img {
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+    }
 }
