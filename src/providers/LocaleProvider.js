@@ -2,6 +2,7 @@
 
 import { initReactI18next } from 'react-i18next';
 import backend from 'i18next-xhr-backend';
+import Locale from '../facades/Locale';
 import Provider from './Provider';
 import i18n from 'i18next';
 
@@ -21,8 +22,7 @@ class LocaleProvider extends Provider {
 
     async run(){
         await this.#setupI18n();
-        await i18n.changeLanguage(i18n.language);
-        window.changeLanguage = (language) => i18n.changeLanguage(language);
+        await Locale.changeLanguage(i18n.language);
     }
 }
 

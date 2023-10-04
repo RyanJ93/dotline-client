@@ -14,6 +14,12 @@ footer.footer {
         @media (max-width: 480px){
             & {
                 flex-direction: column-reverse;
+
+                div.rightContent {
+                    text-align: left !important;
+                    max-width: 100% !important;
+                    width: 100% !important;
+                }
             }
         }
 
@@ -27,6 +33,17 @@ footer.footer {
         }
 
         div.rightContent {
+            align-self: center;
+            text-align: right;
+            flex-shrink: 0;
+            max-width: 50%;
+            width: 500px;
+
+            div.localePickerContainer {
+                margin-left: 12px;
+                float: right;
+            }
+
             p.credits {
                 margin: 0;
             }
