@@ -76,6 +76,8 @@
     "basicInfoSettingsSection.label.name": "Nome",
     "basicInfoSettingsSection.label.surname": "Cognome",
     "basicInfoSettingsSection.label.username": "Username",
+    "basicInfoSettingsSection.error.surnameTooLong": "Il cognome non può superare i 25 caratteri.",
+    "basicInfoSettingsSection.error.nameTooLong": "Il nome non può superare i 25 caratteri.",
     "controlsSettingsSection.title": "Operazioni",
     "controlsSettingsSection.regenerateRecoveryKey.confirmText": "Vuoi davvero rigenerare la tua chiave di recupero?",
     "controlsSettingsSection.regenerateRecoveryKey.confirmTitle": "Conferma azione",

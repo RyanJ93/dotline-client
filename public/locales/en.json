@@ -76,6 +76,8 @@
     "basicInfoSettingsSection.label.name": "Name",
     "basicInfoSettingsSection.label.surname": "Surname",
     "basicInfoSettingsSection.label.username": "Username",
+    "basicInfoSettingsSection.error.surnameTooLong": "Surname cannot exceed 25 characters.",
+    "basicInfoSettingsSection.error.nameTooLong": "Name cannot exceed 25 characters.",
     "controlsSettingsSection.title": "Operations",
     "controlsSettingsSection.regenerateRecoveryKey.confirmText": "Do you really want to regenerate your recovery key?",
     "controlsSettingsSection.regenerateRecoveryKey.confirmTitle": "Action confirmation",
