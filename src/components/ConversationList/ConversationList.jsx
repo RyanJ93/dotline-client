@@ -33,6 +33,7 @@ class ConversationList extends React.Component {
         entryList.sort((a, b) => isNaN(a[1]) ? -1 : ( a[1] > b[1] ? -1 : ( a[1] === b[1] ? 0 : 1 ) ));
         entryList.forEach((entry, index) => {
             const element = this.#conversationListRef.current.querySelector('li[data-conversation-id="' + entry[0] + '"]');
+            element.setAttribute('data-first-entry', ( index === 0 ? 'true' : 'false' ));
             element.style.order = index;
         });
     }
