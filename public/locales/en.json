@@ -61,6 +61,7 @@
     "messageEditor.title.stickers": "Send a sticker",
     "messageEditor.title.voice": "Record a voice message",
     "messageEditor.error.messageTooLong": "Your message exceed the [amount] character limit.",
+    "messageEditor.error.geoPermissionDenied": "You must grant geolocation access to send your position!",
     "conversationViewer.noMessage": "No message yet, why don't your start saying hello?",
     "conversationViewer.dropZoneLabel": "Drop files here to send them.",
     "conversationViewer.loading": "Loading conversation messages...",
