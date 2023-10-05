@@ -1,5 +1,6 @@
 'use strict';
 
+import InputTooLongException from '../../../exceptions/InputTooLongException';
 import SubmitButton from '../../SubmitButton/SubmitButton';
 import UserService from '../../../services/UserService';
 import styles from './BasicInfoSettingsSection.scss';
@@ -23,6 +24,29 @@ class BasicInfoSettingsSection extends React.Component {
         return true;
     }
 
+    #handleSubmitError(error){
+        const { t } = this.props, saveLabel = t('basicInfoSettingsSection.label.save');
+        this.#submitButtonRef.current.setTemporaryStatus('error', saveLabel, saveLabel);
+        if ( error instanceof InputTooLongException ){
+            if ( error.message.toLowerCase().indexOf('surname') >= 0 ){
+                const errorMessage = t('basicInfoSettingsSection.error.surnameTooLong');
+                this.#surnameInputRef.current.setErrorMessage(errorMessage);
+                return;
+            }else if ( error.message.toLowerCase().indexOf('name') >= 0 ){
+                const errorMessage = t('basicInfoSettingsSection.error.nameTooLong');
+                this.#nameInputRef.current.setErrorMessage(errorMessage);
+                return;
+            }
+        }
+        throw error;
+    }
+
+    #resetErrorMessages(){
+        this.#usernameInputRef.current.setErrorMessage(null);
+        this.#surnameInputRef.current.setErrorMessage(null);
+        this.#nameInputRef.current.setErrorMessage(null);
+    }
+
     async #submit(){
         const name = this.#nameInputRef.current.getValue(), { t } = this.props;
         const successMessage = t('basicInfoSettingsSection.successMessage');
@@ -30,12 +54,12 @@ class BasicInfoSettingsSection extends React.Component {
         const username = this.#usernameInputRef.current.getValue();
         const surname = this.#surnameInputRef.current.getValue();
         this.#submitButtonRef.current.setStatus('loading');
+        this.#resetErrorMessages();
         try{
             await new UserService().edit(username, name, surname);
             this.#submitButtonRef.current.setTemporaryStatus('completed', successMessage, saveLabel);
         }catch(ex){
-            this.#submitButtonRef.current.setTemporaryStatus('error', saveLabel, saveLabel);
-            throw ex;
+            this.#handleSubmitError(ex);
         }
     }
 
