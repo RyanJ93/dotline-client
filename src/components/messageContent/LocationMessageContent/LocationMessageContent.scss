@@ -1,13 +1,44 @@
-div.mapContainer {
-    width: 600px;
-    height: 300px;
-    max-width: 100%;
-    padding-top: 6px;
+div.locationMessageContent {
+    div.contentWrapper {
+        display: none;
 
-    iframe {
-        border-radius: 3px;
-        width: 100%;
-        height: 100%;
-        border: 0;
+        &[data-show="true"] {
+            display: block;
+        }
+
+        div.mapLoader, div.errorMessage {
+            text-align: center;
+            padding-top: 18px;
+
+            div.loaderImg {
+                margin: auto;
+                height: 32px;
+                width: 32px;
+            }
+
+            p.label {
+                font-style: italic;
+                font-size: 14px;
+                margin: 0;
+            }
+
+            button {
+                margin-top: 12px;
+            }
+        }
+
+        div.mapContainer {
+            width: 600px;
+            height: 300px;
+            max-width: 100%;
+            padding-top: 6px;
+
+            iframe {
+                border-radius: 3px;
+                width: 100%;
+                height: 100%;
+                border: 0;
+            }
+        }
     }
 }
