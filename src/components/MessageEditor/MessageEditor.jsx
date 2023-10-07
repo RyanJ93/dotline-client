@@ -12,6 +12,7 @@ import { withTranslation } from 'react-i18next';
 import GeoUtils from '../../utils/GeoUtils';
 import styles from './MessageEditor.scss';
 import React from 'react';
+import MessageBox from '../../facades/MessageBox';
 
 class MessageEditor extends React.Component {
     #voiceMessageRecorderRef = React.createRef();
@@ -77,10 +78,21 @@ class MessageEditor extends React.Component {
     }
 
     async #sendLocation(){
-        const position = await GeoUtils.getCurrentPosition();
-        const messageLocation = MessageLocation.makeFromGeolocationPosition(position);
-        const content = messageLocation.toSerializedLocation();
-        this.props.onMessageSend(content, MessageType.LOCATION, [], null);
+        const { t } = this.props;
+        try{
+            const position = await GeoUtils.getCurrentPosition();
+            const messageLocation = MessageLocation.makeFromGeolocationPosition(position);
+            const content = messageLocation.toSerializedLocation();
+            if ( typeof this.props.onMessageSend === 'function' ){
+                this.props.onMessageSend(content, MessageType.LOCATION, null, null);
+            }
+        }catch(ex){
+            if ( ex instanceof GeolocationPositionError && ex.message.indexOf('denied') > 0 ){
+                return await MessageBox.error(t('messageEditor.error.geoPermissionDenied'));
+            }
+            await MessageBox.reportError(ex);
+            console.error(ex);
+        }
     }
 
     _handleEditMessageDiscardClick(){

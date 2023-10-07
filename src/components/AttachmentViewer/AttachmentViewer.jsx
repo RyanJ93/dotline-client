@@ -22,8 +22,6 @@ class AttachmentViewer extends React.Component {
         return sizes;
     }
 
-    #attachmentFetched = false;
-
     #getGroupedAttachments(){
         const groupedAttachments = { images: [], videos: [], audios: [], others: [] };
         this.state.downloadedAttachmentList.forEach((downloadedAttachment) => {
@@ -127,13 +125,12 @@ class AttachmentViewer extends React.Component {
     }
 
     #renderAttachments(){
-        const length = this.state.downloadedAttachmentList.length, renderedAttachmentList = [];
-        const groupedAttachments = this.#getGroupedAttachments();
+        const groupedAttachments = this.#getGroupedAttachments(), renderedAttachmentList = [];
         this.#renderImageAttachments(renderedAttachmentList, groupedAttachments);
         this.#renderVideoAttachments(renderedAttachmentList, groupedAttachments);
         this.#renderAudioAttachments(renderedAttachmentList, groupedAttachments);
         this.#renderOtherAttachments(renderedAttachmentList, groupedAttachments);
-        return length === 0 ? null : <div className={styles.container}>{renderedAttachmentList}</div>;
+        return <div className={styles.container}>{renderedAttachmentList}</div>;
     }
 
     _handleAttachmentClick(event){
@@ -151,26 +148,56 @@ class AttachmentViewer extends React.Component {
         });
     }
 
+    _handleRetryClick(){
+        this.setState((prev) => ({ ...prev, attachmentFetchStatus: null }), () => {
+            return this.fetchAttachments();
+        });
+    }
+
     constructor(props){
         super(props);
 
-        this.state = { message: this.props.message, downloadedAttachmentList: [] };
+        this.state = { message: this.props.message, downloadedAttachmentList: [], attachmentFetchStatus: null };
         this._handleAttachmentClick = this._handleAttachmentClick.bind(this);
+        this._handleRetryClick = this._handleRetryClick.bind(this);
         this._handlePlay = this._handlePlay.bind(this);
     }
 
     async fetchAttachments(){
-        if ( this.state.message.getAttachments().length > 0 && !this.#attachmentFetched ){
-            this.#attachmentFetched = true;
-            const downloadedAttachmentList = await Promise.all(this.state.message.getAttachments().map((attachment) => {
-                return new AttachmentService(this.state.message).fetchAttachment(attachment);
-            }));
-            this.setState((prev) => ({ ...prev, downloadedAttachmentList: downloadedAttachmentList }));
+        if ( this.state.message.getAttachments().length > 0 && this.state.attachmentFetchStatus === null ){
+            try{
+                this.setState((prev) => ({ ...prev, attachmentFetchStatus: 'loading' }));
+                const downloadedAttachmentList = await Promise.all(this.state.message.getAttachments().map((attachment) => {
+                    return new AttachmentService(this.state.message).fetchAttachment(attachment);
+                }));
+                this.setState((prev) => ({ ...prev, downloadedAttachmentList: downloadedAttachmentList, attachmentFetchStatus: 'loaded' }));
+            }catch(ex){
+                this.setState((prev) => ({ ...prev, attachmentFetchStatus: 'error' }));
+                console.error(ex);
+            }
         }
     }
 
     render(){
-        return <div className={styles.attachmentViewer}>{this.#renderAttachments()}</div>;
+        const { attachmentFetchStatus, downloadedAttachmentList } = this.state, { t } = this.props;
+        const showAttachments = attachmentFetchStatus === 'loaded' && downloadedAttachmentList.length > 0;
+        return (
+            <div className={styles.attachmentViewer}>
+                <div className={styles.contentWrapper} data-show={showAttachments}>{this.#renderAttachments()}</div>
+                <div className={styles.contentWrapper} data-show={attachmentFetchStatus === 'error'}>
+                    <div className={styles.errorMessage}>
+                        <p className={styles.label + ' text-danger'}>{t('attachmentViewer.errorLabel')}</p>
+                        <button className={'button-min danger'} onClick={this._handleRetryClick}>{t('attachmentViewer.retryButtonLabel')}</button>
+                    </div>
+                </div>
+                <div className={styles.contentWrapper} data-show={attachmentFetchStatus === 'loading'}>
+                    <div className={styles.attachmentLoader}>
+                        <div className={styles.loaderImg + ' loader-img'} />
+                        <p className={styles.label}>{t('attachmentViewer.loaderLabel')}</p>
+                    </div>
+                </div>
+            </div>
+        );
     }
 }
 

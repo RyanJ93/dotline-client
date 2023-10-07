@@ -5,6 +5,7 @@ import APIEndpoints from '../enum/APIEndpoints';
 import UserSettings from '../DTOs/UserSettings';
 import Injector from '../facades/Injector';
 import Request from '../facades/Request';
+import Locale from '../facades/Locale';
 import Service from './Service';
 
 class UserSettingsService extends Service {
@@ -41,7 +42,7 @@ class UserSettingsService extends Service {
         const userSettings = this.#userSettingsRepository.getUserSettings();
         if ( userSettings !== null ){
             document.querySelector('html').setAttribute('data-theme', userSettings.getTheme());
-            window.changeLanguage(userSettings.getLocale());
+            Locale.changeLanguage(userSettings.getLocale());
             this.#triggerChangeEvents(userSettings);
         }
     }

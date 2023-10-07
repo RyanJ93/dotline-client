@@ -1,5 +1,6 @@
 'use strict';
 
+import LocalePicker from '../LocalePicker/LocalePicker';
 import { withTranslation } from 'react-i18next';
 import App from '../../facades/App';
 import styles from './Footer.scss';
@@ -16,6 +17,9 @@ class Footer extends React.Component {
                         <p className={styles.info}>{t('footer.version').replace('[version]', App.getVersion())}</p>
                     </div>
                     <div className={styles.rightContent}>
+                        <div className={styles.localePickerContainer}>
+                            <LocalePicker />
+                        </div>
                         <p className={styles.credits}>{t('footer.credits')}<a href={'https://www.enricosola.dev'} className={'link-primary'}>Enrico Sola</a></p>
                     </div>
                 </div>

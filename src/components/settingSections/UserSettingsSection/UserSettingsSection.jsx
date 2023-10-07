@@ -4,6 +4,7 @@ import UserSettingsService from '../../../services/UserSettingsService';
 import SubmitButton from '../../SubmitButton/SubmitButton';
 import styles from './UserSettingsSection.scss';
 import { withTranslation } from 'react-i18next';
+import Locale from '../../../facades/Locale';
 import Event from '../../../facades/Event';
 import React from 'react';
 
@@ -27,6 +28,13 @@ class UserSettingsSection extends React.Component {
             this.#submitButtonRef.current.setTemporaryStatus('error', saveLabel, saveLabel);
             throw ex;
         }
+    }
+
+    #renderLocaleSelect(){
+        const optionList = Locale.getSupportedLocales().map((localeProperties) => {
+            return <option value={localeProperties.code} key={localeProperties.code}>{localeProperties.label}</option>;
+        });
+        return <select ref={this.#localeSelectRef}>{optionList}</select>;
     }
 
     _handleSubmit(event){
@@ -54,12 +62,7 @@ class UserSettingsSection extends React.Component {
             <div className={styles.section}>
                 <form className={styles.content} onSubmit={this._handleSubmit}>
                     <p className={styles.sectionTitle + ' text-primary'}>{t('userSettingsSection.title')}</p>
-                    <div className={styles.field}>
-                        <select ref={this.#localeSelectRef}>
-                            <option value={'en'}>English</option>
-                            <option value={'it'}>Italiano</option>
-                        </select>
-                    </div>
+                    <div className={styles.field}>{this.#renderLocaleSelect()}</div>
                     <div className={styles.field}>
                         <select ref={this.#themeSelectRef}>
                             <option value={'auto'}>{t('userSettingsSection.theme.auto')}</option>

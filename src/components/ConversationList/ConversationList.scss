@@ -16,11 +16,11 @@ div.conversationList {
 
             @media (max-width: 480px) {
                 & {
-                    border-bottom: 1px solid;
-                    border-bottom-color: inherit;
+                    border-top: 1px solid;
+                    border-top-color: inherit;
 
-                    &:last-child {
-                        border-bottom: none !important;
+                    &[data-first-entry="true"] {
+                        border-top: none !important;
                     }
                 }
 

@@ -3,9 +3,10 @@
 import AuthenticatedUserExportedRSAKeys from '../DTOs/AuthenticatedUserExportedRSAKeys';
 import IllegalArgumentException from '../exceptions/IllegalArgumentException';
 import UnauthorizedException from '../exceptions/UnauthorizedException';
+import InputTooLongException from '../exceptions/InputTooLongException';
 import NotFoundException from '../exceptions/NotFoundException';
 import UserRecoverySession from '../DTOs/UserRecoverySession';
-import UserRecoveryParams from '../DTOs/UserRecoveryParams'
+import UserRecoveryParams from '../DTOs/UserRecoveryParams';
 import AuthenticatedUser from '../DTOs/AuthenticatedUser';
 import AccessTokenService from './AccessTokenService';
 import LocalDataService from './LocalDataService';
@@ -351,21 +352,35 @@ class UserService extends Service {
      * @returns {Promise<void>}
      *
      * @throws {DuplicatedUsernameException} If the given username has already been taken.
+     * @throws {InputTooLongException} If the provided surname is too long.
      * @throws {IllegalArgumentException} If an invalid username is given.
      * @throws {IllegalArgumentException} If an invalid surname is given.
+     * @throws {InputTooLongException} If the provided name is too long.
      * @throws {IllegalArgumentException} If an invalid name is given.
      */
     async edit(username, name, surname){
-        if ( surname !== null && ( surname === '' || typeof surname !== 'string' ) ){
-            throw new IllegalArgumentException('Invalid surname.');
-        }
-        if ( name !== null && ( name === '' || typeof name !== 'string' ) ){
-            throw new IllegalArgumentException('Invalid name.');
-        }
         if ( username === '' || typeof username !== 'string' ){
             throw new IllegalArgumentException('Invalid username.');
         }
-        const data = { username: username, surname: surname, name: name };
+        if ( typeof surname !== 'string' ){
+            throw new IllegalArgumentException('Invalid surname.');
+        }
+        if ( typeof name !== 'string' ){
+            throw new IllegalArgumentException('Invalid name.');
+        }
+        if ( surname.length > 25 ){
+            throw new InputTooLongException('Provided surname is too long.');
+        }
+        if ( name.length > 25 ){
+            throw new InputTooLongException('Provided name is too long.');
+        }
+        const data = { username: username };
+        if ( surname !== '' ){
+            data.surname = surname;
+        }
+        if ( name !== '' ){
+            data.name = name;
+        }
         const response = await Request.patch(APIEndpoints.USER_EDIT, data, true);
         const authenticatedUser = AuthenticatedUser.makeFromHTTPResponse(response);
         this.#authenticatedUserRepository.storeAuthenticatedUser(authenticatedUser);
