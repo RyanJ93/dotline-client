@@ -7,23 +7,24 @@ div.conversationCard {
         box-sizing: border-box;
 
         p.name {
+            font-weight: bold;
+            font-size: 16px;
             margin: 0;
-            font-size: 18px;
         }
 
         div.messagePreviewWrapper {
             position: relative;
 
             p.messagePreview {
-                font-size: 13px;
-                margin: 3px 0 0;
-                position: absolute;
-                width: 200px;
-                overflow: hidden;
-                word-wrap: break-word;
-                display: -webkit-box;
                 -webkit-box-orient: vertical;
                 -webkit-line-clamp: 2;
+                word-wrap: break-word;
+                display: -webkit-box;
+                position: absolute;
+                overflow: hidden;
+                font-size: 12px;
+                width: 225px;
+                margin: 0;
             }
         }
     }

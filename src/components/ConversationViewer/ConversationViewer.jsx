@@ -3,6 +3,7 @@
 import ConversationViewerHeader from '../ConversationViewerHeader/ConversationViewerHeader';
 import AttachmentLightBox from '../AttachmentLightBox/AttachmentLightBox';
 import ConversationService from '../../services/ConversationService';
+import MessageSyncManager from '../../support/MessageSyncManager';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import MessageEditor from '../MessageEditor/MessageEditor';
 import MessageService from '../../services/MessageService';
@@ -56,7 +57,7 @@ class ConversationViewer extends React.Component {
                 this.#messageCardRefIndex[message.getID()] = React.createRef();
                 if ( currentPassedDate !== previousPassedDate ){
                     renderedMessageList.push(
-                        <li key={currentPassedDate} className={styles.dateSeparator}>
+                        <li key={currentPassedDate} className={styles.dateSeparator + ' border-secondary'}>
                             <span className={'bg-secondary text-white'}>{currentPassedDate}</span>
                         </li>
                     );
@@ -72,41 +73,47 @@ class ConversationViewer extends React.Component {
         return <ul className={styles.messageList}>{renderedMessageList}</ul>;
     }
 
-    #scrollListToBottom(){
-        const scrollHeight = this.#messageListRef.current.scrollHeight;
-        DOMUtils.scrollTop(this.#messageListRef.current, scrollHeight);
+    #scrollListToBottom(){console.log(2222222222);
+        DOMUtils.scrollToBottom(this.#messageListRef.current);
         this.#updateScrollDownButtonVisibility();
     }
 
-    #triggerMessageListUpdate(scrollToBottom = false){
+    #triggerMessageListUpdate(scrollToBottom = false){console.trace();
         this.forceUpdate(() => {
             const elementList = this.#messageListRef.current.querySelectorAll('div[data-message-id]');
             this.#intersectionObserver = new IntersectionObserver(this._handleIntersectionChange, {
-                root: this.#messageListRef.current,
-                threshold: 1
+                root: this.#messageListRef.current, threshold: 1
             });
             elementList.forEach((element) => this.#intersectionObserver.observe(element));
             this.#updateScrollDownButtonVisibility();
-            if ( scrollToBottom === true ){
-                window.setTimeout(() => this.#scrollListToBottom(), 250);
+            if ( scrollToBottom === true ){console.log(111111111);
+                window.setTimeout(() => this.#scrollListToBottom(), 2500);
             }
         });
     }
 
+    #resetListContent(){
+        this.setState((prev) => ({ ...prev, messageDateThreshold: null, messageList: new Map() }));
+        this.#messageMarkIndex.clear();
+    }
+
     #loadConversationMessages(startingID = null){
-        if ( this.#messagePageLoading === false ){
+        const isSyncProcessRunning = MessageSyncManager.getInstance().isSyncProcessRunning();
+        if ( this.#messagePageLoading === false && !isSyncProcessRunning ){
             if ( typeof startingID !== 'string' ){
-                this.#messageMarkIndex.clear();
-                this.state.messageList.clear();
+                this.#resetListContent();
             }
             const scrollToBottom = this.state.messageList.size === 0;
             if ( this.state.conversation instanceof Conversation ){
                 this.setState((prev) => ({ ...prev, loading: true }));
                 this.#messagePageLoading = true;
                 new MessageService(this.state.conversation).getMessages(50, null, startingID).then((messageList) => {
+                    const messageDateThreshold = messageList.length > 0 ? messageList[0].getCreatedAt() : null;
+                    this.setState((prev) => ({ ...prev, loading: false, messageDateThreshold: messageDateThreshold }));
                     messageList.forEach((message) => this.state.messageList.set(message.getID(), message));
-                    this.setState((prev) => ({ ...prev, loading: false }));
-                    this.#triggerMessageListUpdate(scrollToBottom);
+                    if ( messageList.length > 0 ){
+                        this.#triggerMessageListUpdate(scrollToBottom);
+                    }
                     this.#messagePageLoading = false;
                 });
             }
@@ -153,14 +160,14 @@ class ConversationViewer extends React.Component {
     }
 
     #addMessage(message){
-        const { conversation } = this.state, messageConversation = message.getConversation();
-        if ( conversation instanceof Conversation && messageConversation.getID() === conversation.getID() ){
-            const isMine = message.getUser().getID() === App.getAuthenticatedUser().getID();
+        const { conversation, messageDateThreshold } = this.state, messageConversation = message.getConversation();
+        const isCurrentConversation = messageConversation.getID() === conversation?.getID();
+        if ( isCurrentConversation && message.getCreatedAt() >= messageDateThreshold ){console.log('ADD', messageDateThreshold, message.getCreatedAt());
+            const isScrolledToBottom = DOMUtils.isScrolledToBottom(this.#messageListRef.current, 100);
+            const isMyMessage = message.getUser().getID() === App.getAuthenticatedUser().getID();
+            const scrollToBottom = isMyMessage || isScrolledToBottom;
             this.state.messageList.set(message.getID(), message);
-            this.#triggerMessageListUpdate();
-            if ( isMine ){
-                this.#scrollListToBottom();
-            }
+            this.#triggerMessageListUpdate(scrollToBottom);
         }
     }
 
@@ -280,23 +287,21 @@ class ConversationViewer extends React.Component {
         this.state = {
             loading: ( this.props.initialLoadingStatus !== false ),
             conversation: ( this.props.conversation ?? null ),
+            messageDateThreshold: null,
             userTypingMessage: null,
-            messageList: new Map(),
+            messageList: new Map()
         };
     }
 
     componentDidMount(){
         Event.getBroker().on('messageAdded', (message) => this.#addMessage(message));
         Event.getBroker().on('conversationHeadReady', (conversationID) => {
-            if ( this.state.conversation?.getID() === conversationID ){
+            if ( this.state.conversation?.getID() === conversationID && this.state.messageList.size === 0 ){
                 this.#loadConversationMessages();
             }
         });
         Event.getBroker().on('localDataCleared', () => {
-            this.setState((prev) => ({ ...prev, loading: true }), () => {
-                this.#messageMarkIndex.clear();
-                this.state.messageList.clear();
-            });
+            this.setState((prev) => ({ ...prev, loading: true }), () => this.#resetListContent());
         });
         Event.getBroker().on('messageDelete', (messageID) => {
             this.state.messageList.delete(messageID);
