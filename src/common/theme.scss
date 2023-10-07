@@ -43,6 +43,11 @@
             filter: grayscale(1);
             pointer-events: none;
         }
+
+        &.button-min {
+            padding: 6px 9px;
+            font-size: 12px;
+        }
     }
 
     a, a:active, a:hover {
