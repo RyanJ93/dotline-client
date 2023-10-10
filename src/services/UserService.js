@@ -2,6 +2,7 @@
 
 import AuthenticatedUserExportedRSAKeys from '../DTOs/AuthenticatedUserExportedRSAKeys';
 import IllegalArgumentException from '../exceptions/IllegalArgumentException';
+import UserOnlineStatusWatcher from '../support/UserOnlineStatusWatcher';
 import UnauthorizedException from '../exceptions/UnauthorizedException';
 import InputTooLongException from '../exceptions/InputTooLongException';
 import NotFoundException from '../exceptions/NotFoundException';
@@ -34,6 +35,7 @@ class UserService extends Service {
         new AccessTokenService().storeAccessToken(response.accessToken.accessToken, isSession);
         this.#authenticatedUserRepository.storeAuthenticatedUser(authenticatedUser);
         this._eventBroker.emit('userAuthenticated', authenticatedUser);
+        UserOnlineStatusWatcher.getInstance().startPollingCheck(true);
         await this.#webSocketClient.connect();
         return authenticatedUser;
     }
@@ -209,6 +211,7 @@ class UserService extends Service {
             const authenticatedUser = AuthenticatedUser.makeFromHTTPResponse(response);
             this.#authenticatedUserRepository.storeAuthenticatedUser(authenticatedUser);
             this._eventBroker.emit('userAuthenticated', authenticatedUser);
+            UserOnlineStatusWatcher.getInstance().startPollingCheck(true);
             await this.#webSocketClient.connect();
             return authenticatedUser;
         }catch(ex){
@@ -323,26 +326,6 @@ class UserService extends Service {
     }
 
     /**
-     * Check if the given users are online at the moment or not.
-     *
-     * @param {string[]} userIDList
-     *
-     * @returns {Promise<Object.<string, boolean>>}
-     *
-     * @throws {IllegalArgumentException} If an invalid user ID list is given.
-     */
-    async checkOnlineUsers(userIDList){
-        if ( !Array.isArray(userIDList) ){
-            throw new IllegalArgumentException('Invalid user ID list.');
-        }
-        const response = await this.#webSocketClient.send({
-            payload: { userIDList: userIDList },
-            action: 'checkOnlineUser'
-        });
-        return response?.payload ?? {};
-    }
-
-    /**
      * Updates the authenticated user.
      *
      * @param {string} username
@@ -394,6 +377,7 @@ class UserService extends Service {
      * @returns {Promise<void>}
      */
     async logout(){
+        UserOnlineStatusWatcher.getInstance().stopPollingCheck(true);
         await this.#webSocketClient.disconnect();
         try{
             await Request.get(APIEndpoints.USER_LOGOUT);
