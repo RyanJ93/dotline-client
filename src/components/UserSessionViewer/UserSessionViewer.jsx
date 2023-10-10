@@ -35,11 +35,11 @@ class UserSessionViewer extends React.Component {
                     </div>
                     <div className={styles.row + ' text-white'}>
                         <p>{t('userSessionViewer.details.firstAccess')}</p>
-                        <p className={styles.value}>{DateUtils.getLocalizedDateTime(this.props.userSession.getFirstAccess(), false)}</p>
+                        <p className={styles.value}>{DateUtils.getLocalizedDateTime(this.props.userSession.getFirstAccess(), true)}</p>
                     </div>
                     <div className={styles.row + ' text-white'}>
                         <p>{t('userSessionViewer.details.lastAccess')}</p>
-                        <p className={styles.value}>{DateUtils.getLocalizedDateTime(this.props.userSession.getLastAccess(), false)}</p>
+                        <p className={styles.value}>{DateUtils.getLocalizedDateTime(this.props.userSession.getLastAccess(), true)}</p>
                     </div>
                 </div>
                 {map}
