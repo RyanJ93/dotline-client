@@ -2,6 +2,7 @@
 
 import MessageImportStatsViewer from '../MessageImportStatsViewer/MessageImportStatsViewer';
 import ConversationViewerList from '../ConversationViewerList/ConversationViewerList';
+import UserOnlineStatusService from '../../services/UserOnlineStatusService';
 import ConversationService from '../../services/ConversationService';
 import SearchResultEntryType from '../../enum/SearchResultEntryType';
 import ConversationDraft from '../../DTOs/ConversationDraft';
@@ -58,6 +59,7 @@ class MainView extends React.Component {
         const sender = App.getAuthenticatedUser(), recipient = searchResultEntry.getEntity();
         const conversation = await new ConversationService().getDMConversationByMembers(sender.getID(), recipient.getID());
         if ( conversation === null ){
+            new UserOnlineStatusService().subscribeToUserOnlineStatusChange(recipient.getID());
             const conversationDraft = new ConversationDraft({ members: [sender, recipient] });
             return this.#conversationViewerListRef.current.setConversationDraft(conversationDraft);
         }

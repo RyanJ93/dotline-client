@@ -1,8 +1,8 @@
 'use strict';
 
+import UserOnlineStatusService from '../../services/UserOnlineStatusService';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ConversationDraft from '../../DTOs/ConversationDraft';
-import UserService from '../../services/UserService';
 import styles from './ConversationViewerHeader.scss';
 import Conversation from '../../models/Conversation';
 import EntityIcon from '../EntityIcon/EntityIcon';
@@ -38,9 +38,9 @@ class ConversationViewerHeader extends React.Component {
         window.clearInterval(this.#checkUserOnlineStatusIntervalID);
         const DMConversationUser = this.#getDMConversationUser();
         if ( DMConversationUser !== null ){
-            this.#checkUserOnlineStatusIntervalID = window.setInterval(async () => {
-                const userMap = await new UserService().checkOnlineUsers([DMConversationUser.getID()]);
-                this.setState((prev) => ({ ...prev, isUserOnline: userMap[DMConversationUser.getID()] === true }));
+            this.#checkUserOnlineStatusIntervalID = window.setInterval(() => {
+                const isUserOnline = new UserOnlineStatusService().isUserOnline(DMConversationUser.getID());
+                this.setState((prev) => ({ ...prev, isUserOnline: isUserOnline }));
             }, 3000);
         }
     }
@@ -91,9 +91,9 @@ class ConversationViewerHeader extends React.Component {
                 if ( this.#userTypingMessageTimeoutID !== null ){
                     window.clearTimeout(this.#userTypingMessageTimeoutID);
                 }
-                this.setState((prev) => { return { ...prev, userTypingMessage: userTypingMessage } });
+                this.setState((prev) => ({ ...prev, userTypingMessage: userTypingMessage }));
                 this.#userTypingMessageTimeoutID = window.setTimeout(() => {
-                    this.setState((prev) => { return { ...prev, userTypingMessage: null } });
+                    this.setState((prev) => ({ ...prev, userTypingMessage: null }));
                 }, 2000);
             }
         }
