@@ -4,15 +4,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { withTranslation } from 'react-i18next';
 import DateUtils from '../../utils/DateUtils';
 import styles from './UserSessionViewer.scss';
+import Maps from '../../facades/Maps';
 import App from '../../facades/App';
 import React from 'react';
 
 class UserSessionViewer extends React.Component {
+    #mapContainerRef = React.createRef();
+
     #renderDetailsBox(){
-        let map = null, { t } = this.props;
-        if ( this.props.userSession.getLocation() !== null ){
-            map = <iframe className={styles.map} src={this.props.userSession.getLocation().getComputedOSMIframeURL()}></iframe>;
-        }
+        const { t } = this.props, withMap = this.props.userSession.getLocation() !== null;
         return (
             <div className={styles.detailsBox + ' bg-secondary'} data-active={this.state.detailsBoxActive} onClick={this._handleDetailsBoxOpen}>
                 <p className={styles.title + ' text-white'}>{t('userSessionViewer.controls.details')}</p>
@@ -42,7 +42,7 @@ class UserSessionViewer extends React.Component {
                         <p className={styles.value}>{DateUtils.getLocalizedDateTime(this.props.userSession.getLastAccess(), true)}</p>
                     </div>
                 </div>
-                {map}
+                { withMap && <div className={styles.mapContainer} ref={this.#mapContainerRef} /> }
                 <div className={styles.closeLinkWrapper}>
                     <a onClick={this._handleDetailsBoxClose} className={'text-white'}>{t('userSessionViewer.details.close')}</a>
                 </div>
@@ -61,6 +61,18 @@ class UserSessionViewer extends React.Component {
         );
     }
 
+    #renderMap(){
+        if ( !this.state.mapRendered && this.props.userSession.getLocation() !== null ){
+            if ( this.#mapContainerRef.current === null ){
+                return window.requestAnimationFrame(() => this.#renderMap());
+            }
+            const longitude = this.props.userSession.getLocation().getLongitude();
+            const latitude = this.props.userSession.getLocation().getLatitude();
+            Maps.generate(this.#mapContainerRef.current, [latitude, longitude], 15, true);
+            this.setState((prev) => ({ ...prev, mapRendered: true }));
+        }
+    }
+
     _handleDetailsBoxClose(){
         this.setState((prev) => ({ ...prev, detailsBoxActive: false }));
     }
@@ -68,6 +80,7 @@ class UserSessionViewer extends React.Component {
     _handleDetailsBoxOpen(){
         if ( this.state.detailsBoxActive !== true ){
             this.setState((prev) => ({ ...prev, detailsBoxActive: true }));
+            window.requestAnimationFrame(() => this.#renderMap());
         }
     }
 
@@ -84,7 +97,7 @@ class UserSessionViewer extends React.Component {
         this._handleDetailsBoxClose = this._handleDetailsBoxClose.bind(this);
         this._handleDetailsBoxOpen = this._handleDetailsBoxOpen.bind(this);
         this._handleDelete = this._handleDelete.bind(this);
-        this.state = { detailsBoxActive: false };
+        this.state = { detailsBoxActive: false, mapRendered: false };
     }
 
     render(){

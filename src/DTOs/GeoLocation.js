@@ -63,17 +63,6 @@ class GeoLocation {
     }
 
     /**
-     * Generates a URL used to display an embedded Open Street Map.
-     *
-     * @returns {string}
-     */
-    getComputedOSMIframeURL(){
-        const region = [this.#longitude - 1, this.#latitude - 1, this.#longitude + 1, this.#latitude + 1].join('%2C');
-        const coords = [this.#latitude, this.#longitude].join('%2C');
-        return 'https://www.openstreetmap.org/export/embed.html?bbox=' + region + '&amp;layer=mapnik&amp;marker=' + coords;
-    }
-
-    /**
      * Returns a JSON serializable representation of this class.
      *
      * @returns {GeoLocationProperties}
