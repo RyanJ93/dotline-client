@@ -6,6 +6,7 @@ import UserSettings from '../DTOs/UserSettings';
 import Injector from '../facades/Injector';
 import Request from '../facades/Request';
 import Locale from '../facades/Locale';
+import Theme from '../facades/Theme';
 import Service from './Service';
 
 class UserSettingsService extends Service {
@@ -41,8 +42,8 @@ class UserSettingsService extends Service {
     applyLocalSettings(){
         const userSettings = this.#userSettingsRepository.getUserSettings();
         if ( userSettings !== null ){
-            document.querySelector('html').setAttribute('data-theme', userSettings.getTheme());
             Locale.changeLanguage(userSettings.getLocale());
+            Theme.setTheme(userSettings.getTheme());
             this.#triggerChangeEvents(userSettings);
         }
     }
