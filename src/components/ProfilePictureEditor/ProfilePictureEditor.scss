@@ -1,0 +1,14 @@
+div.profilePictureEditor {
+    text-align: center;
+
+    div.preview {
+        margin: auto auto 6px;
+        border-radius: 32px;
+        height: 64px;
+        width: 64px;
+    }
+
+    input[type="file"] {
+        display: none;
+    }
+}

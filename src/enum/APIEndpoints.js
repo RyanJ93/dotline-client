@@ -15,6 +15,8 @@ export default Object.freeze({
     MESSAGE_EDIT: '/api/conversation/:conversationID/message/:messageID/edit',
     STICKER_GET: '/api/sticker-pack/:stickerPackID/sticker/:stickerID/get',
     USER_REGENERATE_RECOVERY_KEY: '/api/user/regenerate-recovery-key',
+    USER_PROFILE_PICTURE_REMOVE: '/api/user/profile-picture/remove',
+    USER_PROFILE_PICTURE_CHANGE: '/api/user/profile-picture/change',
     CONVERSATION_DELETE: '/api/conversation/:conversationID/delete',
     MESSAGE_SEND: '/api/conversation/:conversationID/message/send',
     MESSAGE_LIST: '/api/conversation/:conversationID/message/list',
@@ -41,4 +43,5 @@ export default Object.freeze({
     USER_LOGIN: '/api/user/login',
     USER_EDIT: '/api/user/edit',
     USER_INFO: '/api/user/info'
+
 });

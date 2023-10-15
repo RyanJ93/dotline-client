@@ -117,6 +117,10 @@ class Request extends Facade {
         return await Request.#makeRequest('PATCH', url, null, data, authenticated);
     }
 
+    static async put(url, data = null, authenticated = true){
+        return await Request.#makeRequest('PUT', url, null, data, authenticated);
+    }
+
     static async delete(url, query = null, authenticated = true){
         return await Request.#makeRequest('DELETE', url, query, null, authenticated);
     }
