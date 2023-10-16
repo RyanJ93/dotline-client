@@ -82,6 +82,15 @@ class ConversationViewerHeader extends React.Component {
         return lastAccessDate;
     }
 
+    #renderEntityIcon(){
+        if ( this.state.conversation instanceof Conversation && this.state.conversation.isDMConversation() ){
+            const members = this.state.conversation.getMembers(), userID = App.getAuthenticatedUser().getID();
+            const user = members[0].getUser().getID() === userID ? members[1].getUser() : members[0].getUser();
+            return <EntityIcon user={user} />;
+        }
+        return <EntityIcon text={this.state.conversation.getComputedName()} />;
+    }
+
     _handleUserTyping(conversation, user){
         if ( this.state.conversation instanceof Conversation && conversation instanceof Conversation ){
             const isThisConversation = conversation.getID() === this.state.conversation.getID();
@@ -156,7 +165,7 @@ class ConversationViewerHeader extends React.Component {
                     <div className={styles.backIconWrapper} onClick={this._handleBackIconClick}>
                         <FontAwesomeIcon icon="fa-solid fa-chevron-left" />
                     </div>
-                    <EntityIcon text={conversationName} />
+                    {this.#renderEntityIcon()}
                 </div>
                 <div className={styles.conversationInfo}>
                     <div>

@@ -212,5 +212,9 @@
     "message.preview.attachments": "[count] files",
     "attachmentLightBox.title.download": "Download",
     "attachmentLightBox.title.close": "Chiudi",
-    "voiceMessagePlayer.downloadTitle": "Scarica il messaggio vocale"
+    "voiceMessagePlayer.downloadTitle": "Scarica il messaggio vocale",
+    "profilePictureEditor.title.cancel": "Annulla il caricamento della foto profilo.",
+    "profilePictureEditor.title.retry": "Ritenta il caricamento della foto profilo",
+    "profilePictureEditor.label.pick": "Seleziona una foto",
+    "profilePictureEditor.label.remove": "Rimuovi foto"
 }

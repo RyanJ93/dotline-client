@@ -41,6 +41,15 @@ class ConversationCard extends React.Component {
         return lastMessageText;
     }
 
+    #renderEntityIcon(){
+        if ( this.props.conversation.isDMConversation() ){
+            const members = this.props.conversation.getMembers(), userID = App.getAuthenticatedUser().getID();
+            const user = members[0].getUser().getID() === userID ? members[1].getUser() : members[0].getUser();
+            return <EntityIcon user={user} />;
+        }
+        return <EntityIcon text={this.props.conversation.getComputedName()} />;
+    }
+
     _handleUserTyping(conversation, user){
         const isThisConversation = conversation?.getID() === this.props.conversation?.getID();
         const isEventReferredToMe = user?.getID() === App.getAuthenticatedUser().getID();
@@ -87,7 +96,7 @@ class ConversationCard extends React.Component {
         const { unreadMessageCount } = this.state;
         return (
             <div className={styles.conversationCard} ref={this.#conversationCardRef}>
-                <EntityIcon text={conversationName} />
+                { this.#renderEntityIcon() }
                 <div className={styles.lastMessage}>
                     <p className={styles.name}>{conversationName}</p>
                     <div className={styles.messagePreviewWrapper}>

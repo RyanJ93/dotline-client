@@ -52,6 +52,30 @@ class StringUtils {
         }
         return username !== '' && /[a-z0-9.-_]{3,16}/i.test(username);
     }
+
+    /**
+     * Generates a name that can be used as a user profile picture replacement.
+     *
+     * @param {string} fullName
+     *
+     * @returns {string}
+     *
+     * @throws {IllegalArgumentException} If an invalid name string is given.
+     */
+    static makePFPName(fullName){
+        if ( typeof fullName !== 'string' ){
+            throw new IllegalArgumentException('Invalid name.');
+        }
+        fullName = fullName.trim();
+        if ( fullName.length === 0 ){
+            return '';
+        }
+        if ( fullName.charAt(0) === '@' ){
+            fullName = fullName.substring(1);
+        }
+        const initials = fullName.split(/\s/).filter((word) => word).map((word) => word.charAt(0));
+        return initials.slice(0, 2).join('').toUpperCase();
+    }
 }
 
 /**

@@ -10,6 +10,7 @@ class User extends Model {
             keys: ['id'],
             tableName: 'users',
             fields: {
+                profilePictureID: { name: 'profilePictureID', type: 'timeuuid' },
                 RSAPublicKey: { name: 'RSAPublicKey', type: 'string' },
                 lastAccess: { name: 'lastAccess', type: 'date' },
                 username: { name: 'username', type: 'string' },
@@ -20,7 +21,7 @@ class User extends Model {
         };
     }
 
-    getComputedUser(){
+    getComputedName(){
         let computedName = this._attributes?.name ?? '';
         if ( computedName !== '' ){
             computedName += ' ';
@@ -39,6 +40,15 @@ class User extends Model {
 
     getRSAPublicKey(){
         return this._attributes?.RSAPublicKey ?? null;
+    }
+
+    setProfilePictureID(profilePictureID){
+        this._attributes.profilePictureID = profilePictureID;
+        return this;
+    }
+
+    getProfilePictureID(){
+        return this._attributes?.profilePictureID ?? null;
     }
 
     setLastAccess(lastAccess){

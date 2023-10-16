@@ -1,13 +1,23 @@
 div.entityIcon {
     display: inline-block;
-    width: 50px;
-    height: 50px;
     border-radius: 25px;
+    overflow: hidden;
+    height: 50px;
+    width: 50px;
 
     p.content {
-        width: 100%;
         text-align: center;
         font-size: 32px;
         margin-top: 3px;
+        width: 100%;
+    }
+
+    div.profilePicture {
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        border-radius: 25px;
+        height: 50px;
+        width: 50px;
     }
 }

@@ -24,7 +24,7 @@ class StickerPackRepository extends Repository {
         }
         this.dropStickerPackList();
         stickerPackList.forEach((stickerPack) => {
-            this.#stickerPacks[stickerPack.getID()] = stickerPack
+            this.#stickerPacks[stickerPack.getID()] = stickerPack;
         });
         return this;
     }
