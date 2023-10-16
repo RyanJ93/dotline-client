@@ -2,10 +2,131 @@ div.profilePictureEditor {
     text-align: center;
 
     div.preview {
+        transition: border .25s ease-in-out;
+        box-sizing: border-box;
         margin: auto auto 6px;
-        border-radius: 32px;
-        height: 64px;
-        width: 64px;
+        will-change: border;
+        border-radius: 64px;
+        position: relative;
+        overflow: hidden;
+        height: 128px;
+        width: 128px;
+
+        &[data-dragover="true"]{
+            border: 3px dashed #FFF;
+        }
+
+        &[data-status="uploading"] {
+            div.loaderWrapper {
+                opacity: 1;
+            }
+
+            div.picture {
+                filter: grayscale(1) blur(5px);
+                z-index: 5;
+            }
+        }
+
+        &[data-status="error"] {
+            div.controlsWrapper {
+                opacity: 1;
+            }
+
+            div.picture {
+                filter: grayscale(1) blur(5px);
+                z-index: 5;
+            }
+        }
+
+        div.loaderWrapper {
+            transition: opacity .25s ease-in-out;
+            will-change: opacity;
+            position: absolute;
+            display: flex;
+            height: 100%;
+            z-index: 10;
+            width: 100%;
+            opacity: 0;
+            left: 0;
+            top: 0;
+
+            div.loader {
+                align-self: center;
+                margin: auto;
+                height: 48px;
+                width: 48px;
+            }
+        }
+
+        div.picture {
+            transition: filter .25s ease-in-out;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: cover;
+            will-change: filter;
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            z-index: 15;
+            left: 0;
+            top: 0;
+        }
+
+        div.iconTextContainer {
+            display: flex;
+            height: 100%;
+            width: 100%;
+
+            p.iconText {
+                align-self: center;
+                text-align: center;
+                font-size: 72px;
+                width: 100%;
+                margin: 0;
+            }
+        }
+
+        div.controlsWrapper {
+            position: absolute;
+            display: flex;
+            height: 100%;
+            z-index: 10;
+            width: 100%;
+            opacity: 0;
+            left: 0;
+            top: 0;
+
+            div.controls {
+                align-self: center;
+                margin: auto;
+
+                svg {
+                    margin-left: 12px;
+                    font-size: 24px;
+                    cursor: pointer;
+
+                    &:first-child {
+                        margin: 0 !important;
+                    }
+                }
+            }
+        }
+    }
+
+    div.lowerControlsWrapper {
+        display: block;
+
+        &[data-active="false"] {
+            display: none;
+        }
+
+        a {
+            font-size: 14px;
+
+            &:nth-child(2):before {
+                content: ' • ';
+            }
+        }
     }
 
     input[type="file"] {

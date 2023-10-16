@@ -5,6 +5,7 @@ import IllegalArgumentException from '../exceptions/IllegalArgumentException';
 import UserOnlineStatusWatcher from '../support/UserOnlineStatusWatcher';
 import UnauthorizedException from '../exceptions/UnauthorizedException';
 import InputTooLongException from '../exceptions/InputTooLongException';
+import UserProfilePictureService from './UserProfilePictureService';
 import NotFoundException from '../exceptions/NotFoundException';
 import UserRecoverySession from '../DTOs/UserRecoverySession';
 import UserRecoveryParams from '../DTOs/UserRecoveryParams';
@@ -229,6 +230,19 @@ class UserService extends Service {
      */
     getAuthenticatedUser(){
         return this.#authenticatedUserRepository.getAuthenticatedUser();
+    }
+
+    /**
+     * Returns the authenticated user as a User model instance.
+     *
+     * @returns {Promise<?User>}
+     */
+    async getAuthenticatedUserAsModel(){
+        let authenticatedUser = this.getAuthenticatedUser();
+        if ( authenticatedUser !== null ){
+            authenticatedUser = await this.getUserByID(authenticatedUser.getID());
+        }
+        return authenticatedUser;
     }
 
     /**
@@ -497,6 +511,35 @@ class UserService extends Service {
             RSAPrivateKey: encryptedRSAPrivateKey
         }, false);
         return this.#finalizeUserAuthenticationRequest(response, password, isSession);
+    }
+
+    /**
+     * Changes currently authenticated user's profile picture.
+     *
+     * @param {File} picture
+     *
+     * @returns {Promise<void>}
+     *
+     * @throws {IllegalArgumentException} If an invalid picture file is given.
+     */
+    async changeProfilePicture(picture){
+        const userProfilePictureService = new UserProfilePictureService(), user = await this.getAuthenticatedUserAsModel();
+        const profilePictureID = await userProfilePictureService.changeProfilePicture(picture);
+        await this.#userRepository.updateProfilePictureID(user, profilePictureID);
+        await userProfilePictureService.getUserProfilePicture(user, true);
+    }
+
+    /**
+     * Removes currently authenticated user's profile picture.
+     *
+     * @returns {Promise<void>}
+     */
+    async removeProfilePicture(){
+        const userProfilePictureService = new UserProfilePictureService();
+        await userProfilePictureService.removeProfilePicture();
+        const user = await this.getAuthenticatedUserAsModel();
+        await this.#userRepository.updateProfilePictureID(user, null);
+        userProfilePictureService.removeLoadedProfilePicture(user);
     }
 }
 

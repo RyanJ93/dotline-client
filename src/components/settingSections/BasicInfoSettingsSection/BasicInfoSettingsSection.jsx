@@ -1,5 +1,6 @@
 'use strict';
 
+import ProfilePictureEditor from '../../ProfilePictureEditor/ProfilePictureEditor';
 import InputTooLongException from '../../../exceptions/InputTooLongException';
 import SubmitButton from '../../SubmitButton/SubmitButton';
 import UserService from '../../../services/UserService';
@@ -8,7 +9,6 @@ import TextField from '../../TextField/TextField';
 import { withTranslation } from 'react-i18next';
 import Event from '../../../facades/Event';
 import React from 'react';
-import ProfilePictureEditor from '../../ProfilePictureEditor/ProfilePictureEditor';
 
 class BasicInfoSettingsSection extends React.Component {
     #usernameInputRef = React.createRef();
@@ -92,7 +92,9 @@ class BasicInfoSettingsSection extends React.Component {
             <div className={styles.section}>
                 <form className={styles.content} onSubmit={this._handleSubmit}>
                     <p className={styles.sectionTitle + ' text-primary'}>{t('basicInfoSettingsSection.title')}</p>
-                    <ProfilePictureEditor />
+                    <div className={styles.profilePictureEditorWrapper}>
+                        <ProfilePictureEditor />
+                    </div>
                     <div className={styles.field}>
                         <TextField label={t('basicInfoSettingsSection.label.name')} ref={this.#nameInputRef} />
                     </div>
