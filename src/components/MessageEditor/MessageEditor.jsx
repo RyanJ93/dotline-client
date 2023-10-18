@@ -7,19 +7,19 @@ import ServerInfoService from '../../services/ServerInfoService';
 import AttachmentList from '../AttachmentList/AttachmentList';
 import StickerPicker from '../StickerPicker/StickerPicker';
 import MessageLocation from '../../DTOs/MessageLocation';
+import MessageBox from '../../facades/MessageBox';
 import MessageType from '../../enum/MessageType';
 import { withTranslation } from 'react-i18next';
 import GeoUtils from '../../utils/GeoUtils';
 import styles from './MessageEditor.scss';
 import React from 'react';
-import MessageBox from '../../facades/MessageBox';
 
 class MessageEditor extends React.Component {
     #voiceMessageRecorderRef = React.createRef();
     #attachmentListRef = React.createRef();
     #stickerPickerRef = React.createRef();
     #inputFileRef = React.createRef();
-    #inputRef = React.createRef();
+    #textareaRef = React.createRef();
 
     #renderAttachmentMenu(){
         const maxFileCount = new ServerInfoService().getServerParams()?.getMaxFileCount() ?? 0;
@@ -111,8 +111,10 @@ class MessageEditor extends React.Component {
             this.sendMessage();
         }else{
             const maxMessageLength = new ServerInfoService().getServerParams()?.getMaxMessageLength() ?? 0;
-            const isMessageTooLong = this.#inputRef.current.value.length > maxMessageLength;
+            const isMessageTooLong = this.#textareaRef.current.value.length > maxMessageLength;
+            const rows = ( this.#textareaRef.current.value.match(/\n/g) || [] ).length + 1;
             this.setState((prev) => ({ ...prev, isMessageTooLong: isMessageTooLong }));
+            this.#textareaRef.current.rows = rows <= 0 ? 1 : ( rows > 5 ? 5 : rows );
         }
     }
 
@@ -211,8 +213,8 @@ class MessageEditor extends React.Component {
     setMessage(message){
         this.clear().setState((prev) => ({ ...prev, message: message }));
         if ( message !== null ){
-            this.#inputRef.current.value = message.getContent();
-            this.#inputRef.current.focus();
+            this.#textareaRef.current.value = message.getContent();
+            this.#textareaRef.current.focus();
         }
         return this;
     }
@@ -223,18 +225,18 @@ class MessageEditor extends React.Component {
 
     isMessageEmpty(){
         const hasAttachments = this.#attachmentListRef.current.hasAttachments();
-        return !hasAttachments && this.#inputRef.current.value.trim() === '';
+        return !hasAttachments && this.#textareaRef.current.value.trim() === '';
     }
 
     sendMessage(){
         const maxMessageLength = new ServerInfoService().getServerParams()?.getMaxMessageLength() ?? 0;
-        if ( this.#inputRef.current.value.length > maxMessageLength ){
+        if ( this.#textareaRef.current.value.length > maxMessageLength ){
             this.setState((prev) => ({ ...prev, isMessageTooLong: true }));
             return this;
         }
         if ( !this.isMessageEmpty() && typeof this.props.onMessageSend === 'function' ){
             const messageAttachmentList = this.#attachmentListRef.current.getMessageAttachmentList();
-            const content = this.#inputRef.current.value.trim();
+            const content = this.#textareaRef.current.value.trim();
             this.props.onMessageSend(content, MessageType.TEXT, messageAttachmentList, this.state.message);
             this.setMessage(null).clear();
         }
@@ -243,7 +245,8 @@ class MessageEditor extends React.Component {
 
     clear(){
         this.#attachmentListRef.current.clear();
-        this.#inputRef.current.value = '';
+        this.#textareaRef.current.value = '';
+        this.#textareaRef.current.rows = 1;
         return this;
     }
 
@@ -272,8 +275,8 @@ class MessageEditor extends React.Component {
                     <div className={styles.leftControlsWrapper}>
                         <FontAwesomeIcon icon='fa-solid fa-paperclip' onClick={this._handleAttachmentAddButtonClick} />
                     </div>
-                    <div className={styles.inputWrapper}>
-                        <input placeholder={t('messageEditor.placeholder')} className={styles.input + ' text-white'} type={'text'} onKeyUp={this._handleKeyPress} ref={this.#inputRef} />
+                    <div className={styles.textareaWrapper}>
+                        <textarea placeholder={t('messageEditor.placeholder')} className={styles.textarea + ' text-white'} onKeyUp={this._handleKeyPress} ref={this.#textareaRef} rows={1} />
                         <input ref={this.#inputFileRef} type={'file'} multiple={true} className={styles.inputFile} onChange={this._handleInputFileChange} />
                         { this.state.isMessageTooLong && <p className={styles.errorMessage + ' text-danger'}>{messageTooLongLabel}</p> }
                     </div>

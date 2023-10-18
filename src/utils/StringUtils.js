@@ -34,7 +34,7 @@ class StringUtils {
      * @returns {boolean}
      */
     static isSingleEmoji(string){
-        return typeof string === 'string' && string.length === 2 && /\p{Emoji_Presentation}/gu.test(string);
+        return typeof string === 'string' && string.length === 2 && /\p{Emoji_Presentation}|\p{Extended_Pictographic}/gu.test(string);
     }
 
     /**
@@ -81,9 +81,6 @@ class StringUtils {
 /**
  * @constant {string[]}
  */
-Object.defineProperty(StringUtils, 'SIZE_MULTIPLES', {
-    value: Object.freeze(['KB', 'MB', 'GB', 'TB']),
-    writable: false
-});
+Object.defineProperty(StringUtils, 'SIZE_MULTIPLES', { value: Object.freeze(['KB', 'MB', 'GB', 'TB']), writable: false });
 
 export default StringUtils;

@@ -10,7 +10,7 @@ class TextMessageContent extends MessageContent {
         if ( StringUtils.isSingleEmoji(this.props.message.getContent()) ){
             return <span className={styles.emoji}>{this.props.message.getContent()}</span>;
         }
-        return <span>{this.props.message.getContent()}</span>;
+        return <span className={styles.text}>{this.props.message.getContent()}</span>;
     }
 }
 
