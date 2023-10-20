@@ -35,7 +35,7 @@ class ConversationViewerList extends React.Component {
                 </div>
             );
         }
-        return <React.Fragment>{renderedConversationViewerList}</React.Fragment>;
+        return <div className={styles.conversationViewerListContainer}>{renderedConversationViewerList}</div>;
     }
 
     _handleConversationClose(){

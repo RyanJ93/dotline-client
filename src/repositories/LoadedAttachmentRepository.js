@@ -1,33 +1,50 @@
 'use strict';
 
 import IllegalArgumentException from '../exceptions/IllegalArgumentException';
+import RemoteAssetStatus from '../enum/RemoteAssetStatus';
+import RemoteAsset from '../DTOs/RemoteAsset';
 import Repository from './Repository';
 
 class LoadedAttachmentRepository extends Repository {
     /**
-     * @type {Object.<string, string>}
+     * @type {Object.<string, RemoteAsset>}
      */
     static #loadedAttachmentIndex = Object.create(null);
 
     /**
-     * Stores a given downloaded file.
+     * Checks if a given attachment file has been fetched or not.
+     *
+     * @param url
+     *
+     * @returns {?RemoteAsset}
+     */
+    #assertLoadedAttachment(url){
+        let remoteAsset = this.getLoadedAttachment(url);
+        if ( remoteAsset?.getStatus() !== RemoteAssetStatus.FETCHED ){
+            remoteAsset = null;
+        }
+        return remoteAsset;
+    }
+
+    /**
+     * Stores a given downloaded attachment file.
      *
      * @param {string} url
-     * @param {Blob} content
+     * @param {RemoteAsset} remoteAsset
      *
-     * @returns {string}
+     * @returns {RemoteAsset}
      *
      * @throws {IllegalArgumentException} If an invalid content is given.
      * @throws {IllegalArgumentException} If an invalid URL is given.
      */
-    storeLoadedAttachment(url, content){
+    storeLoadedAttachment(url, remoteAsset){
+        if ( !( remoteAsset instanceof RemoteAsset ) ){
+            throw new IllegalArgumentException('Invalid remote asset.');
+        }
         if ( url === '' || typeof url !== 'string' ){
             throw new IllegalArgumentException('Invalid URL.');
         }
-        if ( !( content instanceof Blob ) ){
-            throw new IllegalArgumentException('Invalid content.');
-        }
-        LoadedAttachmentRepository.#loadedAttachmentIndex[url] = URL.createObjectURL(content);
+        LoadedAttachmentRepository.#loadedAttachmentIndex[url] = remoteAsset;
         return LoadedAttachmentRepository.#loadedAttachmentIndex[url];
     }
 
@@ -45,7 +62,6 @@ class LoadedAttachmentRepository extends Repository {
             throw new IllegalArgumentException('Invalid url.');
         }
         if ( typeof LoadedAttachmentRepository.#loadedAttachmentIndex[url] === 'string' ){
-            URL.revokeObjectURL(LoadedAttachmentRepository.#loadedAttachmentIndex[url]);
             delete LoadedAttachmentRepository.#loadedAttachmentIndex[url];
         }
         return this;
@@ -56,7 +72,7 @@ class LoadedAttachmentRepository extends Repository {
      *
      * @param {string} url
      *
-     * @returns {?string}
+     * @returns {?RemoteAsset}
      *
      * @throws {IllegalArgumentException} If an invalid URL is given.
      */
@@ -67,12 +83,60 @@ class LoadedAttachmentRepository extends Repository {
         return LoadedAttachmentRepository.#loadedAttachmentIndex[url] ?? null;
     }
 
+    /**
+     * Checks if a given attachment file has been registered.
+     *
+     * @param {string} url
+     *
+     * @returns {boolean}
+     *
+     * @throws {IllegalArgumentException} If an invalid URL is given.
+     */
     hasLoadedAttachment(url){
         if ( url === '' || typeof url !== 'string' ){
             throw new IllegalArgumentException('Invalid url.');
         }
         return typeof LoadedAttachmentRepository.#loadedAttachmentIndex[url] === 'string';
     }
+
+    /**
+     * Waits for a given attachment file to be fetched.
+     *
+     * @param {string} url
+     * @param {number} timeout
+     *
+     * @returns {Promise<RemoteAsset>}
+     *
+     * @throws {IllegalArgumentException} If an invalid timeout value is given.
+     * @throws {IllegalArgumentException} If an invalid URL is given.
+     */
+    waitForLoadedAttachment(url, timeout = LoadedAttachmentRepository.DEFAULT_WAIT_TIMEOUT){
+        return new Promise((resolve, reject) => {
+            if ( timeout === null || isNaN(timeout) || timeout <= 0 ){
+                return reject(new IllegalArgumentException('Invalid timeout value.'));
+            }
+            if ( url === '' || typeof url !== 'string' ){
+                return reject(new IllegalArgumentException('Invalid url.'));
+            }
+            const timeoutDate = new Date(new Date().getTime() + timeout);
+            const remoteAsset = this.#assertLoadedAttachment(url);
+            if ( remoteAsset !== null ){
+                return resolve(remoteAsset);
+            }
+            const intervalID = window.setInterval(() => {
+                const remoteAsset = this.#assertLoadedAttachment(url), date = new Date();
+                if ( remoteAsset !== null || date < timeoutDate ){
+                    window.clearInterval(intervalID);
+                    return resolve(remoteAsset);
+                }
+            }, 1000);
+        });
+    }
 }
+
+/**
+ * @constant {number}
+ */
+Object.defineProperty(LoadedAttachmentRepository, 'DEFAULT_WAIT_TIMEOUT', { value: 30000, writable: false });
 
 export default LoadedAttachmentRepository;

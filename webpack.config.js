@@ -44,6 +44,10 @@ module.exports = {
             ]
         }]
     },
+    cache: {
+        type: 'filesystem',
+        allowCollectingMemory: true
+    },
     optimization: {
         minimize: true,
         minimizer: [new TerserPlugin({

@@ -63,7 +63,6 @@
     "messageEditor.error.messageTooLong": "Il tuo messaggio supera il limite di [amount] caratteri.",
     "messageEditor.error.geoPermissionDenied": "Devi concedere l'accesso alla geo-localizzazione per inviare la tua posizione!",
     "conversationViewer.noMessage": "Nessun messaggio per ora, perché non inizi dicendo ciao?",
-    "conversationViewer.dropZoneLabel": "Rilascia qui i file per inviarli",
     "conversationViewer.loading": "Caricamento della conversazione...",
     "sideBar.tabs.chats": "Conversazioni",
     "sideBar.tabs.search": "Cerca",
@@ -216,5 +215,6 @@
     "profilePictureEditor.title.cancel": "Annulla il caricamento della foto profilo.",
     "profilePictureEditor.title.retry": "Ritenta il caricamento della foto profilo",
     "profilePictureEditor.label.pick": "Seleziona una foto",
-    "profilePictureEditor.label.remove": "Rimuovi foto"
+    "profilePictureEditor.label.remove": "Rimuovi foto",
+    "dropZone.dropZoneLabel": "Rilascia qui i file per inviarli"
 }

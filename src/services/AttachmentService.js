@@ -7,8 +7,10 @@ import HMACSigningParameters from '../DTOs/HMACSigningParameters';
 import DownloadedAttachment from '../DTOs/DownloadedAttachment';
 import AESStaticParameters from '../DTOs/AESStaticParameters';
 import AttachmentMetadata from '../DTOs/AttachmentMetadata';
+import RemoteAssetStatus from '../enum/RemoteAssetStatus';
 import ConversationService from './ConversationService';
 import CryptoUtils from '../utils/CryptoUtils';
+import RemoteAsset from '../DTOs/RemoteAsset';
 import Attachment from '../DTOs/Attachment';
 import FileUtils from '../utils/FileUtils';
 import Injector from '../facades/Injector';
@@ -69,6 +71,24 @@ class AttachmentService extends Service {
      * @type {?Message}
      */
     #message = null;
+
+    /**
+     * Fetches attachment file content from the remote server.
+     *
+     * @param {Attachment} attachment
+     *
+     * @returns {Promise<ArrayBuffer>}
+     */
+    async #fetchAttachmentFileContent(attachment){
+        // Download attachment file content and get it as an array buffer.
+        const content = await Request.download(attachment.getURL()), arrayBufferContent = await content.arrayBuffer();
+        // Decrypt downloaded file content using the related conversation's encryption parameters.
+        const staticParameters = this.#message.getConversation().getEncryptionParameters().toJSON(), iv = attachment.getEncryptionIV();
+        const conversationKeys = await new ConversationService(this.#message.getConversation()).getConversationKeys();
+        const encryptionParameters = new AESEncryptionParameters(Object.assign({ iv: iv }, staticParameters));
+        const importedEncryptionKey = await CryptoUtils.importAESKey(conversationKeys.getEncryptionKey(), encryptionParameters);
+        return await CryptoUtils.AESDecryptFile(arrayBufferContent, importedEncryptionKey, encryptionParameters);
+    }
 
     /**
      * Sets the encryption parameters to use in attachment file encryption.
@@ -203,47 +223,68 @@ class AttachmentService extends Service {
     }
 
     /**
-     * Fetches an attachment file from the server.
+     * Fetches an attachment file.
      *
      * @param {Attachment} attachment
+     * @param {boolean} [forceRefresh=false]
      *
      * @returns {Promise<DownloadedAttachment>}
      *
      * @throws {IllegalArgumentException} If an invalid attachment is given.
      */
-    async fetchAttachment(attachment){
+    async fetchAttachment(attachment, forceRefresh = false){
         if ( !( attachment instanceof Attachment ) ){
             throw new IllegalArgumentException('Invalid attachment.');
         }
-        let objectURL = this.#loadedAttachmentRepository.getLoadedAttachment(attachment.getURL());
-        if ( objectURL === null ){
-            const content = await Request.download(attachment.getURL()), arrayBufferContent = await content.arrayBuffer();
-            const staticParameters = this.#message.getConversation().getEncryptionParameters().toJSON(), iv = attachment.getEncryptionIV();
-            const conversationKeys = await new ConversationService(this.#message.getConversation()).getConversationKeys();
-            const encryptionParameters = new AESEncryptionParameters(Object.assign({ iv: iv }, staticParameters));
-            const importedEncryptionKey = await CryptoUtils.importAESKey(conversationKeys.getEncryptionKey(), encryptionParameters);
-            const decryptedContent = await CryptoUtils.AESDecryptFile(arrayBufferContent, importedEncryptionKey, encryptionParameters);
-            const blob = new Blob([decryptedContent], { type: attachment.getMimetype() }), url = attachment.getURL();
-            objectURL = this.#loadedAttachmentRepository.storeLoadedAttachment(url, blob);
+        let remoteAsset = forceRefresh === true ? null : this.#loadedAttachmentRepository.getLoadedAttachment(attachment.getURL());
+        if ( remoteAsset === null || remoteAsset.getStatus() === RemoteAssetStatus.ERROR ){
+            // Generate a remote asset object to mark this attachment file as under loading.
+            remoteAsset = new RemoteAsset({ status: RemoteAssetStatus.LOADING, url: null });
+            this.#loadedAttachmentRepository.storeLoadedAttachment(attachment.getURL(), remoteAsset);
+            const fileContent = await this.#fetchAttachmentFileContent(attachment);
+            // Mark this attachment file as loaded and register corresponding URL.
+            const url = URL.createObjectURL(new Blob([fileContent], { type: attachment.getMimetype() }));
+            remoteAsset.setStatus(RemoteAssetStatus.FETCHED).setURL(url);
+        }else if ( remoteAsset?.getStatus() === RemoteAssetStatus.LOADING ){
+            // This attachment is being loaded, wait for a while and, if not loaded, retry.
+            remoteAsset = await this.#loadedAttachmentRepository.waitForLoadedAttachment(attachment.getURL());
+            if ( remoteAsset === null ){
+                return await this.fetchAttachment(attachment);
+            }
         }
-        return DownloadedAttachment.makeFromAttachment(attachment, objectURL);
+        return DownloadedAttachment.makeFromAttachment(attachment,remoteAsset.getURL());
+    }
+
+    /**
+     * Drops a downloaded attachment file from client storage.
+     *
+     * @param {Attachment} attachment
+     *
+     * @returns {AttachmentService}
+     *
+     * @throws {IllegalArgumentException} If an invalid attachment is given.
+     */
+    dropStoredAttachment(attachment){
+        if ( !( attachment instanceof Attachment ) ){
+            throw new IllegalArgumentException('Invalid attachment.');
+        }
+        const remoteAsset = this.#loadedAttachmentRepository.getLoadedAttachment(attachment.getURL());
+        if ( remoteAsset !== null && remoteAsset.getStatus() === RemoteAssetStatus.FETCHED ){
+            this.#loadedAttachmentRepository.dropLoadedAttachment(attachment.getURL());
+            URL.revokeObjectURL(remoteAsset.getURL());
+        }
+        return this;
     }
 }
 
 /**
  * @constant {number}
  */
-Object.defineProperty(AttachmentService, 'MAX_FILE_SIZE', {
-    value: 52428800,
-    writable: false
-});
+Object.defineProperty(AttachmentService, 'MAX_FILE_SIZE', { value: 52428800, writable: false });
 
 /**
  * @constant {number}
  */
-Object.defineProperty(AttachmentService, 'MAX_FILE_COUNT', {
-    value: 20,
-    writable: false
-});
+Object.defineProperty(AttachmentService, 'MAX_FILE_COUNT', { value: 20, writable: false });
 
 export default AttachmentService;

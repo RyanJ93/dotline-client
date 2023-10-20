@@ -1,12 +1,12 @@
 'use strict';
 
 import ConversationService from '../services/ConversationService';
+import MessageSyncManager from '../support/MessageSyncManager';
+import UserSettingsService from './UserSettingsService';
 import databaseSchema from '../support/database/schema';
-import MessageSyncService from './MessageSyncService';
 import UserService from '../services/UserService';
 import Database from '../facades/Database';
 import Service from './Service';
-import UserSettingsService from './UserSettingsService';
 
 class LocalDataService extends Service {
     /**
@@ -17,8 +17,8 @@ class LocalDataService extends Service {
     static #dropDatabase(){
         return new Promise((resolve, reject) => {
             const DBDeleteRequest = window.indexedDB.deleteDatabase(databaseSchema.name);
-            DBDeleteRequest.onsuccess = () => { resolve() };
-            DBDeleteRequest.onerror = () => { reject() };
+            DBDeleteRequest.onsuccess = () => resolve();
+            DBDeleteRequest.onerror = () => reject();
         });
     }
 
@@ -64,8 +64,7 @@ class LocalDataService extends Service {
         await userSettingsService.fetch();
         userSettingsService.applyLocalSettings();
         this._eventBroker.emit('localDataImported');
-        new MessageSyncService().initSync();
-        //new MessageImportService().initMessageImport();
+        MessageSyncManager.getInstance().initMessageSync();
     }
 }
 
