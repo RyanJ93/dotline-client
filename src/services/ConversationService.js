@@ -15,6 +15,7 @@ import Request from '../facades/Request';
 import UserService from './UserService';
 import App from '../facades/App';
 import Service from './Service';
+import UserOnlineStatusService from './UserOnlineStatusService';
 
 /**
  * @typedef ConversationProperties
@@ -104,7 +105,9 @@ class ConversationService extends Service {
         const { id, encryptionParameters, signingParameters, name } = conversationProperties, members = [], userList = [];
         const hmacSigningParameters = new HMACSigningParameters(signingParameters);
         const aesStaticParameters = new AESStaticParameters(encryptionParameters);
+        const userOnlineStatusService = new UserOnlineStatusService();
         conversationProperties.members.forEach((member) => {
+            userOnlineStatusService.subscribeToUserOnlineStatusChange(member.user.id);
             userList.push(member.user);
             members.push({
                 encryptionKey: member.encryptionKey,
@@ -221,7 +224,6 @@ class ConversationService extends Service {
         const url = APIEndpoints.CONVERSATION_GET.replace(':conversationID', conversationID);
         const response = await Request.get(url, null, true);
         this.#conversation = await this.#storeSingleConversation(response.conversation);
-        this._eventBroker.emit('conversationAdded', this.#conversation);
         return this.#conversation;
     }
 
@@ -340,6 +342,13 @@ class ConversationService extends Service {
         if ( conversationID === '' || typeof conversationID !== 'string' ){
             throw new IllegalArgumentException('Invalid conversation ID.');
         }
+        const conversation = await this.#conversationRepository.getByID(conversationID);
+        if ( conversation !== null ){
+            const userOnlineStatusService = new UserOnlineStatusService();
+            conversation.getMembers().forEach((member) => {
+                userOnlineStatusService.unsubscribeToUserOnlineStatusChange(member.userID);
+            });
+        }
         await new MessageService().deleteStoredMessagesByConversationID(conversationID);
         await this.#conversationRepository.deleteByID(conversationID);
         this._eventBroker.emit('conversationDelete', conversationID);
@@ -356,6 +365,7 @@ class ConversationService extends Service {
         const url = APIEndpoints.CONVERSATION_DELETE.replace(':conversationID', this.#conversation.getID());
         await Request.delete(url, { deleteForEveryone: ( deleteForEveryone === true ? '1' : '0' ) }, true);
         await this.deleteConversationByID(this.#conversation.getID());
+        this.#conversation = null;
     }
 
     /**

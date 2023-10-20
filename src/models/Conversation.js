@@ -28,7 +28,7 @@ class Conversation extends Model {
             const authenticatedUserID = App.getAuthenticatedUser().getID(), nameList = [];
             this.getMembers().forEach((member) => {
                 if ( member.getUser().getID() !== authenticatedUserID ){
-                    nameList.push(member.getUser().getComputedUser());
+                    nameList.push(member.getUser().getComputedName());
                 }
             });
             name = nameList.join(', ');

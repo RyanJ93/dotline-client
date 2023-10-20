@@ -1,8 +1,8 @@
 'use strict';
 
+import UserOnlineStatusService from '../../services/UserOnlineStatusService';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ConversationDraft from '../../DTOs/ConversationDraft';
-import UserService from '../../services/UserService';
 import styles from './ConversationViewerHeader.scss';
 import Conversation from '../../models/Conversation';
 import EntityIcon from '../EntityIcon/EntityIcon';
@@ -38,9 +38,9 @@ class ConversationViewerHeader extends React.Component {
         window.clearInterval(this.#checkUserOnlineStatusIntervalID);
         const DMConversationUser = this.#getDMConversationUser();
         if ( DMConversationUser !== null ){
-            this.#checkUserOnlineStatusIntervalID = window.setInterval(async () => {
-                const userMap = await new UserService().checkOnlineUsers([DMConversationUser.getID()]);
-                this.setState((prev) => ({ ...prev, isUserOnline: userMap[DMConversationUser.getID()] === true }));
+            this.#checkUserOnlineStatusIntervalID = window.setInterval(() => {
+                const isUserOnline = new UserOnlineStatusService().isUserOnline(DMConversationUser.getID());
+                this.setState((prev) => ({ ...prev, isUserOnline: isUserOnline }));
             }, 3000);
         }
     }
@@ -82,6 +82,15 @@ class ConversationViewerHeader extends React.Component {
         return lastAccessDate;
     }
 
+    #renderEntityIcon(){
+        if ( this.state.conversation instanceof Conversation && this.state.conversation.isDMConversation() ){
+            const members = this.state.conversation.getMembers(), userID = App.getAuthenticatedUser().getID();
+            const user = members[0].getUser().getID() === userID ? members[1].getUser() : members[0].getUser();
+            return <EntityIcon user={user} />;
+        }
+        return <EntityIcon text={this.state.conversation.getComputedName()} />;
+    }
+
     _handleUserTyping(conversation, user){
         if ( this.state.conversation instanceof Conversation && conversation instanceof Conversation ){
             const isThisConversation = conversation.getID() === this.state.conversation.getID();
@@ -91,9 +100,9 @@ class ConversationViewerHeader extends React.Component {
                 if ( this.#userTypingMessageTimeoutID !== null ){
                     window.clearTimeout(this.#userTypingMessageTimeoutID);
                 }
-                this.setState((prev) => { return { ...prev, userTypingMessage: userTypingMessage } });
+                this.setState((prev) => ({ ...prev, userTypingMessage: userTypingMessage }));
                 this.#userTypingMessageTimeoutID = window.setTimeout(() => {
-                    this.setState((prev) => { return { ...prev, userTypingMessage: null } });
+                    this.setState((prev) => ({ ...prev, userTypingMessage: null }));
                 }, 2000);
             }
         }
@@ -156,7 +165,7 @@ class ConversationViewerHeader extends React.Component {
                     <div className={styles.backIconWrapper} onClick={this._handleBackIconClick}>
                         <FontAwesomeIcon icon="fa-solid fa-chevron-left" />
                     </div>
-                    <EntityIcon text={conversationName} />
+                    {this.#renderEntityIcon()}
                 </div>
                 <div className={styles.conversationInfo}>
                     <div>

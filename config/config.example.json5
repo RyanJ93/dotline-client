@@ -1,0 +1,5 @@
+{
+  // Provide here a Yandex Maps API key used to display location messages maps.
+  // More information here: https://yandex.com/dev/maps/mapsapi/
+  "yandexMapsKey": "[your free api key here]"
+}

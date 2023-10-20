@@ -58,17 +58,18 @@ div.messageEditor {
             display: none;
         }
 
-        div.inputWrapper {
+        div.textareaWrapper {
             flex-grow: 1;
 
-            input.input {
-                width: 100%;
+            textarea.textarea {
+                background-color: transparent;
                 box-sizing: border-box;
                 padding: 9px 12px;
-                background-color: transparent;
-                border: none;
-                outline: none;
                 font-size: 16px;
+                outline: none;
+                border: none;
+                resize: none;
+                width: 100%;
             }
 
             input.inputFile {

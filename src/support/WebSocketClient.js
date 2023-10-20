@@ -119,6 +119,15 @@ class WebSocketClient extends Injectable {
     }
 
     /**
+     * Returns if the WebSocket client is ready to send messages or not.
+     *
+     * @returns {boolean}
+     */
+    isClientReady(){
+        return this.#isClientClosed !== true && this.#isClientReady === true;
+    }
+
+    /**
      * Disconnects the WebSocket server.
      *
      * @returns {WebSocketClient}

@@ -136,6 +136,12 @@
     "conversationViewerHeader.typing": "Sta scrivendo...",
     "conversationCard.typing": "Sta scrivendo...",
     "attachmentViewer.downloadTitle": "Scarica questo file",
+    "attachmentViewer.loaderLabel": "Caricamento degli allegati...",
+    "attachmentViewer.errorLabel": "Si è verificato un errore durante il caricamento degli allegati",
+    "attachmentViewer.retryButtonLabel": "Riprova",
+    "locationMessageContent.loaderLabel": "Caricamento della mappa...",
+    "locationMessageContent.errorLabel": "Si è verificato un errore durante il caricamento della mappa",
+    "locationMessageContent.retryButtonLabel": "Riprova",
     "dateLabel.now": "Ora",
     "dateLabel.seconds": "[amount] secondi fa",
     "dateLabel.second": "Un secondo fa",
@@ -206,5 +212,9 @@
     "attachmentLightBox.title.download": "Download",
     "attachmentLightBox.title.close": "Chiudi",
     "voiceMessagePlayer.downloadTitle": "Scarica il messaggio vocale",
+    "profilePictureEditor.title.cancel": "Annulla il caricamento della foto profilo.",
+    "profilePictureEditor.title.retry": "Ritenta il caricamento della foto profilo",
+    "profilePictureEditor.label.pick": "Seleziona una foto",
+    "profilePictureEditor.label.remove": "Rimuovi foto",
     "dropZone.dropZoneLabel": "Rilascia qui i file per inviarli"
 }

@@ -18,7 +18,7 @@ class UserSearchResultEntry extends React.Component {
     render(){
         return (
             <div className={styles.userSearchResultEntry}>
-                <EntityIcon text={this.props.user.getUsername()} />
+                <EntityIcon user={this.props.user} />
                 <div className={styles.info + ' text-primary'}>
                     <p className={styles.username}>{this.props.user.getUsername()}</p>
                     <p className={styles.lastAccess}>{this.#computeLastAccessDate()}</p>

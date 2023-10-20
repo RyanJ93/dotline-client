@@ -1,136 +1,165 @@
 div.attachmentViewer {
-    div.container {
-        display: flex;
-        flex-wrap: wrap;
-        max-width: 500px;
-        margin-top: 12px;
+    div.contentWrapper {
+        display: none;
 
-        div.previewWrapper {
-            position: relative;
-            width: 100%;
+        &[data-show="true"] {
+            display: block;
+        }
 
-            &[data-size="1"] {
-                width: 250px;
-            }
+        div.attachmentLoader, div.errorMessage {
+            text-align: center;
+            padding-top: 18px;
 
-            &[data-size="2"] {
-                flex-basis: 50%;
-            }
-
-            &[data-size="4"] {
-                width: 33%;
-
-                &:first-child {
-                    flex-basis: 100%;
-                }
-            }
-
-            &:hover {
-                div.videoDownloadIconWrapper {
-                    display: block !important;
-                }
-            }
-
-            img, video {
-                max-width: 100%;
-                cursor: pointer;
-            }
-
-            div.audioPlayerWrapper {
-                display: flex;
-                width: 100%;
-
-                div.audioDownloadIconWrapper {
-                    box-sizing: border-box;
-                    align-self: center;
-                    padding-left: 9px;
-                    font-size: 18px;
-                    flex-shrink: 0;
-                }
-
-                audio {
-                    overflow: hidden;
-                    max-width: 100%;
-                    display: block;
-                    flex-grow: 1;
-                }
-            }
-
-            div.videoDownloadIconWrapper {
-                box-sizing: border-box;
-                border-radius: 3px;
-                position: absolute;
-                display: none;
-                padding: 6px;
-                z-index: 10;
-                right: 6px;
-                top: 6px;
-            }
-
-            p.remainingAttachmentCounter {
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
+            div.loaderImg {
                 margin: auto;
-                text-align: center;
-                width: 64px;
-                height: 64px;
-                background-color: rgba(0,0,0,0.75);
-                border-radius: 32px;
-                line-height: 2.2;
-                font-size: 28px;
-                cursor: pointer;
+                height: 32px;
+                width: 32px;
             }
 
-            @media (max-width: 480px) {
-                p.remainingAttachmentCounter {
-                    border-radius: 18px;
-                    line-height: 1.9;
-                    font-size: 18px;
-                    height: 36px;
-                    width: 36px;
-                }
+            p.label {
+                font-style: italic;
+                font-size: 14px;
+                margin: 0;
             }
 
-            div.genericFilePreview {
-                display: flex;
-                align-content: center;
+            button {
+                margin-top: 12px;
+            }
+        }
+
+        div.container {
+            display: flex;
+            flex-wrap: wrap;
+            max-width: 500px;
+            margin-top: 12px;
+
+            div.previewWrapper {
+                position: relative;
                 width: 100%;
 
-                div.fileIcon {
-                    align-self: center;
-                    font-size: 54px;
+                &[data-size="1"] {
+                    width: 250px;
                 }
 
-                div.fileInfo {
-                    text-align: left;
-                    flex-grow: 1;
-                    padding: 6px 12px;
-                    box-sizing: border-box;
-                    align-self: center;
+                &[data-size="2"] {
+                    flex-basis: 50%;
+                }
 
-                    p.fileName {
-                        font-size: 18px;
-                        margin: 0;
-                    }
+                &[data-size="4"] {
+                    width: 33%;
 
-                    p.fileSize {
-                        font-style: italic;
-                        font-size: 12px;
-                        margin: 0;
+                    &:first-child {
+                        flex-basis: 100%;
                     }
                 }
 
-                div.controls {
-                    align-self: center;
-                    font-size: 18px;
+                &:hover {
+                    div.videoDownloadIconWrapper {
+                        display: block !important;
+                    }
                 }
 
-                a, a:hover, a:active {
-                    text-decoration: none;
+                img, video {
+                    max-width: 100%;
                     cursor: pointer;
+                }
+
+                div.audioPlayerWrapper {
+                    display: flex;
+                    width: 100%;
+
+                    div.audioDownloadIconWrapper {
+                        box-sizing: border-box;
+                        align-self: center;
+                        padding-left: 9px;
+                        font-size: 18px;
+                        flex-shrink: 0;
+                    }
+
+                    audio {
+                        overflow: hidden;
+                        max-width: 100%;
+                        display: block;
+                        flex-grow: 1;
+                    }
+                }
+
+                div.videoDownloadIconWrapper {
+                    box-sizing: border-box;
+                    border-radius: 3px;
+                    position: absolute;
+                    display: none;
+                    padding: 6px;
+                    z-index: 10;
+                    right: 6px;
+                    top: 6px;
+                }
+
+                p.remainingAttachmentCounter {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    margin: auto;
+                    text-align: center;
+                    width: 64px;
+                    height: 64px;
+                    background-color: rgba(0,0,0,0.75);
+                    border-radius: 32px;
+                    line-height: 2.2;
+                    font-size: 28px;
+                    cursor: pointer;
+                }
+
+                @media (max-width: 480px) {
+                    p.remainingAttachmentCounter {
+                        border-radius: 18px;
+                        line-height: 1.9;
+                        font-size: 18px;
+                        height: 36px;
+                        width: 36px;
+                    }
+                }
+
+                div.genericFilePreview {
+                    display: flex;
+                    align-content: center;
+                    width: 100%;
+
+                    div.fileIcon {
+                        align-self: center;
+                        font-size: 54px;
+                    }
+
+                    div.fileInfo {
+                        text-align: left;
+                        flex-grow: 1;
+                        padding: 6px 12px;
+                        box-sizing: border-box;
+                        align-self: center;
+
+                        p.fileName {
+                            font-size: 18px;
+                            margin: 0;
+                        }
+
+                        p.fileSize {
+                            font-style: italic;
+                            font-size: 12px;
+                            margin: 0;
+                        }
+                    }
+
+                    div.controls {
+                        align-self: center;
+                        font-size: 18px;
+                    }
+
+                    a, a:hover, a:active {
+                        text-decoration: none;
+                        cursor: pointer;
+                    }
                 }
             }
         }
