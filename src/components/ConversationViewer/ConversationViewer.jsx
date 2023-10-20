@@ -177,7 +177,7 @@ class ConversationViewer extends React.Component {
             const isScrolledToBottom = DOMUtils.isScrolledToBottom(this.#messageListRef.current, 100);
             const isMyMessage = message.getUser().getID() === App.getAuthenticatedUser().getID();
             const isSyncProcessRunning = MessageSyncManager.getInstance().isSyncProcessRunning();
-            const updated = this.#updateMessageDateThreshold([message]);console.log(isScrolledToBottom);
+            const updated = this.#updateMessageDateThreshold([message]);
             const scrollToBottom = ( isScrolledToBottom || isMyMessage ) && !isSyncProcessRunning && updated;
             this.state.messageList.set(message.getID(), message);
             this.#triggerMessageListUpdate(scrollToBottom, false);
