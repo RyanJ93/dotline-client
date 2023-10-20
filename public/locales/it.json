@@ -63,7 +63,6 @@
     "messageEditor.error.messageTooLong": "Il tuo messaggio supera il limite di [amount] caratteri.",
     "messageEditor.error.geoPermissionDenied": "Devi concedere l'accesso alla geo-localizzazione per inviare la tua posizione!",
     "conversationViewer.noMessage": "Nessun messaggio per ora, perché non inizi dicendo ciao?",
-    "conversationViewer.dropZoneLabel": "Rilascia qui i file per inviarli",
     "conversationViewer.loading": "Caricamento della conversazione...",
     "sideBar.tabs.chats": "Conversazioni",
     "sideBar.tabs.search": "Cerca",
@@ -206,5 +205,6 @@
     "message.preview.attachments": "[count] files",
     "attachmentLightBox.title.download": "Download",
     "attachmentLightBox.title.close": "Chiudi",
-    "voiceMessagePlayer.downloadTitle": "Scarica il messaggio vocale"
+    "voiceMessagePlayer.downloadTitle": "Scarica il messaggio vocale",
+    "dropZone.dropZoneLabel": "Rilascia qui i file per inviarli"
 }

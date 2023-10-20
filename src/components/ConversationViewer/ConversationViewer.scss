@@ -4,6 +4,7 @@ section.conversationViewer {
     height: 100%;
 
     div.content {
+        scroll-behavior: smooth;
         overflow-y: scroll;
         overflow-x: hidden;
         flex-grow: 1;

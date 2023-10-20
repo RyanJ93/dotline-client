@@ -78,7 +78,8 @@ class DOMUtils {
         if ( delta === null || isNaN(delta) ){
             throw new IllegalArgumentException('Invalid delta.');
         }
-        return DOMUtils.getScrollTop(element, true) >= ( element.scrollHeight - delta );
+        const size = element.scrollHeight - element.offsetHeight;
+        return element.scrollTop >= ( size - delta );
     }
 }
 

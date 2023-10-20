@@ -63,7 +63,6 @@
     "messageEditor.error.messageTooLong": "Your message exceed the [amount] character limit.",
     "messageEditor.error.geoPermissionDenied": "You must grant geolocation access to send your position!",
     "conversationViewer.noMessage": "No message yet, why don't your start saying hello?",
-    "conversationViewer.dropZoneLabel": "Drop files here to send them.",
     "conversationViewer.loading": "Loading conversation messages...",
     "sideBar.tabs.chats": "Chats",
     "sideBar.tabs.search": "Search",
@@ -206,5 +205,6 @@
     "message.preview.attachments": "[count] files",
     "attachmentLightBox.title.download": "Download",
     "attachmentLightBox.title.close": "Close",
-    "voiceMessagePlayer.downloadTitle": "Download voice message"
+    "voiceMessagePlayer.downloadTitle": "Download voice message",
+    "dropZone.dropZoneLabel": "Drop files here to send them."
 }
