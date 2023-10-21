@@ -75,11 +75,13 @@ div.messageCard {
             position: absolute;
         }
 
-        &:hover {
-            div.contextMenuOpener {
-                padding-left: 6px;
-                font-size: 14px;
-                display: inline-block;
+        @media (hover: hover) {
+            &:hover {
+                div.contextMenuOpener {
+                    display: inline-block;
+                    padding-left: 6px;
+                    font-size: 14px;
+                }
             }
         }
 
@@ -120,20 +122,29 @@ div.messageCard {
             ul.contextMenu {
                 transition: opacity .25s ease-in-out;
                 will-change: width, height, opacity;
-                border-radius: 3px;
+                -webkit-user-select: none;
                 box-sizing: border-box;
-                padding: 0;
-                margin: 0;
-                list-style: none;
                 position: absolute;
-                z-index: 10;
-                font-size: 14px;
+                border-radius: 3px;
+                user-select: none;
                 overflow: hidden;
                 text-align: left;
-                top: 28px;
+                list-style: none;
+                font-size: 14px;
+                z-index: 10;
+                opacity: 0;
+                padding: 0;
+                margin: 0;
                 height: 0;
                 width: 0;
-                opacity: 0;
+
+                &[data-is-inverted="false"] {
+                    top: 28px;
+                }
+
+                &[data-is-inverted="true"] {
+                    bottom: 28px;
+                }
 
                 li {
                     margin-bottom: 6px;
@@ -150,13 +161,15 @@ div.messageCard {
             }
 
             div.contextMenuOverlay {
+                -webkit-user-select: none;
+                user-select: none;
                 position: fixed;
+                display: none;
+                height: 100%;
+                width: 100%;
                 z-index: 5;
                 left: 0;
                 top: 0;
-                width: 100%;
-                height: 100%;
-                display: none;
             }
         }
     }
