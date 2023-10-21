@@ -321,11 +321,11 @@ class ConversationViewer extends React.Component {
     render(){
         return (
             <DropZone onFileDrop={this._handleFileDrop}>
-                <section className={styles.conversationViewer} ref={this.#conversationViewerRef}>
+                <section className={styles.conversationViewer + ' conversation-viewer-hook'} ref={this.#conversationViewerRef}>
                     <div>
                         <ConversationViewerHeader conversation={this.state.conversation} user={this.state.user} onConversationClose={this._handleConversationClose} onConversationAction={this._handleConversationAction} />
                     </div>
-                    <div className={styles.content} ref={this.#messageListRef}>
+                    <div className={styles.content + ' conversation-viewer-message-list-hook'} ref={this.#messageListRef}>
                         {this.#renderMessageLoader()}
                         {this.#renderMessageList()}
                         <div className={styles.scrollDownButton + ' text-primary'} onClick={() => this.#scrollListToBottom(true)} ref={this.#scrollDownButtonRef}>
