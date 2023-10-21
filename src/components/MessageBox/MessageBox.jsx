@@ -34,7 +34,7 @@ class MessageBox extends React.Component {
                 return 'border-warn text-warn';
             }
         }
-        return '';
+        return 'text-primary';
     }
 
     _handleConfirm(){
@@ -45,15 +45,27 @@ class MessageBox extends React.Component {
         this.hide(this.props.type === 'confirm' ? false : null);
     }
 
+    _handleKeydown(event){
+        if ( event.key === 'Escape' ){
+            this.hide(this.props.type === 'confirm' ? false : null);
+        }
+    }
+
     constructor(props){
         super(props);
 
+        this._handleKeydown = this._handleKeydown.bind(this);
         this._handleConfirm = this._handleConfirm.bind(this);
         this._handleClose = this._handleClose.bind(this);
         this.state = { active: true };
     }
 
+    componentDidMount(){
+        window.addEventListener('keydown', this._handleKeydown);
+    }
+
     hide(result){
+        window.removeEventListener('keydown', this._handleKeydown);
         this.setState((prev) => ({ ...prev, active: false }));
         if ( typeof this.props.onClose === 'function' ){
             this.props.onClose(result);
@@ -67,14 +79,16 @@ class MessageBox extends React.Component {
     }
 
     render(){
+        const classes = this.#getClassesByType(), withBorder = classes.indexOf('border') >= 0;
+        const noTitle = this.props.title === '' || typeof this.props.title !== 'string';
         return (
-            <div className={styles.messageBox + ' ' + this.#getClassesByType()} data-message-box-type={this.props.type} data-active={this.state.active}>
-                <div className={styles.overlay} onClick={this._handleClose} />
-                <div className={styles.dialog + ' bg-primary'}>
-                    <p className={styles.title + ' text-primary'}>{this.props.title}</p>
-                    <p className={styles.text + ' text-primary'}>{this.props.text}</p>
+            <div className={styles.messageBox + ' ' + classes} data-message-box-type={this.props.type} data-active={this.state.active}>
+                <div className={styles.dialog + ' bg-primary'} data-with-border={withBorder}>
+                    <p className={styles.title}>{this.props.title}</p>
+                    <p className={styles.text} data-no-title={noTitle}>{this.props.text}</p>
                     {this.#renderControls()}
                 </div>
+                <div className={styles.overlay} onClick={this._handleClose} />
             </div>
         );
     }
