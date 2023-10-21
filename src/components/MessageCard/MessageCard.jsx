@@ -14,7 +14,9 @@ import React from 'react';
 class MessageCard extends React.Component {
     #messageContentWrapperRef = React.createRef();
     #attachmentViewerRef = React.createRef();
+    #contextMenuRef = React.createRef();
     #messageCardRef = React.createRef();
+    #longTouchTimeoutID = null;
     #parentMutationObserver;
 
     #isWithoutBackground(){
@@ -47,7 +49,7 @@ class MessageCard extends React.Component {
                 </div>
                 <div className={styles.contextMenuWrapper} data-context-menu-enabled={this.state.contextmenuEnabled}>
                     <div className={styles.contextMenuOverlay} onClick={this._handleContextMenuOverlayClick}></div>
-                    <ul className={styles.contextMenu + ' bg-black border-black text-white'}>
+                    <ul className={styles.contextMenu + ' bg-black border-black text-white'} ref={this.#contextMenuRef}>
                         <li data-action-name={'edit'} onClick={this._handleContextMenuActionClick}><FontAwesomeIcon icon="fa-solid fa-pen" />{t('messageCard.contextMenu.edit')}</li>
                         <li data-action-name={'delete-local'} onClick={this._handleContextMenuActionClick} className={'text-danger'}><FontAwesomeIcon icon="fa-solid fa-trash" />{t('messageCard.contextMenu.deleteLocal')}</li>
                         <li data-action-name={'delete-global'} onClick={this._handleContextMenuActionClick} className={'text-danger'}><FontAwesomeIcon icon="fa-solid fa-trash" />{t('messageCard.contextMenu.deleteGlobal')}</li>
@@ -65,24 +67,40 @@ class MessageCard extends React.Component {
 
     _handleContextMenuActionClick(event){
         const action = event.target.closest('li').getAttribute('data-action-name');
-        this.setState((prev) => ({ ...prev, contextmenuEnabled: false }));
+        this.closeContextMenu();
         if ( typeof this.props.onMessageAction === 'function' ){
             this.props.onMessageAction(action, this.state.message);
         }
     }
 
     _handleContextMenuOverlayClick(){
-        this.setState((prev) => ({ ...prev, contextmenuEnabled: false }));
+        this.closeContextMenu();
     }
 
     _handleContextMenuOpenerClick(){
-        this.setState((prev) => ({ ...prev, contextmenuEnabled: ( !prev.contextmenuEnabled ) }));
+        this.openContextMenu();
     }
 
     _handleAttachmentClick(attachmentID, downloadedAttachmentList){
         if ( typeof this.props.onAttachmentClick === 'function' ){
             this.props.onAttachmentClick(attachmentID, downloadedAttachmentList);
         }
+    }
+
+    _handleTouchStart(){
+        if ( this.#longTouchTimeoutID === null ){
+            this.#longTouchTimeoutID = window.setTimeout(() => this._handleLongTouch(), 250);
+        }
+    }
+
+    _handleLongTouch(){
+        this.#longTouchTimeoutID = null;
+        this.openContextMenu();
+    }
+
+    _handleTouchEnd(){
+        window.clearTimeout(this.#longTouchTimeoutID);
+        this.#longTouchTimeoutID = null;
     }
 
     constructor(props){
@@ -93,6 +111,8 @@ class MessageCard extends React.Component {
         this._handleContextMenuOpenerClick = this._handleContextMenuOpenerClick.bind(this);
         this._handleContextMenuActionClick = this._handleContextMenuActionClick.bind(this);
         this._handleAttachmentClick = this._handleAttachmentClick.bind(this);
+        this._handleTouchStart = this._handleTouchStart.bind(this);
+        this._handleTouchEnd = this._handleTouchEnd.bind(this);
     }
 
     componentDidMount(){
@@ -115,6 +135,22 @@ class MessageCard extends React.Component {
         ]);
     }
 
+    closeContextMenu(){
+        this.setState((prev) => ({ ...prev, contextmenuEnabled: false }));
+        return this;
+    }
+
+    openContextMenu(){
+        const wrapperElement = this.#messageCardRef.current.closest('div.conversation-viewer-message-list-hook');
+        const wrapperElementHeight = parseFloat(window.getComputedStyle(wrapperElement).height);
+        const boundingClientRect = this.#messageCardRef.current.getBoundingClientRect();
+        const position = boundingClientRect.y + boundingClientRect.height;
+        const isInverted = position > ( wrapperElementHeight - 250 );
+        this.#contextMenuRef.current.setAttribute('data-is-inverted', isInverted);
+        this.setState((prev) => ({ ...prev, contextmenuEnabled: ( !prev.contextmenuEnabled ) }));
+        return this;
+    }
+
     render(){
         const authenticatedUserID = App.getAuthenticatedUser().getID();
         const messageUserID = this.state.message.getUser()?.getID();
@@ -122,7 +158,7 @@ class MessageCard extends React.Component {
         const className = direction === 'sent' ? ' message-bubble-sent' : ' message-bubble-received';
         const showAttachmentViewer = this.state.message.getType() !== MessageType.VOICE_MESSAGE;
         return (
-            <div className={styles.messageCard} data-direction={direction} data-message-id={this.state.message.getID()} ref={this.#messageCardRef}>
+            <div className={styles.messageCard} data-direction={direction} data-message-id={this.state.message.getID()} ref={this.#messageCardRef} onTouchStart={this._handleTouchStart} onTouchCancel={this._handleTouchEnd} onTouchEnd={this._handleTouchEnd}>
                 <div className={styles.wrapper + className} data-without-background={this.#isWithoutBackground()}>
                     <MessageContentWrapper message={this.state.message} ref={this.#messageContentWrapperRef} />
                     { showAttachmentViewer && <AttachmentViewer ref={this.#attachmentViewerRef} message={this.state.message} onAttachmentClick={this._handleAttachmentClick} /> }

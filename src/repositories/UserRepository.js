@@ -55,6 +55,7 @@ class UserRepository extends Repository {
             throw new IllegalArgumentException('Invalid ID.');
         }
         const user = new User();
+        user.setProfilePictureID(properties.profilePictureID);
         user.setRSAPublicKey(properties.RSAPublicKey);
         user.setLastAccess(properties.lastAccess);
         user.setUsername(properties.username);
@@ -95,6 +96,27 @@ class UserRepository extends Repository {
             throw new IllegalArgumentException('Invalid user ID.');
         }
         return await User.find({ id: id });
+    }
+
+    /**
+     * Updates user's profile picture ID.
+     *
+     * @param {User} user
+     * @param {?string} profilePictureID
+     *
+     * @returns {Promise<void>}
+     *
+     * @throws {IllegalArgumentException} If an invalid profile picture ID is given.
+     * @throws {IllegalArgumentException} If an invalid user is given.
+     */
+    async updateProfilePictureID(user, profilePictureID){
+        if ( profilePictureID !== null && ( profilePictureID === '' || typeof profilePictureID !== 'string' ) ){
+            throw new IllegalArgumentException('Invalid profile picture ID.');
+        }
+        if ( !( user instanceof User ) ){
+            throw new IllegalArgumentException('Invalid user.');
+        }
+        await user.setProfilePictureID(profilePictureID).save();
     }
 }
 

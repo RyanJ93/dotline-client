@@ -31,6 +31,7 @@ export default Object.freeze({
         name: 'users',
         columns: {
             _primaryKey: { primaryKey: true, dataType: 'string' },
+            profilePictureID: { notNull: false, dataType: 'string' },
             lastAccess: { notNull: false, dataType: 'date_time' },
             RSAPublicKey: { notNull: true, dataType: 'string' },
             username: { notNull: true, dataType: 'string' },

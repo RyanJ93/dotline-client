@@ -1,5 +1,6 @@
 'use strict';
 
+import ProfilePictureEditor from '../../ProfilePictureEditor/ProfilePictureEditor';
 import InputTooLongException from '../../../exceptions/InputTooLongException';
 import SubmitButton from '../../SubmitButton/SubmitButton';
 import UserService from '../../../services/UserService';
@@ -91,6 +92,9 @@ class BasicInfoSettingsSection extends React.Component {
             <div className={styles.section}>
                 <form className={styles.content} onSubmit={this._handleSubmit}>
                     <p className={styles.sectionTitle + ' text-primary'}>{t('basicInfoSettingsSection.title')}</p>
+                    <div className={styles.profilePictureEditorWrapper}>
+                        <ProfilePictureEditor />
+                    </div>
                     <div className={styles.field}>
                         <TextField label={t('basicInfoSettingsSection.label.name')} ref={this.#nameInputRef} />
                     </div>

@@ -9,6 +9,10 @@ import APIEndpoints from '../enum/APIEndpoints';
 import Request from '../facades/Request';
 import Service from './Service';
 
+/**
+ * @callback messageSyncCompletitionCallback
+ */
+
 class MessageSyncService extends Service {
     /**
      * @type {?MessageSyncStats}
@@ -111,9 +115,11 @@ class MessageSyncService extends Service {
     /**
      * Initializes synchronization for all the conversations.
      *
+     * @param {?messageSyncCompletitionCallback} [callback]
+     *
      * @returns {MessageSyncService}
      */
-    initSync(){
+    initSync(callback = null){
         this.#timeoutID = window.setTimeout(async () => {
             const [ conversationList ] = await Promise.all([new ConversationService().getConversations(), this.#setupMessageSyncStats()]);
             this._eventBroker.emit('messageSyncStart', this.#messageSyncStats);
@@ -121,6 +127,9 @@ class MessageSyncService extends Service {
             this._eventBroker.emit('messageSyncEnd', this.#messageSyncStats);
             window.clearTimeout(this.#timeoutID);
             this.#timeoutID = null;
+            if ( typeof callback === 'function' ){
+                callback();
+            }
         }, 1);
         return this;
     }

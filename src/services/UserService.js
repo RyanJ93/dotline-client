@@ -2,8 +2,10 @@
 
 import AuthenticatedUserExportedRSAKeys from '../DTOs/AuthenticatedUserExportedRSAKeys';
 import IllegalArgumentException from '../exceptions/IllegalArgumentException';
+import UserOnlineStatusWatcher from '../support/UserOnlineStatusWatcher';
 import UnauthorizedException from '../exceptions/UnauthorizedException';
 import InputTooLongException from '../exceptions/InputTooLongException';
+import UserProfilePictureService from './UserProfilePictureService';
 import NotFoundException from '../exceptions/NotFoundException';
 import UserRecoverySession from '../DTOs/UserRecoverySession';
 import UserRecoveryParams from '../DTOs/UserRecoveryParams';
@@ -34,6 +36,7 @@ class UserService extends Service {
         new AccessTokenService().storeAccessToken(response.accessToken.accessToken, isSession);
         this.#authenticatedUserRepository.storeAuthenticatedUser(authenticatedUser);
         this._eventBroker.emit('userAuthenticated', authenticatedUser);
+        UserOnlineStatusWatcher.getInstance().startPollingCheck(true);
         await this.#webSocketClient.connect();
         return authenticatedUser;
     }
@@ -209,6 +212,7 @@ class UserService extends Service {
             const authenticatedUser = AuthenticatedUser.makeFromHTTPResponse(response);
             this.#authenticatedUserRepository.storeAuthenticatedUser(authenticatedUser);
             this._eventBroker.emit('userAuthenticated', authenticatedUser);
+            UserOnlineStatusWatcher.getInstance().startPollingCheck(true);
             await this.#webSocketClient.connect();
             return authenticatedUser;
         }catch(ex){
@@ -226,6 +230,19 @@ class UserService extends Service {
      */
     getAuthenticatedUser(){
         return this.#authenticatedUserRepository.getAuthenticatedUser();
+    }
+
+    /**
+     * Returns the authenticated user as a User model instance.
+     *
+     * @returns {Promise<?User>}
+     */
+    async getAuthenticatedUserAsModel(){
+        let authenticatedUser = this.getAuthenticatedUser();
+        if ( authenticatedUser !== null ){
+            authenticatedUser = await this.getUserByID(authenticatedUser.getID());
+        }
+        return authenticatedUser;
     }
 
     /**
@@ -323,26 +340,6 @@ class UserService extends Service {
     }
 
     /**
-     * Check if the given users are online at the moment or not.
-     *
-     * @param {string[]} userIDList
-     *
-     * @returns {Promise<Object.<string, boolean>>}
-     *
-     * @throws {IllegalArgumentException} If an invalid user ID list is given.
-     */
-    async checkOnlineUsers(userIDList){
-        if ( !Array.isArray(userIDList) ){
-            throw new IllegalArgumentException('Invalid user ID list.');
-        }
-        const response = await this.#webSocketClient.send({
-            payload: { userIDList: userIDList },
-            action: 'checkOnlineUser'
-        });
-        return response?.payload ?? {};
-    }
-
-    /**
      * Updates the authenticated user.
      *
      * @param {string} username
@@ -394,6 +391,7 @@ class UserService extends Service {
      * @returns {Promise<void>}
      */
     async logout(){
+        UserOnlineStatusWatcher.getInstance().stopPollingCheck(true);
         await this.#webSocketClient.disconnect();
         try{
             await Request.get(APIEndpoints.USER_LOGOUT);
@@ -513,6 +511,35 @@ class UserService extends Service {
             RSAPrivateKey: encryptedRSAPrivateKey
         }, false);
         return this.#finalizeUserAuthenticationRequest(response, password, isSession);
+    }
+
+    /**
+     * Changes currently authenticated user's profile picture.
+     *
+     * @param {File} picture
+     *
+     * @returns {Promise<void>}
+     *
+     * @throws {IllegalArgumentException} If an invalid picture file is given.
+     */
+    async changeProfilePicture(picture){
+        const userProfilePictureService = new UserProfilePictureService(), user = await this.getAuthenticatedUserAsModel();
+        const profilePictureID = await userProfilePictureService.changeProfilePicture(picture);
+        await this.#userRepository.updateProfilePictureID(user, profilePictureID);
+        await userProfilePictureService.getUserProfilePicture(user, true);
+    }
+
+    /**
+     * Removes currently authenticated user's profile picture.
+     *
+     * @returns {Promise<void>}
+     */
+    async removeProfilePicture(){
+        const userProfilePictureService = new UserProfilePictureService();
+        await userProfilePictureService.removeProfilePicture();
+        const user = await this.getAuthenticatedUserAsModel();
+        await this.#userRepository.updateProfilePictureID(user, null);
+        userProfilePictureService.removeLoadedProfilePicture(user);
     }
 }
 

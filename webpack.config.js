@@ -44,6 +44,10 @@ module.exports = {
             ]
         }]
     },
+    cache: {
+        type: 'filesystem',
+        allowCollectingMemory: true
+    },
     optimization: {
         minimize: true,
         minimizer: [new TerserPlugin({
@@ -54,7 +58,7 @@ module.exports = {
     plugins: [
         new WebpackNotifierPlugin(),
         new webpack.DefinePlugin({
-            YANDEX_MAPS_KEY: JSON.stringify(config.yandexMapsKey),
+            YANDEX_MAPS_KEY: JSON.stringify(config?.yandexMapsKey ?? null),
             VERSION: JSON.stringify(version)
         }),
         new webpack.HotModuleReplacementPlugin()

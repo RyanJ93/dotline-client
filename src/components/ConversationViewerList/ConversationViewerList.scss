@@ -15,12 +15,20 @@ div.conversationViewerList {
         z-index: -1;
     }
 
-    div.conversationViewer {
-        display: none;
+    div.conversationViewerListContainer {
+        position: relative;
         height: 100%;
+        width: 100%;
 
-        &[data-selected="true"]{
-            display: block;
+        div.conversationViewer {
+            visibility: hidden;
+            position: absolute;
+            height: 100%;
+            width: 100%;
+
+            &[data-selected="true"]{
+                visibility: visible;
+            }
         }
     }
 }

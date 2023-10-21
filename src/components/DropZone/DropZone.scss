@@ -1,0 +1,46 @@
+div.dropZone {
+    position: relative;
+    height: 100%;
+    width: 100%;
+
+    div.dropZoneContainer {
+        transition: opacity .25s ease-in-out;
+        box-sizing: border-box;
+        will-change: opacity;
+        position: absolute;
+        border: 3px dashed;
+        display: flex;
+        height: 100%;
+        z-index: -1;
+        width: 100%;
+        opacity: 0;
+        left: 0;
+        top: 0;
+
+        &[data-active="true"] {
+            z-index: 15;
+            opacity: 1;
+        }
+
+        div.dropZoneContent {
+            align-self: center;
+            text-align: center;
+            font-size: 18px;
+            flex-grow: 1;
+
+            svg {
+                font-size: 54px;
+            }
+        }
+    }
+
+    div.contentWrapper {
+        box-sizing: border-box;
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        z-index: 5;
+        left: 0;
+        top: 0;
+    }
+}
