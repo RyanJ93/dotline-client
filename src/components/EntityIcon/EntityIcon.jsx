@@ -1,6 +1,7 @@
 'use strict';
 
 import UserProfilePictureService from '../../services/UserProfilePictureService';
+import { default as UserDTO } from '../../DTOs/User';
 import StringUtils from '../../utils/StringUtils';
 import styles from './EntityIcon.scss';
 import User from '../../models/User';
@@ -17,6 +18,18 @@ class EntityIcon extends React.Component {
         return renderedUserProfilePicture;
     }
 
+    async #fetchUserProfilePicture(){
+        let userProfilePicture = null;
+        if ( this.state.user instanceof User ){
+            userProfilePicture = await new UserProfilePictureService().getUserProfilePicture(this.state.user);
+        }else if ( this.state.user instanceof UserDTO ){
+            userProfilePicture = await new UserProfilePictureService().getProfilePictureFromUserDTO(this.state.user);
+        }
+        if ( userProfilePicture !== null ){
+            this.setState((prev) => ({ ...prev, userProfilePicture: userProfilePicture }));
+        }
+    }
+
     constructor(props){
         super(props);
 
@@ -28,18 +41,14 @@ class EntityIcon extends React.Component {
     }
 
     componentDidMount(){
-        if ( this.state.user instanceof User ){
-            new UserProfilePictureService().getUserProfilePicture(this.state.user).then((userProfilePicture) => {
-                this.setState((prev) => ({ ...prev, userProfilePicture: userProfilePicture }));
-            }).catch((ex) => console.error(ex));
-        }
+        this.#fetchUserProfilePicture().catch((ex) => console.error(ex));
     }
 
     render(){
         return (
             <div className={styles.entityIcon + ' bg-accent text-white'}>
                 { typeof this.state.text === 'string' && <p className={styles.content}>{StringUtils.makePFPName(this.state.text)}</p> }
-                { this.state.user instanceof User && this.#renderUserProfilePicture() }
+                { ( this.state.user instanceof User || this.state.user instanceof UserDTO ) && this.#renderUserProfilePicture() }
             </div>
         );
     }

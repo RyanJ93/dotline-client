@@ -1,44 +1,59 @@
 'use strict';
 
 import IllegalArgumentException from '../exceptions/IllegalArgumentException';
-import UserProfilePictureStatus from '../enum/UserProfilePictureStatus';
-import UserProfilePicture from '../DTOs/UserProfilePicture';
+import RemoteAssetStatus from '../enum/RemoteAssetStatus';
+import RemoteAsset from '../DTOs/RemoteAsset';
 import Repository from './Repository';
 
 class UserProfilePictureRepository extends Repository {
     /**
-     * @type {Object.<string, UserProfilePicture>}
+     * @type {Object.<string, RemoteAsset>}
      */
     #userProfilePictures = Object.create(null);
+
+    /**
+     * Returns the profile picture corresponding to the given user ID, if it has been fetched.
+     *
+     * @param {string} userID
+     *
+     * @returns {?RemoteAsset}
+     */
+    #assertProfilePicture(userID){
+        let profilePicture = this.getProfilePicture(userID);
+        if ( profilePicture?.getStatus() !== RemoteAssetStatus.FETCHED ){
+            profilePicture = null;
+        }
+        return profilePicture;
+    }
 
     /**
      * Stores a user profile picture URL.
      *
      * @param {string} userID
-     * @param {UserProfilePicture} userProfilePicture
+     * @param {RemoteAsset} remoteAsset
      *
      * @returns {UserProfilePictureRepository}
      *
-     * @throws {IllegalArgumentException} If an invalid profile picture is given.
+     * @throws {IllegalArgumentException} If an invalid remote asset is given.
      * @throws {IllegalArgumentException} If an invalid user ID is given.
      */
-    storeProfilePicture(userID, userProfilePicture){
-        if ( !( userProfilePicture instanceof UserProfilePicture ) ){
-            throw new IllegalArgumentException('Invalid profile picture.');
+    storeProfilePicture(userID, remoteAsset){
+        if ( !( remoteAsset instanceof RemoteAsset ) ){
+            throw new IllegalArgumentException('Invalid remote asset.');
         }
         if ( userID === '' || typeof userID !== 'string' ){
             throw new IllegalArgumentException('Invalid user ID.');
         }
-        this.#userProfilePictures[userID] = userProfilePicture;
+        this.#userProfilePictures[userID] = remoteAsset;
         return this;
     }
 
     /**
-     * Returns a stored user profile picture URL.
+     * Returns a stored user profile picture.
      *
      * @param {string} userID
      *
-     * @returns {?UserProfilePicture}
+     * @returns {?RemoteAsset}
      *
      * @throws {IllegalArgumentException} If an invalid user ID is given.
      */
@@ -50,18 +65,16 @@ class UserProfilePictureRepository extends Repository {
     }
 
     /**
+     * Waits for a given user profile picture to be fetched.
      *
-     * @param userID
-     * @returns {?UserProfilePicture}
+     * @param {string} userID
+     * @param {number} timeout
+     *
+     * @returns {Promise<RemoteAsset>}
+     *
+     * @throws {IllegalArgumentException} If an invalid timeout value is given.
+     * @throws {IllegalArgumentException} If an invalid URL is given.
      */
-    #assertProfilePicture(userID){
-        let profilePicture = this.getProfilePicture(userID);
-        if ( profilePicture?.getStatus() !== UserProfilePictureStatus.FETCHED ){
-            profilePicture = null;
-        }
-        return profilePicture;
-    }
-
     waitForProfilePicture(userID, timeout = UserProfilePictureRepository.DEFAULT_WAIT_TIMEOUT){
         return new Promise((resolve, reject) => {
             if ( timeout === null || isNaN(timeout) || timeout <= 0 ){
@@ -71,22 +84,22 @@ class UserProfilePictureRepository extends Repository {
                 return reject(new IllegalArgumentException('Invalid user ID.'));
             }
             const timeoutDate = new Date(new Date().getTime() + timeout);
-            const profilePicture = this.#assertProfilePicture(userID);
-            if ( profilePicture !== null ){
-                return resolve(profilePicture);
+            const remoteAsset = this.#assertProfilePicture(userID);
+            if ( remoteAsset !== null ){
+                return resolve(remoteAsset);
             }
             const intervalID = window.setInterval(() => {
-                const profilePicture = this.#assertProfilePicture(userID), date = new Date();
-                if ( profilePicture !== null || date < timeoutDate ){
+                const remoteAsset = this.#assertProfilePicture(userID), date = new Date();
+                if ( remoteAsset !== null || date < timeoutDate ){
                     window.clearInterval(intervalID);
-                    return resolve(profilePicture);
+                    return resolve(remoteAsset);
                 }
             }, 1000);
         });
     }
 
     /**
-     * Removes a stored user profile picture URL.
+     * Removes a stored user profile picture.
      *
      * @param {string} userID
      *
@@ -115,7 +128,7 @@ class UserProfilePictureRepository extends Repository {
         if ( userID === '' || typeof userID !== 'string' ){
             throw new IllegalArgumentException('Invalid user ID.');
         }
-        return this.#userProfilePictures[userID] instanceof UserProfilePicture;
+        return this.#userProfilePictures[userID] instanceof RemoteAsset;
     }
 
     /**

@@ -34,7 +34,7 @@ class LoadedAttachmentRepository extends Repository {
      *
      * @returns {RemoteAsset}
      *
-     * @throws {IllegalArgumentException} If an invalid content is given.
+     * @throws {IllegalArgumentException} If an invalid remote asset is given.
      * @throws {IllegalArgumentException} If an invalid URL is given.
      */
     storeLoadedAttachment(url, remoteAsset){
