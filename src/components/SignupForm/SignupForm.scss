@@ -12,10 +12,26 @@ div.formContainer {
             margin: 3px 0 0 0;
             font-size: 14px;
         }
+
+        @media(max-width: 375px) {
+            p.question {
+                font-size: 14px;
+            }
+
+            p.answer {
+                font-size: 12px;
+            }
+        }
     }
 
     div.submit {
         margin-top: 36px;
         text-align: center;
+    }
+
+    @media(max-width: 375px) {
+        div.submit {
+            margin-top: 24px;
+        }
     }
 }

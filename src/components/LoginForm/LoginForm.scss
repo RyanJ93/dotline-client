@@ -4,11 +4,25 @@ form.form {
 
         div.field {
             margin-top: 12px;
+
+            input[type="checkbox"] {
+                margin-right: 6px;
+            }
         }
 
         div.submit {
-            margin-top: 36px;
             text-align: center;
+            margin-top: 36px;
+        }
+    }
+
+    @media(max-width: 375px) {
+        div.fieldSet {
+            margin-top: 24px;
+
+            div.submit {
+                margin-top: 24px;
+            }
         }
     }
 }
