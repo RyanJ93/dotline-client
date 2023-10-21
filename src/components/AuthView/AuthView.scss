@@ -37,8 +37,19 @@ div.view {
 
             p.catchPhrase {
                 text-align: center;
-                font-size: 20px;
                 margin: 18px 0 0;
+                font-size: 20px;
+            }
+
+            @media(max-width: 375px) {
+                div.logo {
+                    height: 90px;
+                }
+
+                p.catchPhrase {
+                    margin: 12px 0 0;
+                    font-size: 16px;
+                }
             }
 
             div.formWrapper {
@@ -49,13 +60,23 @@ div.view {
                 }
 
                 p.question {
-                    font-size: 17px;
+                    font-size: 16px;
                     margin: 0;
                 }
 
                 p.answer {
                     font-size: 14px;
                     margin: 0;
+                }
+
+                @media(max-width: 375px) {
+                    p.question {
+                        font-size: 14px;
+                    }
+
+                    p.answer {
+                        font-size: 12px;
+                    }
                 }
 
                 div.bottomText {
