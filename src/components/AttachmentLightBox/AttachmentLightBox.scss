@@ -1,16 +1,15 @@
 div.attachmentLightBox {
     padding-bottom: env(safe-area-inset-top, 0px) !important;
     background-color: rgba(0, 0, 0, 0.8);
+    flex-direction: column;
     box-sizing: border-box;
     position: fixed;
-    width: 100%;
+    display: none;
     height: 100%;
+    width: 100%;
+    z-index: 10;
     right: 0;
     left: 0;
-
-    z-index: 10;
-    display: none;
-    flex-direction: column;
 
     &[data-show="true"] {
         display: flex;
