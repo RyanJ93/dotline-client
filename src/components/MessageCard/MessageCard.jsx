@@ -87,8 +87,17 @@ class MessageCard extends React.Component {
         }
     }
 
-    _handleTouchStart(){
-        if ( this.#longTouchTimeoutID === null ){
+    _handleTouchMove(){
+        window.clearTimeout(this.#longTouchTimeoutID);
+        this.#longTouchTimeoutID = null;
+    }
+
+    _handleTouchStart(event){
+        const direction = event.target.closest('div[data-direction]')?.getAttribute('data-direction');
+        if ( event.target.closest('div.message-wrapper-hook') === null || direction !== 'sent' ){
+            window.clearTimeout(this.#longTouchTimeoutID);
+            this.#longTouchTimeoutID = null;
+        }else if ( this.#longTouchTimeoutID === null ){
             this.#longTouchTimeoutID = window.setTimeout(() => this._handleLongTouch(), 250);
         }
     }
@@ -112,6 +121,8 @@ class MessageCard extends React.Component {
         this._handleContextMenuActionClick = this._handleContextMenuActionClick.bind(this);
         this._handleAttachmentClick = this._handleAttachmentClick.bind(this);
         this._handleTouchStart = this._handleTouchStart.bind(this);
+        this._handleTouchMove = this._handleTouchMove.bind(this);
+        this._handleLongTouch = this._handleLongTouch.bind(this);
         this._handleTouchEnd = this._handleTouchEnd.bind(this);
     }
 
@@ -141,13 +152,15 @@ class MessageCard extends React.Component {
     }
 
     openContextMenu(){
-        const wrapperElement = this.#messageCardRef.current.closest('div.conversation-viewer-message-list-hook');
-        const wrapperElementHeight = parseFloat(window.getComputedStyle(wrapperElement).height);
-        const boundingClientRect = this.#messageCardRef.current.getBoundingClientRect();
-        const position = boundingClientRect.y + boundingClientRect.height;
-        const isInverted = position > ( wrapperElementHeight - 250 );
-        this.#contextMenuRef.current.setAttribute('data-is-inverted', isInverted);
-        this.setState((prev) => ({ ...prev, contextmenuEnabled: ( !prev.contextmenuEnabled ) }));
+        if ( this.#messageCardRef.current.getAttribute('data-direction') === 'sent' ){
+            const wrapperElement = this.#messageCardRef.current.closest('div.conversation-viewer-message-list-hook');
+            const wrapperElementHeight = parseFloat(window.getComputedStyle(wrapperElement).height);
+            const boundingClientRect = this.#messageCardRef.current.getBoundingClientRect();
+            const position = boundingClientRect.y + boundingClientRect.height;
+            const isInverted = position > ( wrapperElementHeight - 250 );
+            this.#contextMenuRef.current.setAttribute('data-is-inverted', isInverted);
+            this.setState((prev) => ({ ...prev, contextmenuEnabled: ( !prev.contextmenuEnabled ) }));
+        }
         return this;
     }
 
@@ -158,8 +171,8 @@ class MessageCard extends React.Component {
         const className = direction === 'sent' ? ' message-bubble-sent' : ' message-bubble-received';
         const showAttachmentViewer = this.state.message.getType() !== MessageType.VOICE_MESSAGE;
         return (
-            <div className={styles.messageCard} data-direction={direction} data-message-id={this.state.message.getID()} ref={this.#messageCardRef} onTouchStart={this._handleTouchStart} onTouchCancel={this._handleTouchEnd} onTouchEnd={this._handleTouchEnd}>
-                <div className={styles.wrapper + className} data-without-background={this.#isWithoutBackground()}>
+            <div className={styles.messageCard} data-direction={direction} data-message-id={this.state.message.getID()} ref={this.#messageCardRef} onTouchStart={this._handleTouchStart} onTouchMove={this._handleTouchMove} onTouchCancel={this._handleTouchEnd} onTouchEnd={this._handleTouchEnd}>
+                <div className={styles.wrapper + className + ' message-wrapper-hook'} data-without-background={this.#isWithoutBackground()}>
                     <MessageContentWrapper message={this.state.message} ref={this.#messageContentWrapperRef} />
                     { showAttachmentViewer && <AttachmentViewer ref={this.#attachmentViewerRef} message={this.state.message} onAttachmentClick={this._handleAttachmentClick} /> }
                     <div className={styles.date}>{this.#renderEditedLabel()}{this.#getMessageTime()}</div>

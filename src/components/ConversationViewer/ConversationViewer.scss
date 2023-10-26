@@ -5,6 +5,10 @@ section.conversationViewer {
 
     div.content {
         scroll-behavior: smooth;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
         overflow-y: scroll;
         overflow-x: hidden;
         flex-grow: 1;
