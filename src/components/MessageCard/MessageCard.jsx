@@ -41,7 +41,7 @@ class MessageCard extends React.Component {
     }
 
     #renderContextMenu(){
-        const { t } = this.props;
+        const isEditable = ( this.state.message.getType() === MessageType.TEXT ), { t } = this.props;
         return (
             <React.Fragment>
                 <div className={styles.contextMenuOpener} onClick={this._handleContextMenuOpenerClick}>
@@ -50,7 +50,7 @@ class MessageCard extends React.Component {
                 <div className={styles.contextMenuWrapper} data-context-menu-enabled={this.state.contextmenuEnabled}>
                     <div className={styles.contextMenuOverlay} onClick={this._handleContextMenuOverlayClick}></div>
                     <ul className={styles.contextMenu + ' bg-black border-black text-white'} ref={this.#contextMenuRef}>
-                        <li data-action-name={'edit'} onClick={this._handleContextMenuActionClick}><FontAwesomeIcon icon="fa-solid fa-pen" />{t('messageCard.contextMenu.edit')}</li>
+                        { isEditable && <li data-action-name={'edit'} onClick={this._handleContextMenuActionClick}><FontAwesomeIcon icon="fa-solid fa-pen" />{t('messageCard.contextMenu.edit')}</li> }
                         <li data-action-name={'delete-local'} onClick={this._handleContextMenuActionClick} className={'text-danger'}><FontAwesomeIcon icon="fa-solid fa-trash" />{t('messageCard.contextMenu.deleteLocal')}</li>
                         <li data-action-name={'delete-global'} onClick={this._handleContextMenuActionClick} className={'text-danger'}><FontAwesomeIcon icon="fa-solid fa-trash" />{t('messageCard.contextMenu.deleteGlobal')}</li>
                     </ul>
@@ -94,11 +94,15 @@ class MessageCard extends React.Component {
 
     _handleTouchStart(event){
         const direction = event.target.closest('div[data-direction]')?.getAttribute('data-direction');
-        if ( event.target.closest('div.message-wrapper-hook') === null || direction !== 'sent' ){
+        const isLongTouchEventDisabled = event.target.closest('.long-touch-event-disabled') !== null;
+        const isInMessageWrapper = event.target.closest('div.message-wrapper-hook') !== null;
+        if ( !isInMessageWrapper || isLongTouchEventDisabled || direction !== 'sent' ){
             window.clearTimeout(this.#longTouchTimeoutID);
             this.#longTouchTimeoutID = null;
         }else if ( this.#longTouchTimeoutID === null ){
             this.#longTouchTimeoutID = window.setTimeout(() => this._handleLongTouch(), 250);
+            event.stopPropagation();
+            event.preventDefault();
         }
     }
 
