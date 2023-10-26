@@ -4,21 +4,23 @@ section.conversationViewerHeader {
     box-sizing: border-box;
     padding: 9px 24px;
 
-    div.backIconWrapper {
-        display: inline-block;
-        vertical-align: middle;
-        padding-right: 12px;
+    div.entityIconWrapper {
+        display: flex;
 
-        svg {
-            margin-top: -9px;
-            display: block;
-            cursor: pointer;
-        }
-    }
-
-    @media ( min-width: 480px ) {
         div.backIconWrapper {
-            display: none;
+            padding-right: 12px;
+            align-self: center;
+
+            svg {
+                cursor: pointer;
+                display: block;
+            }
+        }
+
+        @media ( min-width: 480px ) {
+            div.backIconWrapper {
+                display: none;
+            }
         }
     }
 

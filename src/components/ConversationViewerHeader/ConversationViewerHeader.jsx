@@ -161,7 +161,7 @@ class ConversationViewerHeader extends React.Component {
         const onlineBadge = this.state.isUserOnline ? <div className={styles.onlineBadge + ' bg-success'} /> : null;
         return conversationName === null ? null : (
             <section className={styles.conversationViewerHeader + ' border-primary text-primary'}>
-                <div>
+                <div className={styles.entityIconWrapper}>
                     <div className={styles.backIconWrapper} onClick={this._handleBackIconClick}>
                         <FontAwesomeIcon icon="fa-solid fa-chevron-left" />
                     </div>
