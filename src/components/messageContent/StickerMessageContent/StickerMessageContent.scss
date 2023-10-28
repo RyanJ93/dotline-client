@@ -13,15 +13,15 @@ div.stickerMessageContent {
     }
 
     video.stickerContent {
-        width: 256px;
-        height: 256px;
+        width: 200px;
+        height: 200px;
     }
 
     div.stickerContent {
-        width: 256px;
-        height: 256px;
-        background-position: center;
         background-repeat: no-repeat;
+        background-position: center;
         background-size: cover;
+        height: 200px;
+        width: 200px;
     }
 }

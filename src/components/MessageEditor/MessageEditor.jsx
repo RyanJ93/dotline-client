@@ -156,6 +156,7 @@ class MessageEditor extends React.Component {
     }
 
     _handleStickerSelect(sticker){
+        this.setState((prev) => ({ ...prev, voiceMessageRecorderActive: false, stickerPickerActive: false }));
         this.props.onMessageSend(sticker.toSerializedSticker(), MessageType.STICKER, null, null);
     }
 
@@ -247,6 +248,10 @@ class MessageEditor extends React.Component {
         this.#attachmentListRef.current.clear();
         this.#textareaRef.current.value = '';
         this.#textareaRef.current.rows = 1;
+        this.setState((prev) => ({ ...prev,
+            voiceMessageRecorderActive: false,
+            stickerPickerActive: false
+        }));
         return this;
     }
 
