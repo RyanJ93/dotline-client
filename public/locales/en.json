@@ -18,6 +18,8 @@
     "authView.accountAnswer": "Log in!",
     "authView.accountRecoverQuestion": "Did you forget your password?",
     "authView.accountRecoverAnswer": "Recover your account!",
+    "authView.passwordRememberedQuestion": "Did you remembered your password?",
+    "authView.passwordRememberedAnswer": "Log in!",
     "loginForm.label.rememberMe": "Remember me on this device",
     "loginForm.label.username": "Username",
     "loginForm.label.password": "Password",
