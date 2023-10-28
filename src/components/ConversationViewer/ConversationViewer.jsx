@@ -325,7 +325,7 @@ class ConversationViewer extends React.Component {
                     <div>
                         <ConversationViewerHeader conversation={this.state.conversation} user={this.state.user} onConversationClose={this._handleConversationClose} onConversationAction={this._handleConversationAction} />
                     </div>
-                    <div className={styles.content + ' conversation-viewer-message-list-hook'} ref={this.#messageListRef}>
+                    <div className={styles.content + ' disable-user-selection conversation-viewer-message-list-hook'} ref={this.#messageListRef}>
                         {this.#renderMessageLoader()}
                         {this.#renderMessageList()}
                         <div className={styles.scrollDownButton + ' text-primary'} onClick={() => this.#scrollListToBottom(true)} ref={this.#scrollDownButtonRef}>

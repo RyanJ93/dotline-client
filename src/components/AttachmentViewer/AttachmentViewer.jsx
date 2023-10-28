@@ -182,7 +182,7 @@ class AttachmentViewer extends React.Component {
         const { attachmentFetchStatus, downloadedAttachmentList } = this.state, { t } = this.props;
         const showAttachments = attachmentFetchStatus === 'loaded' && downloadedAttachmentList.length > 0;
         return (
-            <div className={styles.attachmentViewer}>
+            <div className={styles.attachmentViewer + ' long-touch-event-disabled'}>
                 <div className={styles.contentWrapper} data-show={showAttachments}>{this.#renderAttachments()}</div>
                 <div className={styles.contentWrapper} data-show={attachmentFetchStatus === 'error'}>
                     <div className={styles.errorMessage}>
