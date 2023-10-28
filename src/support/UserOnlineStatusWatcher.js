@@ -38,9 +38,9 @@ class UserOnlineStatusWatcher {
                 new UserOnlineStatusService().unsubscribeToEveryone();
             }
             // Instantly update the user list.
-            new UserOnlineStatusService().fetchOnlineUsers().catch((ex) => console.log(ex));
+            new UserOnlineStatusService().fetchOnlineUsers().catch((ex) => console.error(ex));
             this.#intervalID = window.setInterval(() => {
-                new UserOnlineStatusService().fetchOnlineUsers().catch((ex) => console.log(ex));
+                new UserOnlineStatusService().fetchOnlineUsers().catch((ex) => console.error(ex));
             }, UserOnlineStatusWatcher.POLLING_INTERVAL);
         }
         return this;

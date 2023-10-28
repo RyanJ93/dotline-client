@@ -17,9 +17,7 @@ class ProfilePictureEditor extends React.Component {
         const authenticatedUser = await new UserService().getAuthenticatedUserAsModel();
         if ( authenticatedUser !== null ){
             const url = await new UserProfilePictureService().getUserProfilePicture(authenticatedUser);
-            this.setState((prev) => ({ ...prev, profilePictureURL: url }), () => {
-                this.forceUpdate();
-            });
+            this.setState((prev) => ({ ...prev, profilePictureURL: url }), () => this.forceUpdate());
         }
     }
 

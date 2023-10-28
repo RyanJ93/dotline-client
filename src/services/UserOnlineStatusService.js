@@ -49,7 +49,7 @@ class UserOnlineStatusService extends Service {
      */
     subscribeToUserOnlineStatusChange(userID){
         this.#userOnlineStatusRepository.setUserOnlineStatus(userID, false);
-        this.fetchOnlineUsers().catch((ex) => console.log(ex));
+        this.fetchOnlineUsers().catch((ex) => console.error(ex));
         return this;
     }
 

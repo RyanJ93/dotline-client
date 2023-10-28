@@ -241,10 +241,15 @@ class AttachmentService extends Service {
             // Generate a remote asset object to mark this attachment file as under loading.
             remoteAsset = new RemoteAsset({ status: RemoteAssetStatus.LOADING, url: null });
             this.#loadedAttachmentRepository.storeLoadedAttachment(attachment.getURL(), remoteAsset);
-            const fileContent = await this.#fetchAttachmentFileContent(attachment);
-            // Mark this attachment file as loaded and register corresponding URL.
-            const url = URL.createObjectURL(new Blob([fileContent], { type: attachment.getMimetype() }));
-            remoteAsset.setStatus(RemoteAssetStatus.FETCHED).setURL(url);
+            try{
+                const fileContent = await this.#fetchAttachmentFileContent(attachment);
+                // Mark this attachment file as loaded and register corresponding URL.
+                const url = URL.createObjectURL(new Blob([fileContent], { type: attachment.getMimetype() }));
+                remoteAsset.setStatus(RemoteAssetStatus.FETCHED).setURL(url);
+            }catch(ex){
+                remoteAsset.setStatus(RemoteAssetStatus.ERROR);
+                throw ex;
+            }
         }else if ( remoteAsset?.getStatus() === RemoteAssetStatus.LOADING ){
             // This attachment is being loaded, wait for a while and, if not loaded, retry.
             remoteAsset = await this.#loadedAttachmentRepository.waitForLoadedAttachment(attachment.getURL());
