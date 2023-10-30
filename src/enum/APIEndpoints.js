@@ -7,6 +7,7 @@
  * @readonly
  */
 export default Object.freeze({
+
     ATTACHMENT_GET: '/api/conversation/:conversationID/message/:messageID/attachment/:attachmentID/get',
     MESSAGE_MARK_AS_READ: '/api/conversation/:conversationID/message/:messageID/mark-as-read',
     USER_PROFILE_PICTURE_GET: '/api/user/:userID/profile-picture/:profilePictureID/get',
@@ -26,6 +27,7 @@ export default Object.freeze({
     USER_SESSION_DELETE: '/api/user/session/:accessToken/delete',
     CONVERSATION_COMMIT_STATS: '/api/conversation/commit-stats',
     CONVERSATION_GET: '/api/conversation/:conversationID/get',
+    FETCH_LINK_OG_PROPERTIES: '/api/fetch-link-og-properties',
     USER_SESSION_DELETE_ALL: '/api/user/session/delete-all',
     USER_RECOVER_ACCOUNT: '/api/user/recover-account',
     USER_CHANGE_PASSWORD: '/api/user/change-password',

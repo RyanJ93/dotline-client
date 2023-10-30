@@ -218,5 +218,8 @@
     "profilePictureEditor.title.retry": "Ritenta il caricamento della foto profilo",
     "profilePictureEditor.label.pick": "Seleziona una foto",
     "profilePictureEditor.label.remove": "Rimuovi foto",
-    "dropZone.dropZoneLabel": "Rilascia qui i file per inviarli"
+    "dropZone.dropZoneLabel": "Rilascia qui i file per inviarli",
+    "linkPreview.loadingLabel": "Recupero dell'anteprima del link...",
+    "linkPreview.errorLabel": "Impossibile recuperare l'anteprima del link",
+    "linkPreview.errorButtonLabel": "Riprova"
 }
