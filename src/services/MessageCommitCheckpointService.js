@@ -158,6 +158,15 @@ class MessageCommitCheckpointService extends Service {
     async getCheckpointList(startingDate = null, endingDate = null){
         return await this.#messageCommitCheckpointRepository.getCheckpointList(this.#conversation, startingDate, endingDate);
     }
+
+    /**
+     * Checks if no conversation has been synchronized yet.
+     *
+     * @returns {Promise<boolean>}
+     */
+    async isFirstGlobalSync(){
+        return await this.#messageCommitCheckpointRepository.isFirstGlobalSync();
+    }
 }
 
 export default MessageCommitCheckpointService;

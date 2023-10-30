@@ -15,6 +15,11 @@ import Service from './Service';
 
 class MessageSyncService extends Service {
     /**
+     * @type {boolean}
+     */
+    #syncStartEventEmitted = false;
+
+    /**
      * @type {?MessageSyncStats}
      */
     #messageSyncStats = null;
@@ -64,12 +69,13 @@ class MessageSyncService extends Service {
      * @returns {Promise<void>}
      */
     async #syncConversation(conversation){
-        let startingMessageCommitID = null, messageCommitList = null, firstSOLMessageCommitID = null;
+        let startingMessageCommitID = null, messageCommitList = null, firstSOLMessageCommitID = null, i = 0;
         const messageCommitCheckpointService = new MessageCommitCheckpointService(conversation);
         const messageCommitService = new MessageCommitService(conversation);
         while ( messageCommitList === null || messageCommitList.length > 0 ){
             // Fetch message commit list starting defined message commit ID.
-            messageCommitList = await messageCommitService.listMessageCommits(MessageSyncService.MESSAGE_COMMIT_LIST_PAGE_SIZE, null, startingMessageCommitID);
+            const pageSize = i === 0 ? MessageSyncService.MESSAGE_COMMIT_LIST_FIRST_PAGE_SIZE : MessageSyncService.MESSAGE_COMMIT_LIST_PAGE_SIZE;
+            messageCommitList = await messageCommitService.listMessageCommits(pageSize, null, startingMessageCommitID);
             if ( messageCommitList.length > 0 ){
                 const firstEntry = messageCommitList[0], lastEntry = messageCommitList[messageCommitList.length - 1];
                 const currentSOLDate = firstEntry.getDate(), currentSOLMessageCommitID = firstEntry.getID();
@@ -105,10 +111,30 @@ class MessageSyncService extends Service {
                         await messageCommitCheckpointService.removeCheckpoint(checkpointList[i]);
                     }
                 }
+                if ( i > 0 && !this.#syncStartEventEmitted ){
+                    this._eventBroker.emit('messageSyncStart', this.#messageSyncStats);
+                    this.#syncStartEventEmitted = true;
+                }
             }
+            i++;
         }
         if ( firstSOLMessageCommitID === null ){
             this._eventBroker.emit('conversationHeadReady', conversation.getID());
+        }
+    }
+
+    /**
+     * Emits those events related to the beginning of the synchronization process.
+     *
+     * @returns {Promise<void>}
+     */
+    async #emitInitialEvents(){
+        const isFirstGlobalSync = await new MessageCommitCheckpointService().isFirstGlobalSync();
+        this._eventBroker.emit('messageSyncCheck', this.#messageSyncStats);
+        this.#syncStartEventEmitted = false;
+        if ( isFirstGlobalSync ){
+            this._eventBroker.emit('messageSyncStart', this.#messageSyncStats);
+            this.#syncStartEventEmitted = true;
         }
     }
 
@@ -120,20 +146,27 @@ class MessageSyncService extends Service {
      * @returns {MessageSyncService}
      */
     initSync(callback = null){
-        this.#timeoutID = window.setTimeout(async () => {
-            const [ conversationList ] = await Promise.all([new ConversationService().getConversations(), this.#setupMessageSyncStats()]);
-            this._eventBroker.emit('messageSyncStart', this.#messageSyncStats);
-            await Promise.all(conversationList.map((conversation) => this.#syncConversation(conversation)));
-            this._eventBroker.emit('messageSyncEnd', this.#messageSyncStats);
-            window.clearTimeout(this.#timeoutID);
-            this.#timeoutID = null;
-            if ( typeof callback === 'function' ){
-                callback();
-            }
-        }, 1);
+        if ( this.#timeoutID === null ){
+            this.#timeoutID = window.setTimeout(async () => {
+                const [ conversationList ] = await Promise.all([new ConversationService().getConversations(), this.#setupMessageSyncStats()]);
+                await this.#emitInitialEvents();
+                await Promise.all(conversationList.map((conversation) => this.#syncConversation(conversation)));
+                this._eventBroker.emit('messageSyncEnd', this.#messageSyncStats);
+                window.clearTimeout(this.#timeoutID);
+                this.#timeoutID = null;
+                if ( typeof callback === 'function' ){
+                    callback();
+                }
+            }, 1);
+        }
         return this;
     }
 }
+
+/**
+ * @constant {number}
+ */
+Object.defineProperty(MessageSyncService, 'MESSAGE_COMMIT_LIST_FIRST_PAGE_SIZE', { value: 50, writable: false });
 
 /**
  * @constant {number}

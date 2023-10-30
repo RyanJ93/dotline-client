@@ -59,7 +59,7 @@ class SideBar extends React.Component {
     }
 
     componentDidMount(){
-        Event.getBroker().on('messageSyncStart', () => {
+        Event.getBroker().on('messageSyncCheck', () => {
             this.#searchEngineRef.current.setDisabled(true);
             this.#searchBarRef.current.setDisabled(true);
         });
