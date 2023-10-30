@@ -3,6 +3,7 @@
 import MessageContentWrapper from '../MessageContentWrapper/MessageContentWrapper';
 import AttachmentViewer from '../AttachmentViewer/AttachmentViewer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import LinkPreview from '../LinkPreview/LinkPreview';
 import StringUtils from '../../utils/StringUtils';
 import MessageType from '../../enum/MessageType';
 import { withTranslation } from 'react-i18next';
@@ -169,16 +170,17 @@ class MessageCard extends React.Component {
     }
 
     render(){
-        const authenticatedUserID = App.getAuthenticatedUser().getID();
-        const messageUserID = this.state.message.getUser()?.getID();
+        const authenticatedUserID = this.state.message.getUser()?.getID(), messageUserID = App.getAuthenticatedUser().getID();
+        const URLTokenizationResult = StringUtils.tokenizeURLsInString(this.state.message.getContent());
         const direction = messageUserID === authenticatedUserID ? 'sent' : 'received';
         const className = direction === 'sent' ? ' message-bubble-sent' : ' message-bubble-received';
         const showAttachmentViewer = this.state.message.getType() !== MessageType.VOICE_MESSAGE;
         return (
             <div className={styles.messageCard} data-direction={direction} data-message-id={this.state.message.getID()} ref={this.#messageCardRef} onTouchStart={this._handleTouchStart} onTouchMove={this._handleTouchMove} onTouchCancel={this._handleTouchEnd} onTouchEnd={this._handleTouchEnd}>
                 <div className={styles.wrapper + className + ' message-wrapper-hook'} data-without-background={this.#isWithoutBackground()}>
-                    <MessageContentWrapper message={this.state.message} ref={this.#messageContentWrapperRef} />
+                    <MessageContentWrapper ref={this.#messageContentWrapperRef} message={this.state.message} URLTokenizationResult={URLTokenizationResult} />
                     { showAttachmentViewer && <AttachmentViewer ref={this.#attachmentViewerRef} message={this.state.message} onAttachmentClick={this._handleAttachmentClick} /> }
+                    { URLTokenizationResult.URLList.length > 0 && <LinkPreview url={URLTokenizationResult.URLList[0]} /> }
                     <div className={styles.date}>{this.#renderEditedLabel()}{this.#getMessageTime()}</div>
                     { direction === 'sent' && this.#renderContextMenu() }
                 </div>
