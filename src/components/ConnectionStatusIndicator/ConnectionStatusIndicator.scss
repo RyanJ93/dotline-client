@@ -1,0 +1,11 @@
+div.connectionStatusIndicator {
+	font-style: italic;
+	text-align: center;
+	padding-top: 12px;
+	font-size: 14px;
+	display: none;
+
+	&[data-display="true"] {
+		display: block;
+	}
+}

@@ -221,5 +221,6 @@
     "dropZone.dropZoneLabel": "Rilascia qui i file per inviarli",
     "linkPreview.loadingLabel": "Recupero dell'anteprima del link...",
     "linkPreview.errorLabel": "Impossibile recuperare l'anteprima del link",
-    "linkPreview.errorButtonLabel": "Riprova"
+    "linkPreview.errorButtonLabel": "Riprova",
+    "connectionStatusIndicator.label": "Connessione persa, riconnessione..."
 }

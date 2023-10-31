@@ -4,6 +4,7 @@ import DuplicatedUsernameException from '../../exceptions/DuplicatedUsernameExce
 import IllustratedProgressBar from '../IllustratedProgressBar/IllustratedProgressBar';
 import UnauthorizedException from '../../exceptions/UnauthorizedException';
 import InvalidInputException from '../../exceptions/InvalidInputException';
+import AccountRecoverForm from '../AccountRecoverForm/AccountRecoverForm';
 import ConversationService from '../../services/ConversationService';
 import NotFoundException from '../../exceptions/NotFoundException';
 import UserService from '../../services/UserService';
@@ -14,7 +15,6 @@ import LoginForm from '../LoginForm/LoginForm';
 import Footer from '../Footer/Footer';
 import styles from './AuthView.scss';
 import React from 'react';
-import AccountRecoverForm from '../AccountRecoverForm/AccountRecoverForm';
 
 class AuthView extends React.Component {
     #illustratedProgressBar = React.createRef();
