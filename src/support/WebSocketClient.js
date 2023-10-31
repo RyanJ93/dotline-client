@@ -3,6 +3,7 @@
 import IllegalArgumentException from '../exceptions/IllegalArgumentException';
 import UserService from '../services/UserService';
 import Injectable from './Injectable';
+import Event from '../facades/Event';
 import App from '../facades/App';
 
 /**
@@ -68,6 +69,7 @@ class WebSocketClient extends Injectable {
             }else{
                 console.log('Connection to WebSocket lost, reconnecting in a second...');
                 window.setTimeout(() => this.connect(), 1000);
+                Event.getBroker().emit('WSDisconnected');
             }
         }
     }
@@ -79,6 +81,9 @@ class WebSocketClient extends Injectable {
      */
     async #handleConnectionOpen(){
         await this.#authenticate();
+        if ( this.#isClientReady === false && this.#isClientClosed === false ){
+            Event.getBroker().emit('WSReconnected');
+        }
         this.#isClientReady = true;
     }
 

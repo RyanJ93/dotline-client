@@ -221,5 +221,6 @@
     "dropZone.dropZoneLabel": "Drop files here to send them.",
     "linkPreview.loadingLabel": "Fetching link preview...",
     "linkPreview.errorLabel": "Unable to fetch link preview",
-    "linkPreview.errorButtonLabel": "Retry"
+    "linkPreview.errorButtonLabel": "Retry",
+    "connectionStatusIndicator.label": "Connection lost, reconnecting..."
 }

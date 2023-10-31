@@ -23,6 +23,16 @@ div.view {
 
             div.conversationList {
                 flex-grow: 1;
+
+                div.sideBarContainer {
+                    flex-direction: column;
+                    display: flex;
+                    height: 100%;
+
+                    div.sideBarWrapper {
+                        flex-grow: 1;
+                    }
+                }
             }
 
             div.messageImportStatsViewer {}
