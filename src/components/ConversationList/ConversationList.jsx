@@ -63,6 +63,7 @@ class ConversationList extends React.Component {
     }
 
     componentDidMount(){
+        Event.getBroker().on('localDataCleared', () => this.empty());
         Event.getBroker().on('conversationDelete', (conversationID) => {
             this.state.conversationList.delete(conversationID);
             this.forceUpdate();
@@ -80,6 +81,15 @@ class ConversationList extends React.Component {
 
     getSelectedConversationID(){
         return this.state.selectedConversationID;
+    }
+
+    empty(){
+        this.setState((prev) => ({
+            ...prev,
+            selectedConversationID: null,
+            conversationList: new Map()
+        }), () => this.forceUpdate());
+        return this;
     }
 
     render(){

@@ -173,7 +173,7 @@ class ConversationViewer extends React.Component {
     #addMessage(message){
         const { conversation, messageDateThreshold } = this.state, messageConversation = message.getConversation();
         const isCurrentConversation = messageConversation.getID() === conversation?.getID();
-        if ( isCurrentConversation && message.getCreatedAt() >= messageDateThreshold ){
+        if ( isCurrentConversation && message.getCreatedAt() >= messageDateThreshold && this.#messageListRef.current !== null ){
             const isScrolledToBottom = DOMUtils.isScrolledToBottom(this.#messageListRef.current, 100);
             const isMyMessage = message.getUser().getID() === App.getAuthenticatedUser().getID();
             const isSyncProcessRunning = MessageSyncManager.getInstance().isSyncProcessRunning();
@@ -296,14 +296,12 @@ class ConversationViewer extends React.Component {
     }
 
     componentDidMount(){
-        Event.getBroker().on('localDataCleared', () => {
-            this.setState((prev) => ({ ...prev, loading: true }), () => this.#resetListContent());
-        });
+        Event.getBroker().on('localDataCleared', () => this.setState((prev) => ({ ...prev, loading: true }), () => this.#resetListContent()));
+        Event.getBroker().on('messageAdded', (message) => this.#addMessage(message));
         Event.getBroker().on('messageDelete', (messageID) => {
             this.state.messageList.delete(messageID);
             this.forceUpdate();
         });
-        Event.getBroker().on('messageAdded', (message) => this.#addMessage(message));
         Event.getBroker().on('conversationHeadReady', (conversationID) => {
             if ( this.state.conversation?.getID() === conversationID ){
                 this.#loadConversationMessages(null, 'conversation-head-load').catch((ex) => console.error(ex));
