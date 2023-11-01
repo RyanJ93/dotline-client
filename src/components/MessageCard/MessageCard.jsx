@@ -180,7 +180,7 @@ class MessageCard extends React.Component {
                 <div className={styles.wrapper + className + ' message-wrapper-hook'} data-without-background={this.#isWithoutBackground()}>
                     <MessageContentWrapper ref={this.#messageContentWrapperRef} message={this.state.message} URLTokenizationResult={URLTokenizationResult} />
                     { showAttachmentViewer && <AttachmentViewer ref={this.#attachmentViewerRef} message={this.state.message} onAttachmentClick={this._handleAttachmentClick} /> }
-                    { URLTokenizationResult.URLList.length > 0 && <LinkPreview url={URLTokenizationResult.URLList[0]} /> }
+                    { URLTokenizationResult.URLList.length > 0 && <LinkPreview url={URLTokenizationResult.URLList[0]} invertedBackgroundColor={direction === 'received'} /> }
                     <div className={styles.date}>{this.#renderEditedLabel()}{this.#getMessageTime()}</div>
                     { direction === 'sent' && this.#renderContextMenu() }
                 </div>

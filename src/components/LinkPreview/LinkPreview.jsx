@@ -63,8 +63,9 @@ class LinkPreview extends React.Component {
 
     render(){
         const display = this.state.status !== 'fetched' || this.#isPreviewAvailable(), { t } = this.props;
+        const bgClass = this.props.invertedBackgroundColor === true ? 'bg-primary' : 'bg-secondary';
         return (
-            <div className={styles.linkPreview + ' bg-secondary'} data-display={display}>
+            <div className={styles.linkPreview + ' ' + bgClass} data-display={display}>
                 { this.state.status === 'loading' && <p className={styles.loadingLabel}>{t('linkPreview.loadingLabel')}</p> }
                 { this.state.status === 'fetched' && this.#renderLinkPreview() }
                 { this.state.status === 'error' && this.#renderErrorMessage() }
