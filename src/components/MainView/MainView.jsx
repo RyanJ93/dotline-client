@@ -62,6 +62,7 @@ class MainView extends React.Component {
         if ( conversation === null ){
             new UserOnlineStatusService().subscribeToUserOnlineStatusChange(recipient.getID());
             const conversationDraft = new ConversationDraft({ members: [sender, recipient] });
+            this.setState((prev) => ({ ...prev, conversationSelected: true }));
             return this.#conversationViewerListRef.current.setConversationDraft(conversationDraft);
         }
         this.#selectConversation(conversation.getID());
