@@ -4,6 +4,7 @@ import IllegalArgumentException from '../exceptions/IllegalArgumentException';
 import Conversation from '../models/Conversation';
 import Message from '../models/Message';
 import Repository from './Repository';
+import MessageType from '../enum/MessageType';
 
 class MessageRepository extends Repository {
     /**
@@ -217,6 +218,7 @@ class MessageRepository extends Repository {
             throw new IllegalArgumentException('Invalid search query.');
         }
         const filters = { content: { like: '%' + query + '%' } };
+        filters.type = MessageType.TEXT;
         if ( conversation !== null ){
             filters.conversation = conversation.getID();
         }

@@ -9,7 +9,7 @@ import React from 'react';
 class SearchEngine extends React.Component {
     #renderResults(){
         const renderedResults = [], { t } = this.props;
-        if ( Array.isArray(this.state.searchResultEntryList) && this.state.searchResultEntryList.length > 0 ){
+        if ( Array.isArray(this.state.searchResultEntryList) ){
             this.state.searchResultEntryList.forEach((searchResultEntry, index) => {
                 if ( searchResultEntry.getEntity() !== null ){
                     renderedResults.push(

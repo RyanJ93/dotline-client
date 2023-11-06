@@ -484,7 +484,6 @@ class MessageService extends Service {
      */
     async search(query, conversation = null, limit = 50){
         const messageList = await this.#messageRepository.search(query, conversation, limit);
-        //
         await Promise.all(messageList.map(async (message) => {
             const conversationID = message.getConversation().getID(), conversationService = new ConversationService();
             const conversation = await conversationService.getConversationByID(conversationID);
