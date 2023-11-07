@@ -172,7 +172,7 @@ class ConversationViewer extends React.Component {
 
     #addMessage(message){
         const { conversation, messageDateThreshold } = this.state, messageConversation = message.getConversation();
-        const isCurrentConversation = messageConversation.getID() === conversation?.getID();
+        const isCurrentConversation = conversation instanceof Conversation && messageConversation.getID() === conversation.getID();
         if ( isCurrentConversation && message.getCreatedAt() >= messageDateThreshold && this.#messageListRef.current !== null ){
             const isScrolledToBottom = DOMUtils.isScrolledToBottom(this.#messageListRef.current, 100);
             const isMyMessage = message.getUser().getID() === App.getAuthenticatedUser().getID();
