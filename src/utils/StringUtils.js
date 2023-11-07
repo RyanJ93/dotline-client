@@ -65,7 +65,7 @@ class StringUtils {
         if ( typeof username !== 'string' ){
             throw new IllegalArgumentException('Invalid username.');
         }
-        return username !== '' && /[a-z0-9.-_]{3,16}/i.test(username);
+        return username !== '' && /^[a-z0-9.\-_]{3,16}$/i.test(username);
     }
 
     /**
