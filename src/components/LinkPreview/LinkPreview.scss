@@ -3,8 +3,8 @@ div.linkPreview {
 	border-radius: 3px;
 	text-align: left;
 	margin-top: 18px;
-	max-width: 350px;
 	padding: 12px;
+	width: 100%;
 
 	&[data-display="false"]{
 		display: none;
@@ -25,7 +25,9 @@ div.linkPreview {
 		}
 
 		img.image {
+			object-fit: contain;
 			border-radius: 3px;
+			max-height: 200px;
 			margin-top: 12px;
 			width: 100%;
 		}

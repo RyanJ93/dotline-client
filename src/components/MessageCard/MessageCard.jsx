@@ -49,7 +49,7 @@ class MessageCard extends React.Component {
                     <FontAwesomeIcon icon="fa-solid fa-chevron-down" />
                 </div>
                 <div className={styles.contextMenuWrapper} data-context-menu-enabled={this.state.contextmenuEnabled}>
-                    <div className={styles.contextMenuOverlay} onClick={this._handleContextMenuOverlayClick}></div>
+                    <div className={styles.contextMenuOverlay + ' disable-user-selection'} onClick={this._handleContextMenuOverlayClick}></div>
                     <ul className={styles.contextMenu + ' bg-black border-black text-white'} ref={this.#contextMenuRef}>
                         { isEditable && <li data-action-name={'edit'} onClick={this._handleContextMenuActionClick}><FontAwesomeIcon icon="fa-solid fa-pen" />{t('messageCard.contextMenu.edit')}</li> }
                         <li data-action-name={'delete-local'} onClick={this._handleContextMenuActionClick} className={'text-danger'}><FontAwesomeIcon icon="fa-solid fa-trash" />{t('messageCard.contextMenu.deleteLocal')}</li>
@@ -175,12 +175,13 @@ class MessageCard extends React.Component {
         const direction = messageUserID === authenticatedUserID ? 'sent' : 'received';
         const className = direction === 'sent' ? ' message-bubble-sent' : ' message-bubble-received';
         const showAttachmentViewer = this.state.message.getType() !== MessageType.VOICE_MESSAGE;
+        const containsLinks = URLTokenizationResult.URLList.length > 0;
         return (
             <div className={styles.messageCard} data-direction={direction} data-message-id={this.state.message.getID()} ref={this.#messageCardRef} onTouchStart={this._handleTouchStart} onTouchMove={this._handleTouchMove} onTouchCancel={this._handleTouchEnd} onTouchEnd={this._handleTouchEnd}>
-                <div className={styles.wrapper + className + ' message-wrapper-hook'} data-without-background={this.#isWithoutBackground()}>
+                <div className={styles.wrapper + className + ' message-wrapper-hook'} data-without-background={this.#isWithoutBackground()} data-fixed-width={containsLinks}>
                     <MessageContentWrapper ref={this.#messageContentWrapperRef} message={this.state.message} URLTokenizationResult={URLTokenizationResult} />
                     { showAttachmentViewer && <AttachmentViewer ref={this.#attachmentViewerRef} message={this.state.message} onAttachmentClick={this._handleAttachmentClick} /> }
-                    { URLTokenizationResult.URLList.length > 0 && <LinkPreview url={URLTokenizationResult.URLList[0]} invertedBackgroundColor={direction === 'received'} /> }
+                    { containsLinks > 0 && <LinkPreview url={URLTokenizationResult.URLList[0]} invertedBackgroundColor={direction === 'received'} /> }
                     <div className={styles.date}>{this.#renderEditedLabel()}{this.#getMessageTime()}</div>
                     { direction === 'sent' && this.#renderContextMenu() }
                 </div>
