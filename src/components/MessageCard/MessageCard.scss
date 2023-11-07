@@ -110,6 +110,8 @@ div.messageCard {
         }
 
         div.contextMenuWrapper {
+            position: relative;
+
             &[data-context-menu-enabled="true"] {
                 ul.contextMenu {
                     padding: 12px;
@@ -143,7 +145,7 @@ div.messageCard {
                 width: 0;
 
                 &[data-is-inverted="false"] {
-                    top: 28px;
+                    top: 0;
                 }
 
                 &[data-is-inverted="true"] {
