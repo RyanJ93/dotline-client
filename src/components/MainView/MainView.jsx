@@ -1,5 +1,6 @@
 'use strict';
 
+import ConnectionStatusIndicator from '../ConnectionStatusIndicator/ConnectionStatusIndicator';
 import MessageImportStatsViewer from '../MessageImportStatsViewer/MessageImportStatsViewer';
 import ConversationViewerList from '../ConversationViewerList/ConversationViewerList';
 import UserOnlineStatusService from '../../services/UserOnlineStatusService';
@@ -61,6 +62,7 @@ class MainView extends React.Component {
         if ( conversation === null ){
             new UserOnlineStatusService().subscribeToUserOnlineStatusChange(recipient.getID());
             const conversationDraft = new ConversationDraft({ members: [sender, recipient] });
+            this.setState((prev) => ({ ...prev, conversationSelected: true }));
             return this.#conversationViewerListRef.current.setConversationDraft(conversationDraft);
         }
         this.#selectConversation(conversation.getID());
@@ -130,7 +132,12 @@ class MainView extends React.Component {
                     <div className={styles.container}>
                         <div className={styles.sideBar + ' border-secondary bg-primary'}>
                             <div className={styles.conversationList + ' bg-primary'}>
-                                <SideBar ref={this.#sideBarRef} onSearchResultPick={this._handleSearchResultPick} onConversationSelect={this._handleConversationSelect} />
+                                <div className={styles.sideBarContainer}>
+                                    <ConnectionStatusIndicator />
+                                    <div className={styles.sideBarWrapper}>
+                                        <SideBar ref={this.#sideBarRef} onSearchResultPick={this._handleSearchResultPick} onConversationSelect={this._handleConversationSelect} />
+                                    </div>
+                                </div>
                             </div>
                             <div className={styles.messageImportStatsViewer}>
                                 <MessageImportStatsViewer />

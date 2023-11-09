@@ -48,21 +48,18 @@ class VoiceMessagePlayer extends React.Component {
         this.#audioRef.current.currentTime = 0;
     }
 
-    _handlePauseClick(event){
+    _handlePlaybackClick(event){
+        event.stopPropagation();
+        event.preventDefault();
         if ( this.#ignoreEvent === null ){
             this.#ignoreEvent = event.type === 'click' ? 'touchstart' : 'click';
         }
         if ( this.#ignoreEvent !== event.type ){
-            this.pause();
-        }
-    }
-
-    _handlePlayClick(){
-        if ( this.#ignoreEvent === null ){
-            this.#ignoreEvent = event.type === 'click' ? 'touchstart' : 'click';
-        }
-        if ( this.#ignoreEvent !== event.type ){
-            this.play();
+            if ( this.state.playing === true ){
+                this.pause().catch((ex) => console.error(ex));
+            }else{
+                this.play().catch((ex) => console.error(ex));
+            }
         }
     }
 
@@ -95,9 +92,8 @@ class VoiceMessagePlayer extends React.Component {
         this._handlePlaybackRateChange = this._handlePlaybackRateChange.bind(this);
         this._handleLoadedMetadata = this._handleLoadedMetadata.bind(this);
         this._handleFileProcessed = this._handleFileProcessed.bind(this);
+        this._handlePlaybackClick = this._handlePlaybackClick.bind(this);
         this._handleTimeUpdate = this._handleTimeUpdate.bind(this);
-        this._handlePauseClick = this._handlePauseClick.bind(this);
-        this._handlePlayClick = this._handlePlayClick.bind(this);
         this._handleEnded = this._handleEnded.bind(this);
         this._handleStop = this._handleStop.bind(this);
         this._handlePlay = this._handlePlay.bind(this);
@@ -132,27 +128,27 @@ class VoiceMessagePlayer extends React.Component {
         const filename = this.props.downloadedVoiceMessage?.getFilename() ?? null;
         return (
             <div className={styles.voiceMessagePlayer}>
-                <div className={styles.controlsWrapper}>
-                    <div className={styles.controls + ' bg-accent'} data-enabled={this.state.fileProcessed}>
-                        { this.state.playing === true && <FontAwesomeIcon icon='fa-solid fa-pause' onClick={this._handlePauseClick} onTouchStart={this._handlePauseClick} /> }
-                        { this.state.playing === false && <FontAwesomeIcon icon='fa-solid fa-play' onClick={this._handlePlayClick} onTouchStart={this._handlePlayClick} /> }
+                <div className={styles.controlsWrapper + ' disable-user-selection'}>
+                    <div className={styles.controls + ' bg-accent'} data-enabled={this.state.fileProcessed} onClick={this._handlePlaybackClick} onTouchStart={this._handlePlaybackClick}>
+                        { this.state.playing === true && <FontAwesomeIcon icon='fa-solid fa-pause' /> }
+                        { this.state.playing === false && <FontAwesomeIcon icon='fa-solid fa-play' /> }
                     </div>
                 </div>
                 <div className={styles.slider}>
-                    <div className={styles.audioPlaybackNavigatorWrapper}>
+                    <div className={styles.audioPlaybackNavigatorWrapper + ' disable-user-selection'}>
                         <AudioPlaybackNavigator ref={this.#audioPlaybackNavigatorRef} onCursorPositionChange={this._handleCursorPositionChange}>
                             <AudioFileAnalyzer ref={this.#audioFileAnalyzerRef} reverseRendering={false} onFileProcessed={this._handleFileProcessed} />
                         </AudioPlaybackNavigator>
                     </div>
                     <audio preload={'metadata'} src={url} ref={this.#audioRef} onLoadedMetadata={this._handleLoadedMetadata} onTimeUpdate={this._handleTimeUpdate} onPause={this._handleStop} onPlay={this._handlePlay} onEnded={this._handleEnded}></audio>
                     <div className={styles.lowerControls} data-show={this.state.fileProcessed}>
-                        <div className={styles.playbackRateControl}>
+                        <div className={styles.playbackRateControl + ' disable-user-selection'}>
                             <p className={'bg-accent'} onClick={this._handlePlaybackRateChange}>{this.state.playbackRate}x</p>
                         </div>
                         <div className={styles.elapsedTimeDisplayWrapper}>
                             <ElapsedTimeDisplay ref={this.#elapsedTimeDisplayRef} />
                         </div>
-                        <div className={styles.downloadButton}>
+                        <div className={styles.downloadButton + ' disable-user-selection'}>
                             <a className={'bg-accent text-primary'} download={filename} href={url} title={t('voiceMessagePlayer.downloadTitle')}>
                                 <FontAwesomeIcon icon='fa-solid fa-download' />
                             </a>

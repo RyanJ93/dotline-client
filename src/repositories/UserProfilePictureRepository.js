@@ -70,7 +70,7 @@ class UserProfilePictureRepository extends Repository {
      * @param {string} userID
      * @param {number} timeout
      *
-     * @returns {Promise<RemoteAsset>}
+     * @returns {Promise<?RemoteAsset>}
      *
      * @throws {IllegalArgumentException} If an invalid timeout value is given.
      * @throws {IllegalArgumentException} If an invalid URL is given.

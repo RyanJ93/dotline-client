@@ -214,6 +214,15 @@ class MessageCommitCheckpointRepository extends Repository {
         }
         return await MessageCommitCheckpoint.findAll(filter, { order: { date: 'desc' } });
     }
+
+    /**
+     * Checks if no conversation has been synchronized yet.
+     *
+     * @returns {Promise<boolean>}
+     */
+    async isFirstGlobalSync(){
+        return ( await MessageCommitCheckpoint.find({}) ) === null;
+    }
 }
 
 export default MessageCommitCheckpointRepository;

@@ -16,19 +16,19 @@ class MessageContentWrapper extends React.Component {
         const { t } = this.props;
         switch ( this.props.message?.getType() ){
             case MessageType.VOICE_MESSAGE: {
-                return <VoiceMessageContent message={this.props.message} ref={this.#messageContentRef} />;
+                return <VoiceMessageContent message={this.props.message} URLTokenizationResult={this.props.URLTokenizationResult} ref={this.#messageContentRef} />;
             }
             case MessageType.LOCATION: {
-                return <LocationMessageContent message={this.props.message} ref={this.#messageContentRef} />;
+                return <LocationMessageContent message={this.props.message} URLTokenizationResult={this.props.URLTokenizationResult} ref={this.#messageContentRef} />;
             }
             case MessageType.STICKER: {
-                return <StickerMessageContent message={this.props.message} ref={this.#messageContentRef} />;
+                return <StickerMessageContent message={this.props.message} URLTokenizationResult={this.props.URLTokenizationResult} ref={this.#messageContentRef} />;
             }
             case MessageType.TEXT: {
-                return <TextMessageContent message={this.props.message} ref={this.#messageContentRef} />;
+                return <TextMessageContent message={this.props.message} URLTokenizationResult={this.props.URLTokenizationResult} ref={this.#messageContentRef} />;
             }
             default: {
-                return <span className={styles.unsupportedType}>{t('messageContent.unsupportedType')}</span>
+                return <span className={styles.unsupportedType}>{t('messageContent.unsupportedType')}</span>;
             }
         }
     }
@@ -38,11 +38,7 @@ class MessageContentWrapper extends React.Component {
     }
 
     render(){
-        return (
-            <div className={styles.messageContentWrapper}>
-                {this.#renderMessageContent()}
-            </div>
-        );
+        return <div className={styles.messageContentWrapper}>{this.#renderMessageContent()}</div>;
     }
 }
 

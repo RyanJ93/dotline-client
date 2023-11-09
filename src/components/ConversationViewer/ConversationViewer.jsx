@@ -172,8 +172,8 @@ class ConversationViewer extends React.Component {
 
     #addMessage(message){
         const { conversation, messageDateThreshold } = this.state, messageConversation = message.getConversation();
-        const isCurrentConversation = messageConversation.getID() === conversation?.getID();
-        if ( isCurrentConversation && message.getCreatedAt() >= messageDateThreshold ){
+        const isCurrentConversation = conversation instanceof Conversation && messageConversation.getID() === conversation.getID();
+        if ( isCurrentConversation && message.getCreatedAt() >= messageDateThreshold && this.#messageListRef.current !== null ){
             const isScrolledToBottom = DOMUtils.isScrolledToBottom(this.#messageListRef.current, 100);
             const isMyMessage = message.getUser().getID() === App.getAuthenticatedUser().getID();
             const isSyncProcessRunning = MessageSyncManager.getInstance().isSyncProcessRunning();
@@ -296,14 +296,12 @@ class ConversationViewer extends React.Component {
     }
 
     componentDidMount(){
-        Event.getBroker().on('localDataCleared', () => {
-            this.setState((prev) => ({ ...prev, loading: true }), () => this.#resetListContent());
-        });
+        Event.getBroker().on('localDataCleared', () => this.setState((prev) => ({ ...prev, loading: true }), () => this.#resetListContent()));
+        Event.getBroker().on('messageAdded', (message) => this.#addMessage(message));
         Event.getBroker().on('messageDelete', (messageID) => {
             this.state.messageList.delete(messageID);
             this.forceUpdate();
         });
-        Event.getBroker().on('messageAdded', (message) => this.#addMessage(message));
         Event.getBroker().on('conversationHeadReady', (conversationID) => {
             if ( this.state.conversation?.getID() === conversationID ){
                 this.#loadConversationMessages(null, 'conversation-head-load').catch((ex) => console.error(ex));
@@ -325,7 +323,7 @@ class ConversationViewer extends React.Component {
                     <div>
                         <ConversationViewerHeader conversation={this.state.conversation} user={this.state.user} onConversationClose={this._handleConversationClose} onConversationAction={this._handleConversationAction} />
                     </div>
-                    <div className={styles.content + ' conversation-viewer-message-list-hook'} ref={this.#messageListRef}>
+                    <div className={styles.content + ' disable-user-selection conversation-viewer-message-list-hook'} ref={this.#messageListRef}>
                         {this.#renderMessageLoader()}
                         {this.#renderMessageList()}
                         <div className={styles.scrollDownButton + ' text-primary'} onClick={() => this.#scrollListToBottom(true)} ref={this.#scrollDownButtonRef}>

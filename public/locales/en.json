@@ -18,6 +18,8 @@
     "authView.accountAnswer": "Log in!",
     "authView.accountRecoverQuestion": "Did you forget your password?",
     "authView.accountRecoverAnswer": "Recover your account!",
+    "authView.passwordRememberedQuestion": "Did you remembered your password?",
+    "authView.passwordRememberedAnswer": "Log in!",
     "loginForm.label.rememberMe": "Remember me on this device",
     "loginForm.label.username": "Username",
     "loginForm.label.password": "Password",
@@ -216,5 +218,9 @@
     "profilePictureEditor.title.retry": "Retry profile picture upload.",
     "profilePictureEditor.label.pick": "Pick a new picture",
     "profilePictureEditor.label.remove": "Remove picture",
-    "dropZone.dropZoneLabel": "Drop files here to send them."
+    "dropZone.dropZoneLabel": "Drop files here to send them.",
+    "linkPreview.loadingLabel": "Fetching link preview...",
+    "linkPreview.errorLabel": "Unable to fetch link preview",
+    "linkPreview.errorButtonLabel": "Retry",
+    "connectionStatusIndicator.label": "Connection lost, reconnecting..."
 }

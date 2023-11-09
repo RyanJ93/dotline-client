@@ -39,15 +39,20 @@ class UserProfilePictureService extends Service {
     async #fetchProfilePicture(userID, profilePictureID, forceRefresh){
         let remoteAsset = forceRefresh === true ? null : this.#userProfilePictureRepository.getProfilePicture(userID);
         if ( remoteAsset === null || remoteAsset.getStatus() === RemoteAssetStatus.ERROR ){
-            // Generate a remote asset object to mark this user's profile picture as under loading.
-            const remoteAsset = new RemoteAsset({ status: RemoteAssetStatus.LOADING, url: null });
             const url = APIEndpoints.USER_PROFILE_PICTURE_GET.replace(':profilePictureID', profilePictureID);
+            // Generate a remote asset object to mark this user's profile picture as under loading.
+            remoteAsset = new RemoteAsset({ status: RemoteAssetStatus.LOADING, url: null });
             this.#userProfilePictureRepository.storeProfilePicture(userID, remoteAsset);
-            // Download this user's profile picture as a Blob object and generate a URL out of it.
-            const profilePictureBlob = await Request.download(url.replace(':userID', userID));
-            const pfpURL = profilePictureBlob.size > 0 ? URL.createObjectURL(profilePictureBlob) : null;
-            // Mark this profile picture as loaded and register corresponding URL.
-            remoteAsset.setStatus(RemoteAssetStatus.FETCHED).setURL(pfpURL);
+            try{
+                // Download this user's profile picture as a Blob object and generate a URL out of it.
+                const profilePictureBlob = await Request.download(url.replace(':userID', userID));
+                const pfpURL = profilePictureBlob.size > 0 ? URL.createObjectURL(profilePictureBlob) : null;
+                // Mark this profile picture as loaded and register corresponding URL.
+                remoteAsset.setStatus(RemoteAssetStatus.FETCHED).setURL(pfpURL);
+            }catch(ex){
+                remoteAsset.setStatus(RemoteAssetStatus.ERROR);
+                throw ex;
+            }
         }else if ( remoteAsset?.getStatus() === RemoteAssetStatus.LOADING ){
             // This user's profile picture is being loaded, wait for a while and, if not loaded, retry.
             remoteAsset = await this.#userProfilePictureRepository.waitForProfilePicture(userID);

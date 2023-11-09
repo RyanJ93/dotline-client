@@ -55,7 +55,7 @@ class LocationMessageContent extends MessageContent {
                         <button className={'button-min danger'} onClick={this._handleRetryClick}>{t('locationMessageContent.retryButtonLabel')}</button>
                     </div>
                 </div>
-                <div className={styles.contentWrapper} data-show={this.state.mapStatus === 'loaded'}>
+                <div className={styles.contentWrapper + ' long-touch-event-disabled'} data-show={this.state.mapStatus === 'loaded'}>
                     <div className={styles.mapContainer} ref={this.#mapContainerRef} />
                 </div>
             </div>

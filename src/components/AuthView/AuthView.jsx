@@ -4,6 +4,7 @@ import DuplicatedUsernameException from '../../exceptions/DuplicatedUsernameExce
 import IllustratedProgressBar from '../IllustratedProgressBar/IllustratedProgressBar';
 import UnauthorizedException from '../../exceptions/UnauthorizedException';
 import InvalidInputException from '../../exceptions/InvalidInputException';
+import AccountRecoverForm from '../AccountRecoverForm/AccountRecoverForm';
 import ConversationService from '../../services/ConversationService';
 import NotFoundException from '../../exceptions/NotFoundException';
 import UserService from '../../services/UserService';
@@ -14,7 +15,6 @@ import LoginForm from '../LoginForm/LoginForm';
 import Footer from '../Footer/Footer';
 import styles from './AuthView.scss';
 import React from 'react';
-import AccountRecoverForm from '../AccountRecoverForm/AccountRecoverForm';
 
 class AuthView extends React.Component {
     #illustratedProgressBar = React.createRef();
@@ -128,6 +128,9 @@ class AuthView extends React.Component {
                 </div>
                 <div className={styles.formWrapper} data-active={this.state.action === 'recover'}>
                     <AccountRecoverForm onAccountRecovered={this._handleAccountRecovered} />
+                    <div className={styles.bottomText}>
+                        <p className={styles.question}>{t('authView.passwordRememberedQuestion')} <a className={'link-primary'} href={'#'} onClick={this._handleLoginClick}>{t('authView.passwordRememberedAnswer')}</a></p>
+                    </div>
                 </div>
                 <div className={styles.formWrapper} data-active={this.state.action === 'signup'}>
                     <SignupForm onSubmit={this._handleSignupSubmit} ref={this.#signupForm} />

@@ -18,6 +18,8 @@
     "authView.accountAnswer": "Accedi!",
     "authView.accountRecoverQuestion": "Hai dimenticato la tua password?",
     "authView.accountRecoverAnswer": "Recupera il tuo account!",
+    "authView.passwordRememberedQuestion": "Ti sei ricordato la password?",
+    "authView.passwordRememberedAnswer": "Accedi!",
     "loginForm.label.rememberMe": "Ricordami su questo dispositivo",
     "loginForm.label.username": "Username",
     "loginForm.label.password": "Password",
@@ -216,5 +218,9 @@
     "profilePictureEditor.title.retry": "Ritenta il caricamento della foto profilo",
     "profilePictureEditor.label.pick": "Seleziona una foto",
     "profilePictureEditor.label.remove": "Rimuovi foto",
-    "dropZone.dropZoneLabel": "Rilascia qui i file per inviarli"
+    "dropZone.dropZoneLabel": "Rilascia qui i file per inviarli",
+    "linkPreview.loadingLabel": "Recupero dell'anteprima del link...",
+    "linkPreview.errorLabel": "Impossibile recuperare l'anteprima del link",
+    "linkPreview.errorButtonLabel": "Riprova",
+    "connectionStatusIndicator.label": "Connessione persa, riconnessione..."
 }

@@ -2,6 +2,21 @@
 
 import IllegalArgumentException from '../exceptions/IllegalArgumentException';
 
+/**
+ * @typedef URLTokenizationResult
+ *
+ * @property {URLTokenizationEntry[]} tokenList
+ * @property {string} originalString
+ * @property {string[]} URLList
+ */
+
+/**
+ * @typedef URLTokenizationEntry
+ *
+ * @property {string} content
+ * @property {string} type
+ */
+
 class StringUtils {
     /**
      * Returns a string representation of a given size in bytes.
@@ -50,7 +65,7 @@ class StringUtils {
         if ( typeof username !== 'string' ){
             throw new IllegalArgumentException('Invalid username.');
         }
-        return username !== '' && /[a-z0-9.-_]{3,16}/i.test(username);
+        return username !== '' && /^[a-z0-9.\-_]{3,16}$/i.test(username);
     }
 
     /**
@@ -75,6 +90,36 @@ class StringUtils {
         }
         const initials = fullName.split(/\s/).filter((word) => word).map((word) => word.charAt(0));
         return initials.slice(0, 2).join('').toUpperCase();
+    }
+
+    /**
+     * Processes a given string in order to separate texts and URLs.
+     *
+     * @param {string} string
+     *
+     * @returns {URLTokenizationResult}
+     *
+     * @throws {IllegalArgumentException} If an invalid string is given.
+     */
+    static tokenizeURLsInString(string){
+        if ( typeof string !== 'string' ){
+            throw new IllegalArgumentException('Invalid string.');
+        }
+        const regex = /(http|https):\/\/([\w_-]+(?:\.[\w_-]+)+)([\w.,@?^=%&:/~+#-\[\]]*[\w@?^=%&/~+#-])/g;
+        let tokenList = [], URLList = [], match = null, index = 0;
+        if ( string.length > 0 ){
+            while ( ( match = regex.exec(string) ) !== null ){
+                tokenList.push({ type: 'text', content: string.substring(index, match.index) });
+                const url = string.substring(match.index, match.index + match[0].length);
+                tokenList.push({ type: 'url', content: url });
+                index = match.index + match[0].length;
+                URLList.push(url);
+            }
+            if ( index < string.length ){
+                tokenList.push({ type: 'text', content: string.substring(index) });
+            }
+        }
+        return { originalString: string, tokenList: tokenList, URLList: URLList };
     }
 }
 

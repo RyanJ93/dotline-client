@@ -5,6 +5,7 @@ import InputTooLongException from '../../../exceptions/InputTooLongException';
 import SubmitButton from '../../SubmitButton/SubmitButton';
 import UserService from '../../../services/UserService';
 import styles from './BasicInfoSettingsSection.scss';
+import StringUtils from '../../../utils/StringUtils';
 import TextField from '../../TextField/TextField';
 import { withTranslation } from 'react-i18next';
 import Event from '../../../facades/Event';
@@ -17,8 +18,9 @@ class BasicInfoSettingsSection extends React.Component {
     #nameInputRef = React.createRef();
 
     #isFormValid(){
+        const username = this.#usernameInputRef.current.getValue();
         this.#usernameInputRef.current.setErrorMessage(null);
-        if ( this.#usernameInputRef.current.getValue() === '' ){
+        if ( username === '' || !StringUtils.isValidUsername(username) ){
             this.#usernameInputRef.current.setErrorMessage(this.props.t('basicInfoSettingsSection.invalidUsername'));
             return false;
         }

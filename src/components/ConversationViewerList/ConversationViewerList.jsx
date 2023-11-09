@@ -73,6 +73,7 @@ class ConversationViewerList extends React.Component {
     }
 
     componentDidMount(){
+        Event.getBroker().on('localDataCleared', () => this.empty());
         Event.getBroker().on('conversationDelete', (conversationID) => {
             if ( this.state.conversationList.has(conversationID) ){
                 this.state.conversationList.delete(conversationID);
@@ -120,6 +121,17 @@ class ConversationViewerList extends React.Component {
 
     getSelectedConversationID(){
         return this.state.selectedConversationID;
+    }
+
+    empty(){
+        this.setState((prev) => ({
+            ...prev,
+            selectedConversationID: null,
+            conversationList: new Map(),
+            conversationDraft : null,
+            goto: null
+        }), () => this.forceUpdate());
+        return this;
     }
 
     render(){

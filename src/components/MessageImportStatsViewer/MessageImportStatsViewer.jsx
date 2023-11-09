@@ -26,15 +26,11 @@ class MessageImportStatsViewer extends React.Component {
     }
 
     componentDidMount(){
-        Event.getBroker().on('messageSyncProgress', (messageSyncStats) => {
-            this.setState((prev) => {
-                return { ...prev, messageSyncStats: messageSyncStats, importing: true };
-            });
+        Event.getBroker().on('messageSyncStart', (messageSyncStats) => {
+            this.setState((prev) => ({ ...prev, messageSyncStats: messageSyncStats, importing: true }));
         });
         Event.getBroker().on('messageSyncEnd', () => {
-            this.setState((prev) => {
-                return { ...prev, importing: false, messageSyncStats: null };
-            });
+            this.setState((prev) => ({ ...prev, messageSyncStats: null, importing: false }));
         });
     }
 

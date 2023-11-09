@@ -1,0 +1,55 @@
+div.linkPreview {
+	box-sizing: border-box;
+	border-radius: 3px;
+	text-align: left;
+	margin-top: 18px;
+	padding: 12px;
+	width: 100%;
+
+	&[data-display="false"]{
+		display: none;
+	}
+
+	a.link {
+		text-decoration: none;
+		cursor: pointer;
+		border: none;
+
+		p.title {
+			margin: 0;
+		}
+
+		p.description {
+			font-size: 14px;
+			margin-top: 3px;
+		}
+
+		img.image {
+			object-fit: contain;
+			border-radius: 3px;
+			max-height: 200px;
+			margin-top: 12px;
+			width: 100%;
+		}
+	}
+
+	p.loadingLabel {
+		text-align: center;
+		font-style: italic;
+		font-size: 14px;
+	}
+
+	div.errorMessage {
+		text-align: center;
+
+		p.errorLabel {
+			font-style: italic;
+			font-size: 14px;
+			margin: 0;
+		}
+
+		button {
+			margin-top: 6px;
+		}
+	}
+}
