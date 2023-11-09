@@ -34,6 +34,20 @@ class MessageSyncStats {
     #conversationCounters;
 
     /**
+     * Recomputes total processed message count.
+     */
+    #recomputeTotalProcessedMessageCount(){
+        let totalProcessedMessageCount = 0, totalMessageCommitCount = 0;
+        for ( const conversationID in this.#conversationCounters ){
+            const { total, imported } = this.#conversationCounters[conversationID];
+            totalProcessedMessageCount += imported;
+            totalMessageCommitCount += total;
+        }
+        this.#totalProcessedMessageCount = totalProcessedMessageCount;
+        this.#totalMessageCommitCount = totalMessageCommitCount;
+    }
+
+    /**
      * The class constructor.
      *
      * @param {MessageSyncStatsProperties} properties
@@ -42,26 +56,6 @@ class MessageSyncStats {
         this.#totalProcessedMessageCount = properties.totalProcessedMessageCount;
         this.#totalMessageCommitCount = properties.totalMessageCommitCount;
         this.#conversationCounters = properties.conversationCounters;
-    }
-
-    /**
-     * Increments total processed message counter.
-     *
-     * @param {number} processedMessageCount
-     *
-     * @returns {MessageSyncStats}
-     *
-     * @throws {IllegalArgumentException} If an invalid increment amount is given.
-     */
-    incrementTotalProcessedMessageCount(processedMessageCount){
-        if ( processedMessageCount === null || isNaN(processedMessageCount) ){
-            throw new IllegalArgumentException('Invalid increment amount.');
-        }
-        this.#totalProcessedMessageCount += processedMessageCount;
-        if ( this.#totalProcessedMessageCount > this.#totalMessageCommitCount ){
-            this.#totalProcessedMessageCount = this.#totalMessageCommitCount;
-        }
-        return this;
     }
 
     /**
@@ -84,8 +78,30 @@ class MessageSyncStats {
         }
         this.#conversationCounters[conversationID].imported += increment;
         const { total, imported } = this.#conversationCounters[conversationID];
-        if ( total > imported ){
-            this.#conversationCounters[conversationID].imported = total;
+        this.#totalProcessedMessageCount += increment;
+        if ( total < imported ){
+            this.#conversationCounters[conversationID].total = imported;
+            this.#recomputeTotalProcessedMessageCount();
+        }
+        return this;
+    }
+
+    /**
+     * Fulfills a message counter for a given conversation ID.
+     *
+     * @param {string} conversationID
+     *
+     * @returns {MessageSyncStats}
+     *
+     * @throws {IllegalArgumentException} If an invalid conversation ID is given.
+     */
+    fullFillConversationCounter(conversationID){
+        if ( conversationID === '' || typeof conversationID !== 'string' ){
+            throw new IllegalArgumentException('Invalid conversation ID.');
+        }
+        if ( typeof this.#conversationCounters[conversationID] !== 'undefined' ){
+            const { total, imported } = this.#conversationCounters[conversationID];
+            this.incrementConversationCounter(conversationID, total - imported);
         }
         return this;
     }
