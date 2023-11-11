@@ -151,13 +151,19 @@ class WebSocketClient extends Injectable {
     /**
      * Connects the WebSocket server.
      *
+     * @param {boolean} [forceReconnection=false]
+     *
      * @returns {WebSocketClient}
      */
-    connect(){
-        this.#webSocket = new WebSocket('wss://' + location.hostname + '/ws');
-        this.#webSocket.addEventListener('message', this.#handleMessageReceived.bind(this));
-        this.#webSocket.addEventListener('close', this.#handleConnectionClose.bind(this));
-        this.#webSocket.addEventListener('open', this.#handleConnectionOpen.bind(this));
+    connect(forceReconnection = false){
+        if ( this.#webSocket === null ){
+            this.#webSocket = new WebSocket('wss://' + location.hostname + '/ws');
+            this.#webSocket.addEventListener('message', this.#handleMessageReceived.bind(this));
+            this.#webSocket.addEventListener('close', this.#handleConnectionClose.bind(this));
+            this.#webSocket.addEventListener('open', this.#handleConnectionOpen.bind(this));
+        }else if ( forceReconnection === true ){
+            return this.disconnect().connect(false);
+        }
         this.#isClientClosed = false;
         return this;
     }

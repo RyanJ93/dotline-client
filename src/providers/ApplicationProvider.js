@@ -1,5 +1,6 @@
 'use strict';
 
+import PageVisibilityWatcher from '../support/PageVisibilityWatcher';
 import NotificationService from '../services/NotificationService';
 import { connect } from 'extendable-media-recorder-wav-encoder';
 import { register } from 'extendable-media-recorder';
@@ -13,6 +14,7 @@ class ApplicationProvider extends Provider {
     async run(){
         await Promise.all([new NotificationService().initialize(), Maps.init()]);
         const root = createRoot(document.getElementById('root'));
+        PageVisibilityWatcher.getInstance().initialize();
         await register(await connect());
         root.render((
             <React.StrictMode>
