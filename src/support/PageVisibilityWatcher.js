@@ -1,6 +1,6 @@
 'use strict';
 
-import MessageSyncManager from './MessageSyncManager';
+import Injector from '../facades/Injector';
 
 class PageVisibilityWatcher {
     /**
@@ -23,25 +23,30 @@ class PageVisibilityWatcher {
     /**
      * @type {boolean}
      */
-    #needsToBeSynchronized = false;
+    #initialized = false;
 
     /**
-     * @type {boolean}
+     * @type {WebSocketClient}
      */
-    #initialized = false;
+    #webSocketClient;
 
     /**
      * Sets up event listeners.
      */
     #setupEventListener(){
         window.addEventListener('visibilitychange', () => {
-            if ( document.visibilityState === 'hidden' && !this.#needsToBeSynchronized  ){
-                this.#needsToBeSynchronized = true;
-            }else if ( document.visibilityState === 'visible' && this.#needsToBeSynchronized ){
-                MessageSyncManager.getInstance().initMessageSync();
-                this.#needsToBeSynchronized = false;
+            if ( document.visibilityState === 'visible' && !this.#webSocketClient.isClientReady() ){
+                console.log('Forcing WebSocket reconnection...');
+                this.#webSocketClient.connect(true);
             }
         });
+    }
+
+    /**
+     * The class constructor.
+     */
+    constructor(){
+        this.#webSocketClient = Injector.inject('WebSocketClient');
     }
 
     /**
