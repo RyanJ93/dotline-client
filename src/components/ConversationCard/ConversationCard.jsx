@@ -14,9 +14,9 @@ class ConversationCard extends React.Component {
     #userTypingMessageTimeoutID = null;
     #dateLabelRef = React.createRef();
 
-    #setLastMessage(message){
+    #setLastMessage(message, force = false){
         if ( message !== null && message.getConversation().getID() === this.props.conversation?.getID() ){
-            if ( this.state.lastMessage === null || this.state.lastMessage.getCreatedAt() < message.getCreatedAt() ){
+            if ( force === true || this.state.lastMessage === null || this.state.lastMessage.getCreatedAt() < message.getCreatedAt() ){
                 this.setState((prev) => ({ ...prev, lastMessage: message }));
                 this.#dateLabelRef.current?.setDate(message.getCreatedAt());
                 if ( typeof this.props.onLastMessageChange === 'function' ){
@@ -30,6 +30,18 @@ class ConversationCard extends React.Component {
         new MessageService(this.props.conversation).getUnreadMessageCount().then((unreadMessageCount) => {
             unreadMessageCount = unreadMessageCount >= 1000 ? '999+' : unreadMessageCount.toString();
             this.setState((prev) => ({ ...prev, unreadMessageCount: unreadMessageCount }));
+        });
+    }
+
+    #refreshLastMessage(){
+        new MessageService(this.props.conversation).getNewestMessage().then((message) => {
+            if ( message === null ){
+                this.setState((prev) => ({ ...prev, lastMessage: message, unreadMessageCount: 0 }));
+                this.#dateLabelRef.current?.setDate(null);
+            }else{
+                this.#setLastMessage(message, true);
+                this.#refreshUnreadMessageCount();
+            }
         });
     }
 
@@ -65,29 +77,45 @@ class ConversationCard extends React.Component {
         }
     }
 
+    _handleMessageEdit(message){
+        this.#refreshUnreadMessageCount();
+        if ( message.getID() === this.state.lastMessage?.getID() ){
+            this.setState((prev) => ({...prev, lastMessage: message }), () => {
+                this.forceUpdate();
+            });
+        }
+    }
+
+    _handleMessageDelete(messageID){
+        if ( messageID === this.state.lastMessage?.getID() ){
+            this.#refreshLastMessage();
+        }
+    }
+
+    _handleMessageAdded(message){
+        this.#refreshUnreadMessageCount();
+        this.#setLastMessage(message);
+    }
+
     constructor(props){
         super(props);
 
         this.state = { lastMessage: null, userTypingMessage: null, unreadMessageCount: 0 };
+        this._handleMessageDelete = this._handleMessageDelete.bind(this);
+        this._handleMessageAdded = this._handleMessageAdded.bind(this);
+        this._handleMessageEdit = this._handleMessageEdit.bind(this);
         this._handleUserTyping = this._handleUserTyping.bind(this);
     }
 
     componentDidMount(){
-        Event.getBroker().on('conversationHeadReady', () => {
-            new MessageService(this.props.conversation).getNewestMessage().then((message) => this.#setLastMessage(message));
-        });
         Event.getBroker().on('localDataCleared', () => this.setState((prev) => ({ ...prev, lastMessage: null, unreadMessageCount: 0 })));
+        Event.getBroker().on('messageDelete', (messageID) => this._handleMessageDelete(messageID));
+        Event.getBroker().on('messageAdded', (message) => this._handleMessageAdded(message));
+        Event.getBroker().on('messageEdit', (message) => this._handleMessageEdit(message));
         Event.getBroker().on('messageSyncEnd', () => this.#refreshUnreadMessageCount());
-        Event.getBroker().on('messageEdit', () => this.#refreshUnreadMessageCount());
+        Event.getBroker().on('conversationHeadReady', () => this.#refreshLastMessage());
         Event.getBroker().on('userTyping', this._handleUserTyping);
-        Event.getBroker().on('messageAdded', (message) => {
-            this.#refreshUnreadMessageCount();
-            this.#setLastMessage(message);
-        });
-        new MessageService(this.props.conversation).getNewestMessage().then((message) => {
-            this.#refreshUnreadMessageCount();
-            this.#setLastMessage(message);
-        });
+        this.#refreshLastMessage();
     }
 
     render(){

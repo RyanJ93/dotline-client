@@ -36,18 +36,8 @@ class LinkPreview extends React.Component {
         );
     }
 
-    async #fetchLinkOGProperties(){
-        try{
-            const OGProperties = await new LinkService().fetchLinkOGProperties(this.state.url);
-            this.setState((prev) => ({ ...prev, OGProperties: OGProperties, status: 'fetched' }));
-        }catch(ex){
-            this.setState((prev) => ({ ...prev, OGProperties: null, status: 'error' }));
-            console.error(ex);
-        }
-    }
-
     _handleRetryClick(){
-        this.#fetchLinkOGProperties().catch((ex) => console.error(ex));
+        this.refreshPreview().catch((ex) => console.error(ex));
     }
 
     constructor(props){
@@ -57,8 +47,27 @@ class LinkPreview extends React.Component {
         this._handleRetryClick = this._handleRetryClick.bind(this);
     }
 
+    componentDidUpdate(){
+        if ( this.props.url !== this.state.url ){
+            this.setState((prev) => ({ ...prev, url: this.props.url }), () => {
+                this.refreshPreview().catch((ex) => console.error(ex));
+            });
+        }
+    }
+
     componentDidMount(){
-        this.#fetchLinkOGProperties().catch((ex) => console.error(ex));
+        this.refreshPreview().catch((ex) => console.error(ex));
+    }
+
+    async refreshPreview(){
+        try{
+            this.setState((prev) => ({ ...prev, OGProperties: null, status: 'loading' }));
+            const OGProperties = await new LinkService().fetchLinkOGProperties(this.state.url);
+            this.setState((prev) => ({ ...prev, OGProperties: OGProperties, status: 'fetched' }));
+        }catch(ex){
+            this.setState((prev) => ({ ...prev, OGProperties: null, status: 'error' }));
+            console.error(ex);
+        }
     }
 
     render(){

@@ -20,7 +20,7 @@ class Footer extends React.Component {
                         <div className={styles.localePickerContainer}>
                             <LocalePicker />
                         </div>
-                        <p className={styles.credits}>{t('footer.credits')}<a href={'https://www.enricosola.dev'} className={'link-primary'}>Enrico Sola</a></p>
+                        <p className={styles.credits}>{t('footer.credits')}<a href={'https://www.enricosola.dev'} className={'link-primary'} target={'_blank'} rel={'noreferrer'}>Enrico Sola</a></p>
                     </div>
                 </div>
             </footer>

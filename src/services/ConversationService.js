@@ -330,7 +330,7 @@ class ConversationService extends Service {
     }
 
     /**
-     * Deletes a conversation given its ID.
+     * Deletes a conversation given its ID from local storage.
      *
      * @param {string} conversationID
      *

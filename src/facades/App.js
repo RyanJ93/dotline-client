@@ -40,10 +40,14 @@ class App extends Facade {
         await new UserService().loadAuthenticatedUserRSAKeys();
     }
 
+    /**
+     * Checks if a user is authenticated or not.
+     *
+     * @returns {boolean}
+     */
     static isUserAuthenticated(){
-        const userService = new UserService();
+        const userService = new UserService(), accessToken = userService.getAccessToken();
         const authenticatedUserRSAKeys = userService.getAuthenticatedUserRSAKeys();
-        const accessToken = userService.getAccessToken();
         return authenticatedUserRSAKeys !== null && accessToken !== null;
     }
 }

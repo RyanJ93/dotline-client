@@ -1,6 +1,7 @@
 'use strict';
 
 import MessageSyncService from '../services/MessageSyncService';
+import App from '../facades/App';
 
 class MessageSyncManager {
     /**
@@ -54,7 +55,7 @@ class MessageSyncManager {
      * @returns {MessageSyncManager}
      */
     initMessageSync(callback = null){
-        if ( this.#isSyncProcessRunning === false ){
+        if ( this.#isSyncProcessRunning === false && App.isUserAuthenticated() ){
             this.#messageSyncService.initSync(() => {
                 this.#isSyncProcessRunning = false;
                 if ( typeof callback === 'function' ){

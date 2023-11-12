@@ -17,6 +17,7 @@ class MessageCard extends React.Component {
     #attachmentViewerRef = React.createRef();
     #contextMenuRef = React.createRef();
     #messageCardRef = React.createRef();
+    #linkPreviewRef = React.createRef();
     #longTouchTimeoutID = null;
     #parentMutationObserver;
 
@@ -117,26 +118,45 @@ class MessageCard extends React.Component {
         this.#longTouchTimeoutID = null;
     }
 
+    _handleMessageEdit(message){
+        if ( message.getID() === this.state.message.getID() ){
+            const URLTokenizationResult = StringUtils.tokenizeURLsInString(message.getContent());
+            const linkPreviewURL = URLTokenizationResult.URLList.length > 0 ? URLTokenizationResult.URLList[0] : null;
+            this.setState((prev) => ({
+                ...prev,
+                containsLinks: ( URLTokenizationResult.URLList.length > 0 ),
+                URLTokenizationResult: URLTokenizationResult,
+                linkPreviewURL: linkPreviewURL,
+                message: message
+            }));
+        }
+    }
+
     constructor(props){
         super(props);
 
-        this.state = { contextmenuEnabled: false, message: this.props.message, attachmentList: [] };
+        const URLTokenizationResult = StringUtils.tokenizeURLsInString(this.props.message.getContent());
         this._handleContextMenuOverlayClick = this._handleContextMenuOverlayClick.bind(this);
         this._handleContextMenuOpenerClick = this._handleContextMenuOpenerClick.bind(this);
         this._handleContextMenuActionClick = this._handleContextMenuActionClick.bind(this);
         this._handleAttachmentClick = this._handleAttachmentClick.bind(this);
+        this._handleMessageEdit = this._handleMessageEdit.bind(this);
         this._handleTouchStart = this._handleTouchStart.bind(this);
         this._handleTouchMove = this._handleTouchMove.bind(this);
         this._handleLongTouch = this._handleLongTouch.bind(this);
         this._handleTouchEnd = this._handleTouchEnd.bind(this);
+        this.state = {
+            linkPreviewURL: ( URLTokenizationResult.URLList[0] ?? null ),
+            containsLinks: ( URLTokenizationResult.URLList.length > 0 ),
+            URLTokenizationResult: URLTokenizationResult,
+            message: this.props.message,
+            contextmenuEnabled: false,
+            attachmentList: []
+        };
     }
 
     componentDidMount(){
-        Event.getBroker().on('messageEdit', (message) => {
-            if ( message.getID() === this.state.message.getID() ){
-                this.setState((prev) => ({ ...prev, message: message }));
-            }
-        });
+        Event.getBroker().on('messageEdit', (message) => this._handleMessageEdit(message));
         this.#setupParentMutationObserver();
     }
 
@@ -171,17 +191,16 @@ class MessageCard extends React.Component {
 
     render(){
         const authenticatedUserID = this.state.message.getUser()?.getID(), messageUserID = App.getAuthenticatedUser().getID();
-        const URLTokenizationResult = StringUtils.tokenizeURLsInString(this.state.message.getContent());
         const direction = messageUserID === authenticatedUserID ? 'sent' : 'received';
         const className = direction === 'sent' ? ' message-bubble-sent' : ' message-bubble-received';
         const showAttachmentViewer = this.state.message.getType() !== MessageType.VOICE_MESSAGE;
-        const containsLinks = URLTokenizationResult.URLList.length > 0;
+        const { containsLinks, URLTokenizationResult, linkPreviewURL } = this.state;
         return (
             <div className={styles.messageCard} data-direction={direction} data-message-id={this.state.message.getID()} ref={this.#messageCardRef} onTouchStart={this._handleTouchStart} onTouchMove={this._handleTouchMove} onTouchCancel={this._handleTouchEnd} onTouchEnd={this._handleTouchEnd}>
                 <div className={styles.wrapper + className + ' message-wrapper-hook'} data-without-background={this.#isWithoutBackground()} data-fixed-width={containsLinks}>
                     <MessageContentWrapper ref={this.#messageContentWrapperRef} message={this.state.message} URLTokenizationResult={URLTokenizationResult} />
                     { showAttachmentViewer && <AttachmentViewer ref={this.#attachmentViewerRef} message={this.state.message} onAttachmentClick={this._handleAttachmentClick} /> }
-                    { containsLinks > 0 && <LinkPreview url={URLTokenizationResult.URLList[0]} invertedBackgroundColor={direction === 'received'} /> }
+                    { containsLinks > 0 && <LinkPreview url={linkPreviewURL} ref={this.#linkPreviewRef} invertedBackgroundColor={direction === 'received'} /> }
                     <div className={styles.date}>{this.#renderEditedLabel()}{this.#getMessageTime()}</div>
                     { direction === 'sent' && this.#renderContextMenu() }
                 </div>

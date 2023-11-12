@@ -123,6 +123,7 @@
     "requirementsErrorView.clientError.text": "Your browser does not support all the required technologies. Please switch to a modern and up-to-date browser such as Google Chrome, Firefox or Safari.",
     "messageImportStatsViewer.progressMessage": "Imported [count] messages out of [total]...",
     "messageImportStatsViewer.title": "Importing messages...",
+    "messageImportStatsViewer.init": "Preparing import...",
     "messageContent.unsupportedType": "Unsupported message type",
     "messageCard.contextMenu.edit": " Edit",
     "messageCard.contextMenu.deleteLocal": " Delete (for me)",
