@@ -9,7 +9,7 @@ Most important DotLine features:
 - Supports text messages, attachments, geo positions, voice messages, and stickers (static and animated).
 - Discrete with a very low privacy footprint and access tracking for additional account security.
 
-![DitLine preview](./images/preview.png)
+![DotLine preview](./images/preview.png)
 
 Disclaimer: I made this as part of my graduation project, for that reason this piece of software is provided "as is" and without any sort of warranty or guarantee for future updates. <br />
 If you feel a little curious you can [try out DotLine here](https://dotline.enricosola.dev).

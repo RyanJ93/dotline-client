@@ -20,7 +20,7 @@ If you feel a little curious you can [try out DotLine here](https://dotline.enri
 
 ## How to use this image
 
-To run your own instance of the DotLine server issue the following command:
+To run your own instance of the DotLine client issue the following command:
 
 ````bash
 docker run -p 8080:80 -d --name dotline-client enricosola/dotline-client:latest
